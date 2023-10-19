@@ -456,7 +456,7 @@
 			"name": "04_OURO_REPORT/PESSOA_PAGAMENTO"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T14:47:32Z"
+		"lastPublishTime": "2023-10-19T15:10:43Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

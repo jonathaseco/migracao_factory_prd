@@ -361,7 +361,7 @@
 			"name": "KCOR/INCREMENTAL/ERMIN"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T14:47:26Z"
+		"lastPublishTime": "2023-10-19T15:10:49Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }
