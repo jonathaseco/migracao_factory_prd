@@ -281,7 +281,7 @@
 			"name": "KCOR/TUDO/EVIS"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T15:15:28Z"
+		"lastPublishTime": "2023-10-19T15:20:31Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

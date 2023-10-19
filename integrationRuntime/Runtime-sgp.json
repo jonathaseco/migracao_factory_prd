@@ -1,6 +1,12 @@
 {
 	"name": "Runtime-sgp",
 	"properties": {
-		"type": "SelfHosted"
+		"type": "SelfHosted",
+		"typeProperties": {
+			"linkedInfo": {
+				"resourceId": "/subscriptions/b5a9d3e3-9203-4a37-b799-586a326cdbf9/resourcegroups/RG-Analytics-BD/providers/Microsoft.DataFactory/factories/ecanalyticsdfdev/integrationruntimes/Runtime-sgp",
+				"authorizationType": "Rbac"
+			}
+		}
 	}
 }

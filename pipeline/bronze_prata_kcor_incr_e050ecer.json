@@ -287,7 +287,7 @@
 			"name": "KCOR/INCREMENTAL/E050ECER"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T15:15:36Z"
+		"lastPublishTime": "2023-10-19T15:20:39Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

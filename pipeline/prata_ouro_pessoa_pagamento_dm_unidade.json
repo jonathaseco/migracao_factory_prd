@@ -40,7 +40,7 @@
 			"name": "03_PRATA_OURO/PESSOA_PAGAMENTO"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T15:15:27Z"
+		"lastPublishTime": "2023-10-19T15:20:37Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

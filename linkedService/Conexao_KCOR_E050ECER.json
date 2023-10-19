@@ -7,7 +7,7 @@
 		"type": "SqlServer",
 		"typeProperties": {
 			"connectionString": "integrated security=False;data source=10.222.4.11;initial catalog=kcor;user id=s_analytics",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIzMWQ3ZDVkMy1jNWQ3LTQ3MDEtODc0Mi03ODBiY2RlNzIxNjgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI3NDYwNmUxZS1kNjUxLTQxZjMtYTc0ZC1kNzBhMTM3ZmEyODgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "Runtime-sgp",
