@@ -881,7 +881,7 @@
 			"name": "SGR/EVIS"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T15:10:34Z"
+		"lastPublishTime": "2023-10-19T15:15:36Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

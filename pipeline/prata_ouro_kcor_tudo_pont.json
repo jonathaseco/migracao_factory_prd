@@ -281,7 +281,7 @@
 			"name": "KCOR/TUDO/PONT"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T15:10:50Z"
+		"lastPublishTime": "2023-10-19T15:15:22Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }
