@@ -1,0 +1,1363 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "ecanalyticsdfprd"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/prata_ouro_tollpackbi_diario')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Execução de notebooks no Databricks para processamento das tabelas diárias da camada prata para ouro.",
+				"activities": [
+					{
+						"name": "prata_ouro_fact_extrato_operacional",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.FACT_EXTRATO_OPERACIONAL",
+							"baseParameters": {
+								"read_mode_fact_extrato_operacional": "delta",
+								"input_name_fact_extrato_operacional": "dbo.FACT_EXTRATO_OPERACIONAL",
+								"input_path_fact_extrato_operacional": "camada_prata/tollpackbi/dbo.FACT_EXTRATO_OPERACIONAL/diaria/",
+								"input_options_fact_extrato_operacional": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.FACT_EXTRATO_OPERACIONAL/diaria/",
+								"output_name": "dbo_fact_extrato_operacional",
+								"output_options": "{}",
+								"output_keys": " ",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "TOLLPACKBI/DIARIA"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:50Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/prata_ouro_tollpackbi_incr')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Execução de notebooks no Databricks para processamento das tabelas da camada prata para ouro.",
+				"activities": [
+					{
+						"name": "prata_ouro_fact_extrato_trafego",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.FACT_EXTRATO_TRAFEGO",
+							"baseParameters": {
+								"read_mode_fact_extrato_trafego": "delta",
+								"input_name_fact_extrato_trafego": "dbo.FACT_EXTRATO_TRAFEGO",
+								"input_path_fact_extrato_trafego": "camada_prata/tollpackbi/dbo.FACT_EXTRATO_TRAFEGO/incremental/",
+								"input_options_fact_extrato_trafego": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.FACT_EXTRATO_TRAFEGO/incremental/",
+								"output_name": "dbo_fact_extrato_trafego",
+								"output_options": "{}",
+								"output_keys": " ",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "TOLLPACKBI/INCREMENTAL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/prata_ouro_tollpackbi_semanal')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Execução de notebooks no Databricks para processamento das tabelas semanais da camada prata para ouro.",
+				"activities": [
+					{
+						"name": "prata_ouro_dim_categoria",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_CATEGORIA",
+							"baseParameters": {
+								"read_mode_dim_categoria": "delta",
+								"input_name_dim_categoria": "dbo.DIM_CATEGORIA",
+								"input_path_dim_categoria": "camada_prata/tollpackbi/dbo.DIM_CATEGORIA/semanal/",
+								"input_options_dim_categoria": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_CATEGORIA/semanal/",
+								"output_name": "dbo_dim_categoria",
+								"output_options": "{}",
+								"output_keys": "CD_CATEG",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "prata_ouro_dim_classificao_desconto",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "prata_ouro_dim_categoria",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_CLASSIFICAO_DESCONTO",
+							"baseParameters": {
+								"read_mode_dim_classificao_desconto": "delta",
+								"input_name_dim_classificao_desconto": "dbo.DIM_CLASSIFICAO_DESCONTO",
+								"input_path_dim_classificao_desconto": "camada_prata/tollpackbi/dbo.DIM_CLASSIFICAO_DESCONTO/semanal/",
+								"input_options_dim_classificao_desconto": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_CLASSIFICAO_DESCONTO/semanal/",
+								"output_name": "dbo_dim_classificao_desconto",
+								"output_options": "{}",
+								"output_keys": "CD_CLASSIFICACAO_DESCONTO",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "prata_ouro_dim_concessao",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "prata_ouro_dim_classificao_desconto",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_CONCESSAO",
+							"baseParameters": {
+								"read_mode_dim_concessao": "delta",
+								"input_name_dim_concessao": "dbo.DIM_CONCESSAO",
+								"input_path_dim_concessao": "camada_prata/tollpackbi/dbo.DIM_CONCESSAO/semanal/",
+								"input_options_dim_concessao": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_CONCESSAO/semanal/",
+								"output_name": "dbo_dim_concessao",
+								"output_options": "{}",
+								"output_keys": "CD_CONCESSAO",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "prata_ouro_dim_operador",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "prata_ouro_dim_concessao",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_OPERADOR",
+							"baseParameters": {
+								"read_mode_dim_operador": "delta",
+								"input_name_dim_operador": "dbo.DIM_OPERADOR",
+								"input_path_dim_operador": "camada_prata/tollpackbi/dbo.DIM_OPERADOR/semanal/",
+								"input_options_dim_operador": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_OPERADOR/semanal/",
+								"output_name": "dbo_dim_operador",
+								"output_options": "{}",
+								"output_keys": "CD_OPERADOR_SISTEMA",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "prata_ouro_dim_pista",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "prata_ouro_dim_operador",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_PISTA",
+							"baseParameters": {
+								"read_mode_dim_pista": "delta",
+								"input_name_dim_pista": "dbo.DIM_PISTA",
+								"input_path_dim_pista": "camada_prata/tollpackbi/dbo.DIM_PISTA/semanal/",
+								"input_options_dim_pista": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_PISTA/semanal/",
+								"output_name": "dbo_dim_pista",
+								"output_options": "{}",
+								"output_keys": "CD_PISTA",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "prata_ouro_dim_praca",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "prata_ouro_dim_pista",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_PRACA",
+							"baseParameters": {
+								"read_mode_dim_praca": "delta",
+								"input_name_dim_praca": "dbo.DIM_PRACA",
+								"input_path_dim_praca": "camada_prata/tollpackbi/dbo.DIM_PRACA/semanal/",
+								"input_options_dim_praca": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_PRACA/semanal/",
+								"output_name": "dbo_dim_praca",
+								"output_options": "{}",
+								"output_keys": "CD_PRACA",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "prata_ouro_dim_sentido",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "prata_ouro_dim_praca",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_SENTIDO",
+							"baseParameters": {
+								"read_mode_dim_sentido": "delta",
+								"input_name_dim_sentido": "dbo.DIM_SENTIDO",
+								"input_path_dim_sentido": "camada_prata/tollpackbi/dbo.DIM_SENTIDO/semanal/",
+								"input_options_dim_sentido": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_SENTIDO/semanal/",
+								"output_name": "dbo_dim_sentido",
+								"output_options": "{}",
+								"output_keys": "CD_SENTIDO",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "prata_ouro_dim_tipo_pagto",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "prata_ouro_dim_sentido",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_TIPO_PAGTO",
+							"baseParameters": {
+								"read_mode_dim_tipo_pagto": "delta",
+								"input_name_dim_tipo_pagto": "dbo.DIM_TIPO_PAGTO",
+								"input_path_dim_tipo_pagto": "camada_prata/tollpackbi/dbo.DIM_TIPO_PAGTO/semanal/",
+								"input_options_dim_tipo_pagto": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_TIPO_PAGTO/semanal/",
+								"output_name": "dbo_dim_tipo_pagto",
+								"output_options": "{}",
+								"output_keys": "CD_TPO_PGTO",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "prata_ouro_dim_tipo_validacao",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "prata_ouro_dim_tipo_pagto",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_TIPO_VALIDACAO",
+							"baseParameters": {
+								"read_mode_dim_tipo_validacao": "delta",
+								"input_name_dim_tipo_validacao": "dbo.DIM_TIPO_VALIDACAO",
+								"input_path_dim_tipo_validacao": "camada_prata/tollpackbi/dbo.DIM_TIPO_VALIDACAO/semanal/",
+								"input_options_dim_tipo_validacao": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_TIPO_VALIDACAO/semanal/",
+								"output_name": "dbo_dim_tipo_validacao",
+								"output_options": "{}",
+								"output_keys": "CD_TIPO_VALIDACAO",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "TOLLPACKBI/SEMANAL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/prata_ouro_tollpackbi_tudo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Execução de notebooks no Databricks para processamento das tabelas da camada prata para ouro.",
+				"activities": [
+					{
+						"name": "prata_ouro_dim_operador",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_OPERADOR",
+							"baseParameters": {
+								"read_mode_dim_operador": "delta",
+								"input_name_dim_operador": "dbo.DIM_OPERADOR",
+								"input_path_dim_operador": "camada_prata/tollpackbi/dbo.DIM_OPERADOR/tudo/",
+								"input_options_dim_operador": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "camada_ouro/tollpackbi/dbo.DIM_OPERADOR/tudo/",
+								"output_name": "dbo_dim_operador",
+								"output_options": "{}",
+								"output_keys": " ",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "TOLLPACKBI/TUDO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:53Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeBinary')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "camada_bronze/sharepoint/carregadores_eletricos/processar",
+						"fileSystem": "ecsanalyticsfs"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorageJson')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"path": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().path",
+							"type": "Expression"
+						},
+						"fileSystem": "ecsanalyticsfs"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"commitInfo": {
+							"type": "object",
+							"properties": {
+								"timestamp": {
+									"type": "integer"
+								},
+								"userId": {
+									"type": "string"
+								},
+								"userName": {
+									"type": "string"
+								},
+								"operation": {
+									"type": "string"
+								},
+								"operationParameters": {
+									"type": "object",
+									"properties": {
+										"mode": {
+											"type": "string"
+										},
+										"partitionBy": {
+											"type": "string"
+										},
+										"predicate": {
+											"type": "string"
+										},
+										"matchedPredicates": {
+											"type": "string"
+										},
+										"notMatchedPredicates": {
+											"type": "string"
+										},
+										"notMatchedBySourcePredicates": {
+											"type": "string"
+										}
+									}
+								},
+								"notebook": {
+									"type": "object",
+									"properties": {
+										"notebookId": {
+											"type": "string"
+										}
+									}
+								},
+								"clusterId": {
+									"type": "string"
+								},
+								"isolationLevel": {
+									"type": "string"
+								},
+								"isBlindAppend": {
+									"type": "boolean"
+								},
+								"operationMetrics": {
+									"type": "object",
+									"properties": {
+										"numFiles": {
+											"type": "string"
+										},
+										"numOutputRows": {
+											"type": "string"
+										},
+										"numOutputBytes": {
+											"type": "string"
+										},
+										"numTargetRowsCopied": {
+											"type": "string"
+										},
+										"numTargetRowsDeleted": {
+											"type": "string"
+										},
+										"numTargetFilesAdded": {
+											"type": "string"
+										},
+										"numTargetBytesAdded": {
+											"type": "string"
+										},
+										"numTargetBytesRemoved": {
+											"type": "string"
+										},
+										"numTargetDeletionVectorsAdded": {
+											"type": "string"
+										},
+										"numTargetRowsMatchedUpdated": {
+											"type": "string"
+										},
+										"executionTimeMs": {
+											"type": "string"
+										},
+										"numTargetRowsInserted": {
+											"type": "string"
+										},
+										"numTargetRowsMatchedDeleted": {
+											"type": "string"
+										},
+										"scanTimeMs": {
+											"type": "string"
+										},
+										"numTargetRowsUpdated": {
+											"type": "string"
+										},
+										"numTargetDeletionVectorsRemoved": {
+											"type": "string"
+										},
+										"numTargetRowsNotMatchedBySourceUpdated": {
+											"type": "string"
+										},
+										"numTargetChangeFilesAdded": {
+											"type": "string"
+										},
+										"numSourceRows": {
+											"type": "string"
+										},
+										"numTargetFilesRemoved": {
+											"type": "string"
+										},
+										"numTargetRowsNotMatchedBySourceDeleted": {
+											"type": "string"
+										},
+										"rewriteTimeMs": {
+											"type": "string"
+										}
+									}
+								},
+								"engineInfo": {
+									"type": "string"
+								},
+								"txnId": {
+									"type": "string"
+								},
+								"readVersion": {
+									"type": "integer"
+								},
+								"job": {
+									"type": "object",
+									"properties": {
+										"jobId": {
+											"type": "string"
+										},
+										"jobName": {
+											"type": "string"
+										},
+										"runId": {
+											"type": "string"
+										},
+										"jobOwnerId": {
+											"type": "string"
+										},
+										"triggerType": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						},
+						"protocol": {
+							"type": "object",
+							"properties": {
+								"minReaderVersion": {
+									"type": "integer"
+								},
+								"minWriterVersion": {
+									"type": "integer"
+								}
+							}
+						},
+						"metaData": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string"
+								},
+								"format": {
+									"type": "object",
+									"properties": {
+										"provider": {
+											"type": "string"
+										},
+										"options": {
+											"type": "object"
+										}
+									}
+								},
+								"schemaString": {
+									"type": "string"
+								},
+								"partitionColumns": {
+									"type": "array"
+								},
+								"configuration": {
+									"type": "object",
+									"properties": {
+										"delta.columnMapping.mode": {
+											"type": "string"
+										},
+										"delta.columnMapping.maxColumnId": {
+											"type": "string"
+										}
+									}
+								},
+								"createdTime": {
+									"type": "integer"
+								}
+							}
+						},
+						"add": {
+							"type": "object",
+							"properties": {
+								"path": {
+									"type": "string"
+								},
+								"partitionValues": {
+									"type": "object"
+								},
+								"size": {
+									"type": "integer"
+								},
+								"modificationTime": {
+									"type": "integer"
+								},
+								"dataChange": {
+									"type": "boolean"
+								},
+								"stats": {
+									"type": "string"
+								},
+								"tags": {
+									"type": "object",
+									"properties": {
+										"INSERTION_TIME": {
+											"type": "string"
+										},
+										"MIN_INSERTION_TIME": {
+											"type": "string"
+										},
+										"MAX_INSERTION_TIME": {
+											"type": "string"
+										},
+										"OPTIMIZE_TARGET_SIZE": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CaminhoCamadaBronze')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"caminho": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().caminho",
+							"type": "Expression"
+						},
+						"fileSystem": "ecsanalyticsfs"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"path": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().path",
+							"type": "Expression"
+						},
+						"fileSystem": "ecsanalyticsfs"
+					},
+					"compressionCodec": "snappy",
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestHana')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "rest_hana",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"pbi": {
+						"type": "string"
+					},
+					"variable": {
+						"type": "string",
+						"defaultValue": "periodo"
+					},
+					"date": {
+						"type": "string"
+					},
+					"operator": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@concat(dataset().pbi,'?$filter=', dataset().variable, '%20', dataset().operator,'%20', '%27',dataset().date,'%27')",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestSapSFPWBI')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "rest_hana",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"pbi": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string"
+					},
+					"operator": {
+						"type": "string"
+					},
+					"variable": {
+						"type": "string",
+						"defaultValue": "periodo"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@concat(dataset().pbi,'?$filter=', dataset().variable, '%20', dataset().operator,'%20', '%27',dataset().date, '%27')",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestSapSFPWBI04')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "rest_sap_pwbi",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"date": {
+						"type": "string"
+					},
+					"pbi": {
+						"type": "string"
+					},
+					"operator": {
+						"type": "string"
+					},
+					"variable": {
+						"type": "string",
+						"defaultValue": "periodo"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@concat(dataset().pbi,'?$filter=', dataset().variable, '%20', dataset().operator,'%20', '%27',dataset().date, '%27','&%24format=json')",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestSapSfDelta')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "rest_sap_sf",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"table": {
+						"type": "string"
+					},
+					"operator": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string"
+					},
+					"filterVariable": {
+						"type": "string"
+					},
+					"format": {
+						"type": "string",
+						"defaultValue": "JSON"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@concat(dataset().table, '?$filter=', dataset().filterVariable, ' ', dataset().operator, ' ', dataset().date, '&$format=', dataset().format)",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestSapSfFULL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "rest_sap_sf",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"table": {
+						"type": "string"
+					},
+					"format": {
+						"type": "string",
+						"defaultValue": "JSON"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@concat(dataset().table,'?$format=', dataset().format)",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestSapSfPicklist')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "rest_sap_sf",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"picklist": {
+						"type": "string"
+					},
+					"format": {
+						"type": "string",
+						"defaultValue": "JSON"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@concat('Picklist?$format=JSON&$expand=picklistOptions,picklistOptions/picklistLabels&$select=picklistOptions/id,picklistOptions/externalCode,picklistOptions/picklistLabels/label&$filter=picklistId%20eq%20%27', dataset().picklist,'%27%20and%20picklistOptions/picklistLabels/locale%20eq%20%27pt_BR%27')",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SharepointBinary')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SharepointGrupoecorodovias",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"SharepointDominio": {
+						"type": "string"
+					},
+					"SharepointSite": {
+						"type": "string"
+					},
+					"CaminhoRelativo": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": {
+							"value": "@concat(dataset().SharepointSite,'/_api/web/GetFileByServerRelativeUrl(',dataset().SharepointSite,'/',dataset().CaminhoRelativo,')/$value')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlServerJuridico')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sql_server_sistema_juridico",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string",
+						"defaultValue": "dbo"
+					},
+					"table": {
+						"type": "string",
+						"defaultValue": "EMPRESA"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dlPath')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"caminho": {
+						"type": "string"
+					},
+					"arquivo": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().arquivo",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().caminho",
+							"type": "Expression"
+						},
+						"fileSystem": "ecsanalyticsfs"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/planilha_kcor_e050ecer')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Planilha de parâmetros",
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Planilha1",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "kcor_e050ecer.xlsx",
+						"folderPath": "camada_bronze/kcor/arquivo_parametro",
+						"fileSystem": "ecsanalyticsfs"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "tabela",
+						"type": "String"
+					},
+					{
+						"name": "campo",
+						"type": "String"
+					},
+					{
+						"name": "condicao",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/planilha_kcor_e101')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Planilha1",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "kcor_e101.xlsx",
+						"folderPath": "camada_bronze/kcor/arquivo_parametro",
+						"fileSystem": "ecsanalyticsfs"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "tabela",
+						"type": "String"
+					},
+					{
+						"name": "campo",
+						"type": "String"
+					},
+					{
+						"name": "condicao",
+						"type": "String"
+					},
+					{
+						"name": "tipo_tabela",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/planilha_kcor_e135')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Planilha1",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "kcor_e135.xlsx",
+						"folderPath": "camada_bronze/kcor/arquivo_parametro",
+						"fileSystem": "ecsanalyticsfs"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "tabela",
+						"type": "String"
+					},
+					{
+						"name": "campo",
+						"type": "String"
+					},
+					{
+						"name": "condicao",
+						"type": "String"
+					},
+					{
+						"name": "tipo_tabela",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		}
+	]
+}

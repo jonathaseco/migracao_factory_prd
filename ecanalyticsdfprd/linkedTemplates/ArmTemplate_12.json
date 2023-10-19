@@ -1,0 +1,5433 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "ecanalyticsdfprd"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_processo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoProcessoFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "PROCESSO"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/processo",
+												"arquivo": {
+													"value": "@concat('juridico_processo__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoProcessoIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.PROCESSO\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "PROCESSO"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/processo",
+												"arquivo": {
+													"value": "@concat('juridico_processo__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_processo_valores_pagamento_ass')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoProcessoValoresPagamentoFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "PROCESSO_VALORES_PAGAMENTO_ASS"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/processo_valores_pagamento_ass",
+												"arquivo": {
+													"value": "@concat('juridico_processo_valores_pagamento_ass__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoProcessoValoresPagamentoIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.PROCESSO_VALORES_PAGAMENTO_ASS\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "PROCESSO_VALORES_PAGAMENTO_ASS"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/processo_valores_pagamento_ass",
+												"arquivo": {
+													"value": "@concat('juridico_processo_valores_pagamento_ass__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_td_processo_resultado')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromJuridicoTdProcessoResultadoFull",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SqlServerJuridico",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": "dbo",
+									"table": "TD_PROCESSO_RESULTADO"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": "camada_bronze/juridico/td_processo_resultado",
+									"arquivo": {
+										"value": "@concat('juridico_td_processo_resultado__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_td_processo_status')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoTdProcessoStatusFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "TD_PROCESSO_STATUS"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/td_processo_status",
+												"arquivo": {
+													"value": "@concat('juridico_td_processo_status__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoTdProcessoStatusIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.TD_PROCESSO_STATUS\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "TD_PROCESSO_STATUS"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/td_processo_status",
+												"arquivo": {
+													"value": "@concat('juridico_td_processo_status__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_tipo_motivo_encerramento')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoTipoMotivoEncerramentoFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "TIPO_MOTIVO_ENCERRAMENTO"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/tipo_motivo_encerramento",
+												"arquivo": {
+													"value": "@concat('juridico_tipo_motivo_encerramento__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoTipoMotivoEncerramentoIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.TIPO_MOTIVO_ENCERRAMENTO\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "TIPO_MOTIVO_ENCERRAMENTO"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/tipo_motivo_encerramento",
+												"arquivo": {
+													"value": "@concat('juridico_tipo_motivo_encerramento__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_unidade')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoUnidadeFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "UNIDADE"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/unidade",
+												"arquivo": {
+													"value": "@concat('juridico_unidade__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoUnidadeIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.UNIDADE\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "UNIDADE"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/unidade",
+												"arquivo": {
+													"value": "@concat('juridico_unidade__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_empcompensation')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromEmpCompensation",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['seqNumber']"
+										},
+										"sink": {
+											"name": "seqNumber"
+										}
+									},
+									{
+										"source": {
+											"path": "[['userId']"
+										},
+										"sink": {
+											"name": "userId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['startDate']"
+										},
+										"sink": {
+											"name": "startDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['effectiveLatestChange']"
+										},
+										"sink": {
+											"name": "effectiveLatestChange"
+										}
+									},
+									{
+										"source": {
+											"path": "[['endDate']"
+										},
+										"sink": {
+											"name": "endDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['eventReason']"
+										},
+										"sink": {
+											"name": "eventReason"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['payGroup']"
+										},
+										"sink": {
+											"name": "payGroup"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString1']"
+										},
+										"sink": {
+											"name": "customString1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['event']"
+										},
+										"sink": {
+											"name": "event"
+										}
+									},
+									{
+										"source": {
+											"path": "$['d']['__next']"
+										},
+										"sink": {
+											"name": "__next"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "EmpCompensation",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/emp_compensation/",
+									"file": {
+										"value": "@concat('emp_compensation__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_empemployment')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromEmpEmployement",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['personIdExternal']"
+										},
+										"sink": {
+											"name": "personIdExternal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['userId']"
+										},
+										"sink": {
+											"name": "userId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['hiringNotCompleted']"
+										},
+										"sink": {
+											"name": "hiringNotCompleted"
+										}
+									},
+									{
+										"source": {
+											"path": "[['isECRecord']"
+										},
+										"sink": {
+											"name": "isECRecord"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['endDate']"
+										},
+										"sink": {
+											"name": "endDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['bonusPayExpirationDate']"
+										},
+										"sink": {
+											"name": "bonusPayExpirationDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['employmentId']"
+										},
+										"sink": {
+											"name": "employmentId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['isContingentWorker']"
+										},
+										"sink": {
+											"name": "isContingentWorker"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customLong10']"
+										},
+										"sink": {
+											"name": "customLong10",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['originalStartDate']"
+										},
+										"sink": {
+											"name": "originalStartDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['benefitsEndDate']"
+										},
+										"sink": {
+											"name": "benefitsEndDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['assignmentClass']"
+										},
+										"sink": {
+											"name": "assignmentClass"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['okToRehire']"
+										},
+										"sink": {
+											"name": "okToRehire",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['assignmentIdExternal']"
+										},
+										"sink": {
+											"name": "assignmentIdExternal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['startDate']"
+										},
+										"sink": {
+											"name": "startDate"
+										}
+									},
+									{
+										"source": {
+											"path": "$['d']['__next']"
+										},
+										"sink": {
+											"name": "__next"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "EmpEmployment",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/emp_employment/",
+									"file": {
+										"value": "@concat('emp_employment__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_empjob')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromEmpJob",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['seqNumber']"
+										},
+										"sink": {
+											"name": "seqNumber"
+										}
+									},
+									{
+										"source": {
+											"path": "[['userId']"
+										},
+										"sink": {
+											"name": "userId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['startDate']"
+										},
+										"sink": {
+											"name": "startDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['fgtsOptant']"
+										},
+										"sink": {
+											"name": "fgtsOptant"
+										}
+									},
+									{
+										"source": {
+											"path": "[['commitmentIndicator']"
+										},
+										"sink": {
+											"name": "commitmentIndicator",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['effectiveLatestChange']"
+										},
+										"sink": {
+											"name": "effectiveLatestChange",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['validFrom']"
+										},
+										"sink": {
+											"name": "validFrom",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['fgtsDate']"
+										},
+										"sink": {
+											"name": "fgtsDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['probationaryPeriodMeasure']"
+										},
+										"sink": {
+											"name": "probationaryPeriodMeasure",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['occupationCri']"
+										},
+										"sink": {
+											"name": "occupationCri",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['fromCurrency']"
+										},
+										"sink": {
+											"name": "fromCurrency",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['eeo5JobCategory']"
+										},
+										"sink": {
+											"name": "eeo5JobCategory",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['costCenter']"
+										},
+										"sink": {
+											"name": "costCenter",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['sickPaySupplementMeasure']"
+										},
+										"sink": {
+											"name": "sickPaySupplementMeasure",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['calcMethodIndicator']"
+										},
+										"sink": {
+											"name": "calcMethodIndicator",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['exclExecutiveSector']"
+										},
+										"sink": {
+											"name": "exclExecutiveSector",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['isFulltimeEmployee']"
+										},
+										"sink": {
+											"name": "isFulltimeEmployee",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['emplStatus']"
+										},
+										"sink": {
+											"name": "emplStatus",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['countryOfCompany']"
+										},
+										"sink": {
+											"name": "countryOfCompany",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['eeo6JobCategory']"
+										},
+										"sink": {
+											"name": "eeo6JobCategory",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['municipalInseeCode']"
+										},
+										"sink": {
+											"name": "municipalInseeCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['localJobTitle']"
+										},
+										"sink": {
+											"name": "localJobTitle",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['dismissalsNoticePeriodForEmployer']"
+										},
+										"sink": {
+											"name": "dismissalsNoticePeriodForEmployer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['entryIntoGroup']"
+										},
+										"sink": {
+											"name": "entryIntoGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['payGrade']"
+										},
+										"sink": {
+											"name": "payGrade",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['travelDistance']"
+										},
+										"sink": {
+											"name": "travelDistance",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['timeRecordingVariant']"
+										},
+										"sink": {
+											"name": "timeRecordingVariant",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['calculationBase']"
+										},
+										"sink": {
+											"name": "calculationBase",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString18']"
+										},
+										"sink": {
+											"name": "customString18",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['assedicCertObjectNum']"
+										},
+										"sink": {
+											"name": "assedicCertObjectNum",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['degreeOfProductivity']"
+										},
+										"sink": {
+											"name": "degreeOfProductivity",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['assessmentStatus']"
+										},
+										"sink": {
+											"name": "assessmentStatus",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['managerId']"
+										},
+										"sink": {
+											"name": "managerId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['spclRuleNonManualWorker']"
+										},
+										"sink": {
+											"name": "spclRuleNonManualWorker",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['wtdHoursLimit']"
+										},
+										"sink": {
+											"name": "wtdHoursLimit",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['mandatoryInternship']"
+										},
+										"sink": {
+											"name": "mandatoryInternship",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['harmfulAgentExposure']"
+										},
+										"sink": {
+											"name": "harmfulAgentExposure",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['sickPaySupplement']"
+										},
+										"sink": {
+											"name": "sickPaySupplement",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['integrationAgent']"
+										},
+										"sink": {
+											"name": "integrationAgent",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['exchangeRate']"
+										},
+										"sink": {
+											"name": "exchangeRate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['workPermitExpiry']"
+										},
+										"sink": {
+											"name": "workPermitExpiry",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['initialEntryDate']"
+										},
+										"sink": {
+											"name": "initialEntryDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['currentWageLevel']"
+										},
+										"sink": {
+											"name": "currentWageLevel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['holidayCalendarCode']"
+										},
+										"sink": {
+											"name": "holidayCalendarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['contractNumber']"
+										},
+										"sink": {
+											"name": "contractNumber",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['jobGroup']"
+										},
+										"sink": {
+											"name": "jobGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['eventReason']"
+										},
+										"sink": {
+											"name": "eventReason",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['isCompetitionClauseActive']"
+										},
+										"sink": {
+											"name": "isCompetitionClauseActive",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['noticePeriod']"
+										},
+										"sink": {
+											"name": "noticePeriod",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['continuedSicknessPayMeasure']"
+										},
+										"sink": {
+											"name": "continuedSicknessPayMeasure",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['toCurrency']"
+										},
+										"sink": {
+											"name": "toCurrency",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['newCalcAvgPpu']"
+										},
+										"sink": {
+											"name": "newCalcAvgPpu",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['regularTemp']"
+										},
+										"sink": {
+											"name": "regularTemp",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['workLocation']"
+										},
+										"sink": {
+											"name": "workLocation",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['contractReferenceForAed']"
+										},
+										"sink": {
+											"name": "contractReferenceForAed",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['isSideLineJobAllowed']"
+										},
+										"sink": {
+											"name": "isSideLineJobAllowed",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['company']"
+										},
+										"sink": {
+											"name": "company",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['retired']"
+										},
+										"sink": {
+											"name": "retired",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['eeo1JobCategory']"
+										},
+										"sink": {
+											"name": "eeo1JobCategory",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['periodIndicator']"
+										},
+										"sink": {
+											"name": "periodIndicator",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['employeeClass']"
+										},
+										"sink": {
+											"name": "employeeClass",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['hireDate']"
+										},
+										"sink": {
+											"name": "hireDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['contractEndDate']"
+										},
+										"sink": {
+											"name": "contractEndDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['pensionProtection']"
+										},
+										"sink": {
+											"name": "pensionProtection",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['employeeWorkgroupMembership']"
+										},
+										"sink": {
+											"name": "employeeWorkgroupMembership",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['sickPaySupplementPeriod']"
+										},
+										"sink": {
+											"name": "sickPaySupplementPeriod",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['transportationSubsidy']"
+										},
+										"sink": {
+											"name": "transportationSubsidy",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['contractId']"
+										},
+										"sink": {
+											"name": "contractId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['location']"
+										},
+										"sink": {
+											"name": "location",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['occupationalLevels']"
+										},
+										"sink": {
+											"name": "occupationalLevels",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['workscheduleCode']"
+										},
+										"sink": {
+											"name": "workscheduleCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['endDate']"
+										},
+										"sink": {
+											"name": "endDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['contractType']"
+										},
+										"sink": {
+											"name": "contractType",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['jobCode']"
+										},
+										"sink": {
+											"name": "jobCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['payScaleLevel']"
+										},
+										"sink": {
+											"name": "payScaleLevel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['timeTypeProfileCode']"
+										},
+										"sink": {
+											"name": "timeTypeProfileCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['eeoClass']"
+										},
+										"sink": {
+											"name": "eeoClass",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['newCalcAvgDnp']"
+										},
+										"sink": {
+											"name": "newCalcAvgDnp",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['hazard']"
+										},
+										"sink": {
+											"name": "hazard",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['continuedSicknessPayPeriod']"
+										},
+										"sink": {
+											"name": "continuedSicknessPayPeriod",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['flsaStatus']"
+										},
+										"sink": {
+											"name": "flsaStatus",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['occupationalLevelKen']"
+										},
+										"sink": {
+											"name": "occupationalLevelKen",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['educationalEntity']"
+										},
+										"sink": {
+											"name": "educationalEntity",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['corporation']"
+										},
+										"sink": {
+											"name": "corporation",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['residentVote']"
+										},
+										"sink": {
+											"name": "residentVote",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['laborProtection']"
+										},
+										"sink": {
+											"name": "laborProtection",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['ineligibleStatutoryMinWage']"
+										},
+										"sink": {
+											"name": "ineligibleStatutoryMinWage",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['guaranteedPayment']"
+										},
+										"sink": {
+											"name": "guaranteedPayment",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['occupationGtm']"
+										},
+										"sink": {
+											"name": "occupationGtm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['occupationPer']"
+										},
+										"sink": {
+											"name": "occupationPer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['payScaleType']"
+										},
+										"sink": {
+											"name": "payScaleType",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['creditForPreviousService']"
+										},
+										"sink": {
+											"name": "creditForPreviousService",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['healthRisk']"
+										},
+										"sink": {
+											"name": "healthRisk",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['fte']"
+										},
+										"sink": {
+											"name": "fte",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['event']"
+										},
+										"sink": {
+											"name": "event",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['teachersPension']"
+										},
+										"sink": {
+											"name": "teachersPension",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['workerCategory']"
+										},
+										"sink": {
+											"name": "workerCategory",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['contractDate']"
+										},
+										"sink": {
+											"name": "contractDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['jobTitle']"
+										},
+										"sink": {
+											"name": "jobTitle",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['probationaryPeriod']"
+										},
+										"sink": {
+											"name": "probationaryPeriod",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['electoralCollegeForWorksCouncil']"
+										},
+										"sink": {
+											"name": "electoralCollegeForWorksCouncil",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['codeOfJobForEldp']"
+										},
+										"sink": {
+											"name": "codeOfJobForEldp",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['familyRelationshipWithEmployer']"
+										},
+										"sink": {
+											"name": "familyRelationshipWithEmployer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['internshipLevel']"
+										},
+										"sink": {
+											"name": "internshipLevel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['empRelationship']"
+										},
+										"sink": {
+											"name": "empRelationship",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['standardHours']"
+										},
+										"sink": {
+											"name": "standardHours",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['electoralCollegeForWorkersRepresentatives']"
+										},
+										"sink": {
+											"name": "electoralCollegeForWorkersRepresentatives",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['eeo4JobCategory']"
+										},
+										"sink": {
+											"name": "eeo4JobCategory",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['internshipSchool']"
+										},
+										"sink": {
+											"name": "internshipSchool",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['assedicCertInitialStateNum']"
+										},
+										"sink": {
+											"name": "assedicCertInitialStateNum",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['includedChallengedPersonQuota']"
+										},
+										"sink": {
+											"name": "includedChallengedPersonQuota",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['fgtsPercent']"
+										},
+										"sink": {
+											"name": "fgtsPercent",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['position']"
+										},
+										"sink": {
+											"name": "position",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['payScaleArea']"
+										},
+										"sink": {
+											"name": "payScaleArea",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['probationPeriodEndDate']"
+										},
+										"sink": {
+											"name": "probationPeriodEndDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['workingDaysPerWeek']"
+										},
+										"sink": {
+											"name": "workingDaysPerWeek",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['department']"
+										},
+										"sink": {
+											"name": "department",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['workingTimeDirective']"
+										},
+										"sink": {
+											"name": "workingTimeDirective",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['employmentType']"
+										},
+										"sink": {
+											"name": "employmentType",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString5']"
+										},
+										"sink": {
+											"name": "customString5",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString4']"
+										},
+										"sink": {
+											"name": "customString4",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString3']"
+										},
+										"sink": {
+											"name": "customString3",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString2']"
+										},
+										"sink": {
+											"name": "customString2",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString9']"
+										},
+										"sink": {
+											"name": "customString9",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['tupeOrgNumber']"
+										},
+										"sink": {
+											"name": "tupeOrgNumber",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString8']"
+										},
+										"sink": {
+											"name": "customString8",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString7']"
+										},
+										"sink": {
+											"name": "customString7",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString6']"
+										},
+										"sink": {
+											"name": "customString6",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['payScaleGroup']"
+										},
+										"sink": {
+											"name": "payScaleGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['paymentInLieuOfNotice']"
+										},
+										"sink": {
+											"name": "paymentInLieuOfNotice",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['d']['__next']"
+										},
+										"sink": {
+											"name": "__next"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "EmpJob",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/emp_job",
+									"file": {
+										"value": "@concat('emp_job__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:50Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_emppaycomprecurring')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromEmpPayCompRecurring",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['payComponent']"
+										},
+										"sink": {
+											"name": "payComponent"
+										}
+									},
+									{
+										"source": {
+											"path": "[['seqNumber']"
+										},
+										"sink": {
+											"name": "seqNumber"
+										}
+									},
+									{
+										"source": {
+											"path": "[['userId']"
+										},
+										"sink": {
+											"name": "userId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['startDate']"
+										},
+										"sink": {
+											"name": "startDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['notes']"
+										},
+										"sink": {
+											"name": "notes",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['effectiveLatestChange']"
+										},
+										"sink": {
+											"name": "effectiveLatestChange"
+										}
+									},
+									{
+										"source": {
+											"path": "[['endDate']"
+										},
+										"sink": {
+											"name": "endDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['frequency']"
+										},
+										"sink": {
+											"name": "frequency"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['paycompvalue']"
+										},
+										"sink": {
+											"name": "paycompvalue"
+										}
+									},
+									{
+										"source": {
+											"path": "[['currencyCode']"
+										},
+										"sink": {
+											"name": "currencyCode"
+										}
+									},
+									{
+										"source": {
+											"path": "$['d']['__next']"
+										},
+										"sink": {
+											"name": "__next"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "EmpPayCompRecurring",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/emp_pay_comp_recurring/",
+									"file": {
+										"value": "@concat('emp_pay_comp_recurring__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_empworkpermit')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromEmpWorkPermit",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['country']"
+										},
+										"sink": {
+											"name": "country"
+										}
+									},
+									{
+										"source": {
+											"path": "[['documentType']"
+										},
+										"sink": {
+											"name": "documentType"
+										}
+									},
+									{
+										"source": {
+											"path": "[['documentNumber']"
+										},
+										"sink": {
+											"name": "documentNumber"
+										}
+									},
+									{
+										"source": {
+											"path": "[['issueDate']"
+										},
+										"sink": {
+											"name": "issueDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['userId']"
+										},
+										"sink": {
+											"name": "userId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['attachmentFileName']"
+										},
+										"sink": {
+											"name": "attachmentFileName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['notes']"
+										},
+										"sink": {
+											"name": "notes",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['attachmentStatus']"
+										},
+										"sink": {
+											"name": "attachmentStatus",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['attachmentFileSize']"
+										},
+										"sink": {
+											"name": "attachmentFileSize",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['issuingAuthority']"
+										},
+										"sink": {
+											"name": "issuingAuthority",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['attachment']"
+										},
+										"sink": {
+											"name": "attachment",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString1']"
+										},
+										"sink": {
+											"name": "customString1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['attachmentFileType']"
+										},
+										"sink": {
+											"name": "attachmentFileType",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['attachmentMimeType']"
+										},
+										"sink": {
+											"name": "attachmentMimeType",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['attachmentId']"
+										},
+										"sink": {
+											"name": "attachmentId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['issuePlace']"
+										},
+										"sink": {
+											"name": "issuePlace"
+										}
+									},
+									{
+										"source": {
+											"path": "[['expirationDate']"
+										},
+										"sink": {
+											"name": "expirationDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['d']['__next']"
+										},
+										"sink": {
+											"name": "__next"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "EmpWorkPermit",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/emp_work_permit/",
+									"file": {
+										"value": "@concat('emp_work_permit__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_focompany')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromFOCompany",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['externalCode']"
+										},
+										"sink": {
+											"name": "externalCode"
+										}
+									},
+									{
+										"source": {
+											"path": "[['startDate']"
+										},
+										"sink": {
+											"name": "startDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['country']"
+										},
+										"sink": {
+											"name": "country"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_localized']"
+										},
+										"sink": {
+											"name": "name_localized"
+										}
+									},
+									{
+										"source": {
+											"path": "[['endDate']"
+										},
+										"sink": {
+											"name": "endDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['cust_CNPJ']"
+										},
+										"sink": {
+											"name": "cust_CNPJ"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_pt_BR']"
+										},
+										"sink": {
+											"name": "description_pt_BR",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_pt_BR']"
+										},
+										"sink": {
+											"name": "name_pt_BR"
+										}
+									},
+									{
+										"source": {
+											"path": "[['cust_CNAE']"
+										},
+										"sink": {
+											"name": "cust_CNAE"
+										}
+									},
+									{
+										"source": {
+											"path": "[['standardHours']"
+										},
+										"sink": {
+											"name": "standardHours"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_defaultValue']"
+										},
+										"sink": {
+											"name": "description_defaultValue",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name']"
+										},
+										"sink": {
+											"name": "name"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_en_US']"
+										},
+										"sink": {
+											"name": "description_en_US",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['entityOID']"
+										},
+										"sink": {
+											"name": "entityOID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_en_DEBUG']"
+										},
+										"sink": {
+											"name": "description_en_DEBUG",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['status']"
+										},
+										"sink": {
+											"name": "status"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description']"
+										},
+										"sink": {
+											"name": "description",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_en_DEBUG']"
+										},
+										"sink": {
+											"name": "name_en_DEBUG",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_en_US']"
+										},
+										"sink": {
+											"name": "name_en_US"
+										}
+									},
+									{
+										"source": {
+											"path": "[['currency']"
+										},
+										"sink": {
+											"name": "currency"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_defaultValue']"
+										},
+										"sink": {
+											"name": "name_defaultValue"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['defaultPayGroup']"
+										},
+										"sink": {
+											"name": "defaultPayGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['cust_GrauRisco']"
+										},
+										"sink": {
+											"name": "cust_GrauRisco"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['mdfSystemRecordId']"
+										},
+										"sink": {
+											"name": "mdfSystemRecordId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_localized']"
+										},
+										"sink": {
+											"name": "description_localized",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['defaultLocation']"
+										},
+										"sink": {
+											"name": "defaultLocation",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['nameTranslationTextNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['nameTranslationTextNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdByNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['createdByNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['defaultLocationNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['defaultLocationNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['localNavARG']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['localNavARG___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['currencyNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['currencyNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['toLegalEntityARG']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['toLegalEntityARG___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['descriptionTranslationTextNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['descriptionTranslationTextNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['statusNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['statusNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['descriptionTranslationNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['descriptionTranslationNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['toNameFormat']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['toNameFormat___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['localNavESP']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['localNavESP___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['localNavUSA']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['localNavUSA___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['localNavDEU']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['localNavDEU___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['localNavFRA']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['localNavFRA___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedByNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['lastModifiedByNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['toLegalEntityRUS']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['toLegalEntityRUS___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['toLegalEntityUSA']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['toLegalEntityUSA___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['toLegalEntityESP']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['toLegalEntityESP___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['toDisplayNameFormat']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['toDisplayNameFormat___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['nameTranslationNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['nameTranslationNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['localNavDEFLT']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['localNavDEFLT___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['countryNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['countryNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['defaultPayGroupNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['defaultPayGroupNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['toLegalEntityFRA']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['toLegalEntityFRA___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['countryOfRegistrationNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['countryOfRegistrationNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['toLegalEntityDEU']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['toLegalEntityDEU___deferred_uri"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']",
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "FOCompany",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/fo_company/",
+									"file": {
+										"value": "@concat('fo_company__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_fodepartment')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromFODepartment",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['externalCode']"
+										},
+										"sink": {
+											"name": "externalCode"
+										}
+									},
+									{
+										"source": {
+											"path": "[['startDate']"
+										},
+										"sink": {
+											"name": "startDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['parent']"
+										},
+										"sink": {
+											"name": "parent"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_localized']"
+										},
+										"sink": {
+											"name": "name_localized"
+										}
+									},
+									{
+										"source": {
+											"path": "[['endDate']"
+										},
+										"sink": {
+											"name": "endDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['entityUUID']"
+										},
+										"sink": {
+											"name": "entityUUID"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_pt_BR']"
+										},
+										"sink": {
+											"name": "description_pt_BR"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_pt_BR']"
+										},
+										"sink": {
+											"name": "name_pt_BR"
+										}
+									},
+									{
+										"source": {
+											"path": "[['costCenter']"
+										},
+										"sink": {
+											"name": "costCenter"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_defaultValue']"
+										},
+										"sink": {
+											"name": "description_defaultValue"
+										}
+									},
+									{
+										"source": {
+											"path": "[['cust_Nivel']"
+										},
+										"sink": {
+											"name": "cust_Nivel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name']"
+										},
+										"sink": {
+											"name": "name"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_en_US']"
+										},
+										"sink": {
+											"name": "description_en_US"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_en_DEBUG']"
+										},
+										"sink": {
+											"name": "description_en_DEBUG",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['status']"
+										},
+										"sink": {
+											"name": "status"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description']"
+										},
+										"sink": {
+											"name": "description"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_en_DEBUG']"
+										},
+										"sink": {
+											"name": "name_en_DEBUG",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['headOfUnit']"
+										},
+										"sink": {
+											"name": "headOfUnit",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_en_US']"
+										},
+										"sink": {
+											"name": "name_en_US"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name_defaultValue']"
+										},
+										"sink": {
+											"name": "name_defaultValue"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['mdfSystemRecordId']"
+										},
+										"sink": {
+											"name": "mdfSystemRecordId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description_localized']"
+										},
+										"sink": {
+											"name": "description_localized"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']",
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "FODepartment",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/fo_department/",
+									"file": {
+										"value": "@concat('fo_department__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_fopaycomponent')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromFOPayComponent",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['externalCode']"
+										},
+										"sink": {
+											"name": "externalCode"
+										}
+									},
+									{
+										"source": {
+											"path": "[['startDate']"
+										},
+										"sink": {
+											"name": "startDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['payComponentValue']"
+										},
+										"sink": {
+											"name": "payComponentValue",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['endDate']"
+										},
+										"sink": {
+											"name": "endDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['isEarning']"
+										},
+										"sink": {
+											"name": "isEarning"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['description']"
+										},
+										"sink": {
+											"name": "description",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['basePayComponentGroup']"
+										},
+										"sink": {
+											"name": "basePayComponentGroup"
+										}
+									},
+									{
+										"source": {
+											"path": "[['frequencyCode']"
+										},
+										"sink": {
+											"name": "frequencyCode"
+										}
+									},
+									{
+										"source": {
+											"path": "[['number']"
+										},
+										"sink": {
+											"name": "number",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['payComponentType']"
+										},
+										"sink": {
+											"name": "payComponentType"
+										}
+									},
+									{
+										"source": {
+											"path": "[['rate']"
+										},
+										"sink": {
+											"name": "rate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['maxFractionDigits']"
+										},
+										"sink": {
+											"name": "maxFractionDigits",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['currency']"
+										},
+										"sink": {
+											"name": "currency"
+										}
+									},
+									{
+										"source": {
+											"path": "[['isEndDatedPayment']"
+										},
+										"sink": {
+											"name": "isEndDatedPayment"
+										}
+									},
+									{
+										"source": {
+											"path": "[['objectId']"
+										},
+										"sink": {
+											"name": "objectId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['canOverride']"
+										},
+										"sink": {
+											"name": "canOverride"
+										}
+									},
+									{
+										"source": {
+											"path": "[['displayOnSelfService']"
+										},
+										"sink": {
+											"name": "displayOnSelfService"
+										}
+									},
+									{
+										"source": {
+											"path": "[['unitOfMeasure']"
+										},
+										"sink": {
+											"name": "unitOfMeasure",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['selfServiceDescription']"
+										},
+										"sink": {
+											"name": "selfServiceDescription",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['recurring']"
+										},
+										"sink": {
+											"name": "recurring"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['target']"
+										},
+										"sink": {
+											"name": "target"
+										}
+									},
+									{
+										"source": {
+											"path": "[['taxTreatment']"
+										},
+										"sink": {
+											"name": "taxTreatment",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['usedForCompPlanning']"
+										},
+										"sink": {
+											"name": "usedForCompPlanning"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name']"
+										},
+										"sink": {
+											"name": "name"
+										}
+									},
+									{
+										"source": {
+											"path": "[['internalCode']"
+										},
+										"sink": {
+											"name": "internalCode"
+										}
+									},
+									{
+										"source": {
+											"path": "[['status']"
+										},
+										"sink": {
+											"name": "status"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']",
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "FOPayComponent",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/fo_pay_component/",
+									"file": {
+										"value": "@concat('fo_pay_component__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_pernationalid')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromPerNationalId",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['country']"
+										},
+										"sink": {
+											"name": "country",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['personIdExternal']"
+										},
+										"sink": {
+											"name": "personIdExternal",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['cardType']"
+										},
+										"sink": {
+											"name": "cardType",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['notes']"
+										},
+										"sink": {
+											"name": "notes",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['nationalId']"
+										},
+										"sink": {
+											"name": "nationalId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['isPrimary']"
+										},
+										"sink": {
+											"name": "isPrimary"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['personNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['personNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "[['countryNav']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['countryNav___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "$['d']['__next']"
+										},
+										"sink": {
+											"name": "__next"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "PerNationalId",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/per_national_id/",
+									"file": {
+										"value": "@concat('per_national_id__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_perperson')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromPerPerson",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['personIdExternal']"
+										},
+										"sink": {
+											"name": "personIdExternal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['countryOfBirth']"
+										},
+										"sink": {
+											"name": "countryOfBirth",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['placeOfBirth']"
+										},
+										"sink": {
+											"name": "placeOfBirth",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['dateOfBirth']"
+										},
+										"sink": {
+											"name": "dateOfBirth",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['perPersonUuid']"
+										},
+										"sink": {
+											"name": "perPersonUuid"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['regionOfBirth']"
+										},
+										"sink": {
+											"name": "regionOfBirth",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['personId']"
+										},
+										"sink": {
+											"name": "personId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['homeAddressNavDEFLT']['__deferred']['uri']"
+										},
+										"sink": {
+											"name": "d_results'][0]['homeAddressNavDEFLT___deferred_uri"
+										}
+									},
+									{
+										"source": {
+											"path": "$['d']['__next']"
+										},
+										"sink": {
+											"name": "__next"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "PerPerson",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/per_person",
+									"file": {
+										"value": "@concat('per_person__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_perpersonal')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromPerPersonal",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['personIdExternal']"
+										},
+										"sink": {
+											"name": "personIdExternal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['startDate']"
+										},
+										"sink": {
+											"name": "startDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['endDate']"
+										},
+										"sink": {
+											"name": "endDate"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdDateTime']"
+										},
+										"sink": {
+											"name": "createdDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['attachmentId']"
+										},
+										"sink": {
+											"name": "attachmentId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['preferredName']"
+										},
+										"sink": {
+											"name": "preferredName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['secondNationality']"
+										},
+										"sink": {
+											"name": "secondNationality",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['nationality']"
+										},
+										"sink": {
+											"name": "nationality"
+										}
+									},
+									{
+										"source": {
+											"path": "[['thirdNationality']"
+										},
+										"sink": {
+											"name": "thirdNationality",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['challengeStatus']"
+										},
+										"sink": {
+											"name": "challengeStatus",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastName']"
+										},
+										"sink": {
+											"name": "lastName"
+										}
+									},
+									{
+										"source": {
+											"path": "[['gender']"
+										},
+										"sink": {
+											"name": "gender"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdOn']"
+										},
+										"sink": {
+											"name": "createdOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedOn']"
+										},
+										"sink": {
+											"name": "lastModifiedOn"
+										}
+									},
+									{
+										"source": {
+											"path": "[['nativePreferredLang']"
+										},
+										"sink": {
+											"name": "nativePreferredLang",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedDateTime']"
+										},
+										"sink": {
+											"name": "lastModifiedDateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['countryOfBirth']"
+										},
+										"sink": {
+											"name": "countryOfBirth",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['firstName']"
+										},
+										"sink": {
+											"name": "firstName"
+										}
+									},
+									{
+										"source": {
+											"path": "[['salutation']"
+										},
+										"sink": {
+											"name": "salutation"
+										}
+									},
+									{
+										"source": {
+											"path": "[['maritalStatus']"
+										},
+										"sink": {
+											"name": "maritalStatus"
+										}
+									},
+									{
+										"source": {
+											"path": "[['since']"
+										},
+										"sink": {
+											"name": "since",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['lastModifiedBy']"
+										},
+										"sink": {
+											"name": "lastModifiedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString3']"
+										},
+										"sink": {
+											"name": "customString3",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['customString2']"
+										},
+										"sink": {
+											"name": "customString2",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['createdBy']"
+										},
+										"sink": {
+											"name": "createdBy"
+										}
+									},
+									{
+										"source": {
+											"path": "$['d']['__next']"
+										},
+										"sink": {
+											"name": "__next"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfFULL",
+								"type": "DatasetReference",
+								"parameters": {
+									"table": "PerPersonal",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/per_personal",
+									"file": {
+										"value": "@concat('per_personal__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T16:39:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_picklist_contract_type')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromPickilistContractType",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['id']"
+										},
+										"sink": {
+											"name": "id"
+										}
+									},
+									{
+										"source": {
+											"path": "[['externalCode']"
+										},
+										"sink": {
+											"name": "externalCode"
+										}
+									},
+									{
+										"source": {
+											"path": "[['picklistLabels']['results'][1]['label']"
+										},
+										"sink": {
+											"name": "label"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results'][0]['picklistOptions']['results']",
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfPicklist",
+								"type": "DatasetReference",
+								"parameters": {
+									"picklist": "contractType",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/pl_contract_type/",
+									"file": {
+										"value": "@concat('pl_contract_type__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-10T19:14:04Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_picklist_employee_class')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromPickilistEmployeeClass",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['id']"
+										},
+										"sink": {
+											"name": "id"
+										}
+									},
+									{
+										"source": {
+											"path": "[['externalCode']"
+										},
+										"sink": {
+											"name": "externalCode"
+										}
+									},
+									{
+										"source": {
+											"path": "[['picklistLabels']['results'][1]['label']"
+										},
+										"sink": {
+											"name": "label"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results'][0]['picklistOptions']['results']",
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfPicklist",
+								"type": "DatasetReference",
+								"parameters": {
+									"picklist": "EMPLOYEECLASS",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/pl_employee_class/",
+									"file": {
+										"value": "@concat('pl_employee_class__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-10T19:51:05Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_sap_sf_picklist_employment_relationship')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromPickilistEmploymentRelationship",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['picklistLabels']['results'][1]['label']"
+										},
+										"sink": {
+											"name": "items"
+										}
+									}
+								],
+								"collectionReference": "$['d']['results'][0]['picklistOptions']['results']",
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RestSapSfPicklist",
+								"type": "DatasetReference",
+								"parameters": {
+									"picklist": "employmentRelationship",
+									"format": "JSON"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "camada_bronze/sap_sf/pl_employment_relationship/",
+									"file": {
+										"value": "@concat('pl_employment_relationship__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01_INGESTAO/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-10T19:34:41Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

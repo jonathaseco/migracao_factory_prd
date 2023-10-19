@@ -1,0 +1,554 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "ecanalyticsdfprd"
+		},
+		"Conexao_KCOR_EARA_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_EARA'"
+		},
+		"Conexao_KCOR_ENOR_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_ENOR'"
+		},
+		"Conexao_KCOR_EPST_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_EPST'"
+		},
+		"Conexao_KCOR_ERMIN_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_ERMIN'"
+		},
+		"Conexao_KCOR_ESUL_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_ESUL'"
+		},
+		"Conexao_KCOR_EVIS_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_EVIS'"
+		},
+		"Conexao_KCOR_PONT_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_PONT'"
+		},
+		"Conexao_SGR_CATARATA_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_CATARATA'"
+		},
+		"Conexao_SGR_E101_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_E101'"
+		},
+		"Conexao_SGR_E135_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_E135'"
+		},
+		"Conexao_SGR_ECOPARA_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_ECOPARA'"
+		},
+		"Conexao_SGR_ECOSUL_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_ECOSUL'"
+		},
+		"Conexao_SGR_EPST_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_EPST'"
+		},
+		"Conexao_SGR_PONT_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_PONT'"
+		},
+		"Conexao_TOLLN3_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_TOLLN3'"
+		},
+		"Conexao_TOLLPACKBI_2_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_TOLLPACKBI_2'"
+		},
+		"SqlServer1_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'SqlServer1'"
+		},
+		"SqlServer_ECompras_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'SqlServer_ECompras'"
+		},
+		"oracle_sap_ecc_ls_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'oracle_sap_ecc_ls'"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_KCOR_EARA')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base KCOR da Ecovias do Araguaia",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_KCOR_EARA_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_KCOR_ENOR')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base KCOR da Econoroeste",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_KCOR_ENOR_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_KCOR_EPST')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base KCOR da EcoPistas",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_KCOR_EPST_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_KCOR_ERMIN')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base KCOR da EcoRioMinas",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_KCOR_ERMIN_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_KCOR_ESUL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base KCOR da Ecosul",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_KCOR_ESUL_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_KCOR_EVIS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base KCOR da Ecovias",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_KCOR_EVIS_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_KCOR_PONT')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base KCOR da Ecoponte",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_KCOR_PONT_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_SGR_CATARATA')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com fonte de dados SGR Catarata",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_SGR_CATARATA_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_SGR_E101')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base SGR da Eco101",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_SGR_E101_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_SGR_E135')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base SGR da Eco135",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_SGR_E135_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_SGR_ECOPARA')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base de dados SGR Eco Paraná ",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_SGR_ECOPARA_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_SGR_ECOSUL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base SGR da Ecosul",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_SGR_ECOSUL_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_SGR_EPST')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base SGR da EcoPistas",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_SGR_EPST_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_SGR_PONT')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base SGR da Ecoponte",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_SGR_PONT_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_TOLLN3')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base TOLL_N3 (servidor de réplica: 03CSRV166)",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_TOLLN3_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Conexao_TOLLPACKBI_2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com base TOLLPACKBI (servidor de réplica: replican3db.arrecada.corp)",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('Conexao_TOLLPACKBI_2_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlServer1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('SqlServer1_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlServer_ECompras')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('SqlServer_ECompras_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/oracle_sap_ecc_ls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Oracle",
+				"typeProperties": {
+					"connectionString": "[parameters('oracle_sap_ecc_ls_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "Runtime-sgp",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_ouro_flat_flat_file_kcor')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_kcor_dbo_aux_cobertura_praca",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "bronze_prata_kcor_dbo_aux_cobertura_praca",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "bronze_prata_kcor_dbo_aux_rodovia_concessao",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "bronze_prata_kcor_dbo_aux_rodovia_concessao",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "bronze_prata_kcor_dbo_dw_trecho_homogeneo",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "bronze_prata_kcor_dbo_dw_trecho_homogeneo",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "prata_ouro_kcor_dbo_aux_cobertura_praca",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "bronze_prata_kcor_dbo_aux_cobertura_praca",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "prata_ouro_kcor_dbo_aux_cobertura_praca",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "prata_ouro_kcor_dbo_aux_rodovia_concessao",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "bronze_prata_kcor_dbo_aux_rodovia_concessao",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "prata_ouro_kcor_dbo_aux_rodovia_concessao",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "prata_ouro_kcor_dbo_dw_trecho_homogeneo",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "bronze_prata_kcor_dbo_dw_trecho_homogeneo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "prata_ouro_kcor_dbo_dw_trecho_homogeneo",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "00_WORKFLOW/FLAT_FILE"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:30:07Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,709 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "ecanalyticsdfprd"
+		},
+		"AzureDataLakeStorage_accountKey": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accountKey' de 'AzureDataLakeStorage'"
+		},
+		"Conexao_KCOR_E050ECER_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_E050ECER'"
+		},
+		"Conexao_KCOR_E101_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_E101'"
+		},
+		"Conexao_KCOR_E135_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_E135'"
+		},
+		"Conexao_KCOR_EARA_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_EARA'"
+		},
+		"Conexao_KCOR_ENOR_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_ENOR'"
+		},
+		"Conexao_KCOR_EPST_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_EPST'"
+		},
+		"Conexao_KCOR_ERMIN_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_ERMIN'"
+		},
+		"Conexao_KCOR_ESUL_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_ESUL'"
+		},
+		"Conexao_KCOR_EVIS_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_EVIS'"
+		},
+		"Conexao_KCOR_PONT_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_KCOR_PONT'"
+		},
+		"Conexao_SGR_CATARATA_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_CATARATA'"
+		},
+		"Conexao_SGR_E101_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_E101'"
+		},
+		"Conexao_SGR_E135_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_E135'"
+		},
+		"Conexao_SGR_ECOPARA_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_ECOPARA'"
+		},
+		"Conexao_SGR_ECOSUL_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_ECOSUL'"
+		},
+		"Conexao_SGR_EPST_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_EPST'"
+		},
+		"Conexao_SGR_PONT_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_SGR_PONT'"
+		},
+		"Conexao_TOLLN3_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_TOLLN3'"
+		},
+		"Conexao_TOLLPACKBI_2_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'Conexao_TOLLPACKBI_2'"
+		},
+		"SqlServer1_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'SqlServer1'"
+		},
+		"SqlServer_ECompras_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'SqlServer_ECompras'"
+		},
+		"dbrk_eco_ls_accessToken": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accessToken' de 'dbrk_eco_ls'"
+		},
+		"oracle_sap_ecc_ls_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'oracle_sap_ecc_ls'"
+		},
+		"rest_hana_password": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'password' de 'rest_hana'"
+		},
+		"rest_sap_pwbi_password": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'password' de 'rest_sap_pwbi'"
+		},
+		"rest_sap_sf_password": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'password' de 'rest_sap_sf'"
+		},
+		"sql_server_sistema_juridico_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'sql_server_sistema_juridico'"
+		},
+		"AzureDataLakeStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://ecsanalyticsdl.dfs.core.windows.net/"
+		},
+		"SharepointGrupoecorodovias_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://grupoecorodovias.sharepoint.com/sites"
+		},
+		"dbrk_eco_ls_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0914-142952-uki2j8p5"
+		},
+		"rest_hana_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://ecorodovias-dev-s6jfmx6y.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/"
+		},
+		"rest_hana_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sb-125c8253-122d-4942-9d24-cdfc83998aba!b2219|it-rt-ecorodovias-dev-s6jfmx6y!b106"
+		},
+		"rest_sap_pwbi_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://ecorodovias-dev-s6jfmx6y.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/"
+		},
+		"rest_sap_pwbi_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sb-125c8253-122d-4942-9d24-cdfc83998aba!b2219|it-rt-ecorodovias-dev-s6jfmx6y!b106"
+		},
+		"rest_sap_sf_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api8.successfactors.com/odata/v2/"
+		},
+		"rest_sap_sf_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "powerBI_integracao@ecorodoviaD"
+		},
+		"trg_ingest_prata_ecompras_properties_ingest_prata_ecompras_parameters_tipo_carga": {
+			"type": "string",
+			"defaultValue": "delta"
+		},
+		"trg_ingest_prata_juridico_properties_ingest_prata_juridico_parameters_tipo_carga": {
+			"type": "string",
+			"defaultValue": "delta"
+		},
+		"trg_ingest_prata_sap_ecc_properties_ingest_prata_sap_ecc_parameters_tipo_carga": {
+			"type": "string",
+			"defaultValue": "delta"
+		},
+		"Runtime-sgp_properties_typeProperties_linkedInfo_resourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/b5a9d3e3-9203-4a37-b799-586a326cdbf9/resourcegroups/RG-Analytics-BD/providers/Microsoft.DataFactory/factories/ecanalyticsdfdev/integrationruntimes/Runtime-sgp"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI para a conta de armazenamento contendo os modelos do ARM vinculados"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Token SAS para a conta de armazenamento contendo modelos do ARM vinculados"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureDataLakeStorage_accountKey": {
+						"value": "[parameters('AzureDataLakeStorage_accountKey')]"
+					},
+					"dbrk_eco_ls_accessToken": {
+						"value": "[parameters('dbrk_eco_ls_accessToken')]"
+					},
+					"rest_hana_password": {
+						"value": "[parameters('rest_hana_password')]"
+					},
+					"rest_sap_pwbi_password": {
+						"value": "[parameters('rest_sap_pwbi_password')]"
+					},
+					"rest_sap_sf_password": {
+						"value": "[parameters('rest_sap_sf_password')]"
+					},
+					"sql_server_sistema_juridico_connectionString": {
+						"value": "[parameters('sql_server_sistema_juridico_connectionString')]"
+					},
+					"AzureDataLakeStorage_properties_typeProperties_url": {
+						"value": "[parameters('AzureDataLakeStorage_properties_typeProperties_url')]"
+					},
+					"SharepointGrupoecorodovias_properties_typeProperties_url": {
+						"value": "[parameters('SharepointGrupoecorodovias_properties_typeProperties_url')]"
+					},
+					"dbrk_eco_ls_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('dbrk_eco_ls_properties_typeProperties_existingClusterId')]"
+					},
+					"rest_hana_properties_typeProperties_url": {
+						"value": "[parameters('rest_hana_properties_typeProperties_url')]"
+					},
+					"rest_hana_properties_typeProperties_userName": {
+						"value": "[parameters('rest_hana_properties_typeProperties_userName')]"
+					},
+					"rest_sap_pwbi_properties_typeProperties_url": {
+						"value": "[parameters('rest_sap_pwbi_properties_typeProperties_url')]"
+					},
+					"rest_sap_pwbi_properties_typeProperties_userName": {
+						"value": "[parameters('rest_sap_pwbi_properties_typeProperties_userName')]"
+					},
+					"rest_sap_sf_properties_typeProperties_url": {
+						"value": "[parameters('rest_sap_sf_properties_typeProperties_url')]"
+					},
+					"rest_sap_sf_properties_typeProperties_userName": {
+						"value": "[parameters('rest_sap_sf_properties_typeProperties_userName')]"
+					},
+					"Runtime-sgp_properties_typeProperties_linkedInfo_resourceId": {
+						"value": "[parameters('Runtime-sgp_properties_typeProperties_linkedInfo_resourceId')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_1')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_3",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_2')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_4",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_4.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_3')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_5",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_5.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_4')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_6",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_6.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_5')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_7",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_7.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"Conexao_KCOR_E050ECER_connectionString": {
+						"value": "[parameters('Conexao_KCOR_E050ECER_connectionString')]"
+					},
+					"Conexao_KCOR_E101_connectionString": {
+						"value": "[parameters('Conexao_KCOR_E101_connectionString')]"
+					},
+					"Conexao_KCOR_E135_connectionString": {
+						"value": "[parameters('Conexao_KCOR_E135_connectionString')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_6')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_8",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_8.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"Conexao_KCOR_EARA_connectionString": {
+						"value": "[parameters('Conexao_KCOR_EARA_connectionString')]"
+					},
+					"Conexao_KCOR_ENOR_connectionString": {
+						"value": "[parameters('Conexao_KCOR_ENOR_connectionString')]"
+					},
+					"Conexao_KCOR_EPST_connectionString": {
+						"value": "[parameters('Conexao_KCOR_EPST_connectionString')]"
+					},
+					"Conexao_KCOR_ERMIN_connectionString": {
+						"value": "[parameters('Conexao_KCOR_ERMIN_connectionString')]"
+					},
+					"Conexao_KCOR_ESUL_connectionString": {
+						"value": "[parameters('Conexao_KCOR_ESUL_connectionString')]"
+					},
+					"Conexao_KCOR_EVIS_connectionString": {
+						"value": "[parameters('Conexao_KCOR_EVIS_connectionString')]"
+					},
+					"Conexao_KCOR_PONT_connectionString": {
+						"value": "[parameters('Conexao_KCOR_PONT_connectionString')]"
+					},
+					"Conexao_SGR_CATARATA_connectionString": {
+						"value": "[parameters('Conexao_SGR_CATARATA_connectionString')]"
+					},
+					"Conexao_SGR_E101_connectionString": {
+						"value": "[parameters('Conexao_SGR_E101_connectionString')]"
+					},
+					"Conexao_SGR_E135_connectionString": {
+						"value": "[parameters('Conexao_SGR_E135_connectionString')]"
+					},
+					"Conexao_SGR_ECOPARA_connectionString": {
+						"value": "[parameters('Conexao_SGR_ECOPARA_connectionString')]"
+					},
+					"Conexao_SGR_ECOSUL_connectionString": {
+						"value": "[parameters('Conexao_SGR_ECOSUL_connectionString')]"
+					},
+					"Conexao_SGR_EPST_connectionString": {
+						"value": "[parameters('Conexao_SGR_EPST_connectionString')]"
+					},
+					"Conexao_SGR_PONT_connectionString": {
+						"value": "[parameters('Conexao_SGR_PONT_connectionString')]"
+					},
+					"Conexao_TOLLN3_connectionString": {
+						"value": "[parameters('Conexao_TOLLN3_connectionString')]"
+					},
+					"Conexao_TOLLPACKBI_2_connectionString": {
+						"value": "[parameters('Conexao_TOLLPACKBI_2_connectionString')]"
+					},
+					"SqlServer1_connectionString": {
+						"value": "[parameters('SqlServer1_connectionString')]"
+					},
+					"SqlServer_ECompras_connectionString": {
+						"value": "[parameters('SqlServer_ECompras_connectionString')]"
+					},
+					"oracle_sap_ecc_ls_connectionString": {
+						"value": "[parameters('oracle_sap_ecc_ls_connectionString')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_7')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_9",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_9.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_8')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_10",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_10.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_9')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_11",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_11.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_10')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_12",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_12.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_11')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_13",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_13.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_12')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_14",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_14.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_13')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_15",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_15.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_14')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_16",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_16.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_15')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_17",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_17.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_16')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_18",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_18.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_17')]"
+			]
+		},
+		{
+			"name": "ecanalyticsdfprd_ArmTemplate_19",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_19.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"trg_ingest_prata_juridico_properties_ingest_prata_juridico_parameters_tipo_carga": {
+						"value": "[parameters('trg_ingest_prata_juridico_properties_ingest_prata_juridico_parameters_tipo_carga')]"
+					},
+					"trg_ingest_prata_ecompras_properties_ingest_prata_ecompras_parameters_tipo_carga": {
+						"value": "[parameters('trg_ingest_prata_ecompras_properties_ingest_prata_ecompras_parameters_tipo_carga')]"
+					},
+					"trg_ingest_prata_sap_ecc_properties_ingest_prata_sap_ecc_parameters_tipo_carga": {
+						"value": "[parameters('trg_ingest_prata_sap_ecc_properties_ingest_prata_sap_ecc_parameters_tipo_carga')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ecanalyticsdfprd_ArmTemplate_18')]"
+			]
+		}
+	]
+}

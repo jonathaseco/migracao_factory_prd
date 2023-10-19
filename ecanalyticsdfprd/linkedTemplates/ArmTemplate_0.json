@@ -1,0 +1,2015 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "ecanalyticsdfprd"
+		},
+		"AzureDataLakeStorage_accountKey": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accountKey' de 'AzureDataLakeStorage'"
+		},
+		"dbrk_eco_ls_accessToken": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accessToken' de 'dbrk_eco_ls'"
+		},
+		"rest_hana_password": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'password' de 'rest_hana'"
+		},
+		"rest_sap_pwbi_password": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'password' de 'rest_sap_pwbi'"
+		},
+		"rest_sap_sf_password": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'password' de 'rest_sap_sf'"
+		},
+		"sql_server_sistema_juridico_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'sql_server_sistema_juridico'"
+		},
+		"AzureDataLakeStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://ecsanalyticsdl.dfs.core.windows.net/"
+		},
+		"SharepointGrupoecorodovias_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://grupoecorodovias.sharepoint.com/sites"
+		},
+		"dbrk_eco_ls_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0914-142952-uki2j8p5"
+		},
+		"rest_hana_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://ecorodovias-dev-s6jfmx6y.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/"
+		},
+		"rest_hana_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sb-125c8253-122d-4942-9d24-cdfc83998aba!b2219|it-rt-ecorodovias-dev-s6jfmx6y!b106"
+		},
+		"rest_sap_pwbi_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://ecorodovias-dev-s6jfmx6y.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/"
+		},
+		"rest_sap_pwbi_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sb-125c8253-122d-4942-9d24-cdfc83998aba!b2219|it-rt-ecorodovias-dev-s6jfmx6y!b106"
+		},
+		"rest_sap_sf_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api8.successfactors.com/odata/v2/"
+		},
+		"rest_sap_sf_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "powerBI_integracao@ecorodoviaD"
+		},
+		"Runtime-sgp_properties_typeProperties_linkedInfo_resourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/b5a9d3e3-9203-4a37-b799-586a326cdbf9/resourcegroups/RG-Analytics-BD/providers/Microsoft.DataFactory/factories/ecanalyticsdfdev/integrationruntimes/Runtime-sgp"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/TeamsNotification')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline responsável pela notificação, via canal no Teams, em caso de falha de pipeline.",
+				"activities": [
+					{
+						"name": "Set JSON Schema",
+						"description": "Cria a mensagem JSON a ser enviada pelo WebHook",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "messageCard",
+							"value": {
+								"value": "{\n    \"@type\": \"MessageCard\",\n    \"@context\": \"http://schema.org/extensions\",\n    \"themeColor\": \"0076D7\",\n    \"summary\": \"Pipeline status alert message\",\n    \"sections\": [\n        {\n            \"activityTitle\": \"Alerta de execução de pipeline\",\n            \"facts\": [\n                {\n                    \"name\": \"Subscription Id:\",\n                    \"value\": \"@{pipeline().parameters.subscription}\"\n                },\n                {\n                    \"name\": \"Resource Group:\",\n                    \"value\": \"@{pipeline().parameters.resourceGroup}\"\n                },\n                {\n                    \"name\": \"Workspace Synapse:\",\n                    \"value\": \"@{pipeline().DataFactory}\"\n                },\n                {\n                    \"name\": \"RunId da Pipeline:\",\n                    \"value\": \"@{pipeline().parameters.runId}\"\n                },\n                {\n                    \"name\": \"Nome de Pipeline:\",\n                    \"value\": \"@{pipeline().parameters.name}\"\n                },\n                {\n                    \"name\": \"Status da Pipeline:\",\n                    \"value\": \"@{pipeline().parameters.status}\"\n                },\n                {\n                    \"name\": \"Inicio de Execução (UTC):\",\n                    \"value\": \"@{pipeline().parameters.triggerTime}\"\n                },\n                {\n                    \"name\": \"Mensagem:\",\n                    \"value\": \"@{pipeline().parameters.message}\"\n                },\n                {\n                    \"name\": \"Horário da Notificação (UTC):\",\n                    \"value\": \"@{utcnow()}\"\n                }\n            ],\n            \"markdown\": true\n        }\n    ],\n    \"potentialAction\": [\n        {\n            \"@type\": \"OpenUri\",\n            \"name\": \"Verificar o Monitoramento de Pipeline\",\n            \"targets\": [\n                {\n                    \"os\": \"default\",\n                    \"uri\": \"@{concat('https://synapse.azure.com/monitoring/pipelineruns/',pipeline().parameters.runId,'?factory=/subscriptions/',pipeline().parameters.subscription,'/resourceGroups/',pipeline().parameters.resourceGroup,'/providers/Microsoft.DataFactory/factories/',pipeline().DataFactory)}\"\n                }\n            ]\n        }\n    ]\n}",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Invoke Teams Webhook URL",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Set JSON Schema",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@pipeline().parameters.teamWebhookUrl",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "@variables('messageCard')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"subscription": {
+						"type": "string"
+					},
+					"resourceGroup": {
+						"type": "string"
+					},
+					"runId": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"triggerTime": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					},
+					"teamWebhookUrl": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"messageCard": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "CONTROLE"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:41Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SharepointGrupoecorodovias')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('SharepointGrupoecorodovias_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dbrk_eco_ls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-1491396636268421.1.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('dbrk_eco_ls_accessToken')]"
+					},
+					"existingClusterId": "[parameters('dbrk_eco_ls_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/rest_hana')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('rest_hana_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('rest_hana_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('rest_hana_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/rest_sap_pwbi')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('rest_sap_pwbi_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('rest_sap_pwbi_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('rest_sap_pwbi_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/rest_sap_sf')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('rest_sap_sf_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('rest_sap_sf_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('rest_sap_sf_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sql_server_sistema_juridico')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('sql_server_sistema_juridico_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Runtime-sgp')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {
+					"linkedInfo": {
+						"resourceId": "[parameters('Runtime-sgp_properties_typeProperties_linkedInfo_resourceId')]",
+						"authorizationType": "Rbac"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/integrationRuntime')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 10,
+							"cleanup": false,
+							"customProperties": []
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KCOR_FLAT_FILE_REPORT')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ouro_report_kcor_vw_causa_provavel",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_CAUSA_PROVAVEL",
+							"baseParameters": {
+								"read_mode": "delta",
+								"input_path": "/camada_ouro/kcor/dbo.TAuxCausasProvaveis/",
+								"input_name": "dbo_TAuxCausasProvaveis",
+								"input_options": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DIM_CAUSA_PROVAVEL/",
+								"output_name": "VW_KCOR_DIM_CAUSA_PROVAVEL",
+								"output_options": "{}",
+								"output_keys": "CD_CAUSA_PROVAVEL",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_condicao_metereologica",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_causa_provavel",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_CONDICAO_METEOROLOGICA",
+							"baseParameters": {
+								"read_mode": "delta",
+								"input_path": "/camada_ouro/kcor/dbo.TAuxCondicoesMeteorologicas/",
+								"input_name": "dbo_TAuxCondicoesMeteorologicas",
+								"input_options": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DIM_CONDICAO_METEOROLOGICA/",
+								"output_name": "VW_KCOR_DIM_CONDICAO_METEOROLOGICA",
+								"output_options": "{}",
+								"output_keys": "CD_CONDICAO_METEOROLOGICA",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_tipo_atendimento",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_condicao_metereologica",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPO_ATENDIMENTO",
+							"baseParameters": {
+								"read_mode": "delta",
+								"input_path": "/camada_ouro/kcor/dbo.TAuxTiposAtendimentos/",
+								"input_name": "dbo_TAuxTiposAtendimentos",
+								"input_options": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPO_ATENDIMENTO/",
+								"output_name": "VW_KCOR_DIM_TIPO_ATENDIMENTO",
+								"output_options": "{}",
+								"output_keys": "CD_TIPO_ATENDIMENTO,Unidade_Origem",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_tipo_acidente",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_tipo_atendimento",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPOACIDENTES",
+							"baseParameters": {
+								"read_mode": "delta",
+								"input_path": "/camada_ouro/kcor/dbo.TAuxTiposAcidentes/",
+								"input_name": "dbo_TAuxTiposAcidentes",
+								"input_options": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPOACIDENTES/",
+								"output_name": "VW_KCOR_DIM_TIPOACIDENTES",
+								"output_options": "{}",
+								"output_keys": "CodTipoAcidente,Unidade_Origem",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_tipo_ocorrencia",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_tipo_acidente",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPOOCORRENCIAS",
+							"baseParameters": {
+								"read_mode": "delta",
+								"input_path": "/camada_ouro/kcor/dbo.TAuxTiposOcorrencias/",
+								"input_name": "dbo_TAuxTiposOcorrencias",
+								"input_options": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPOOCORRENCIAS/",
+								"output_name": "VW_KCOR_DIM_TIPOOCORRENCIAS",
+								"output_options": "{}",
+								"output_keys": "TipoOcorrencia,Unidade_Origem",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_tipo_veiculo",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_tipo_ocorrencia",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPOVEICULO",
+							"baseParameters": {
+								"read_mode": "delta",
+								"input_path": "/camada_ouro/kcor/dbo.TAuxTiposVeiculos/",
+								"input_name": "dbo_TAuxTiposVeiculos",
+								"input_options": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPOVEICULO/",
+								"output_name": "VW_KCOR_DIM_TIPOVEICULO",
+								"output_options": "{}",
+								"output_keys": "CodTipoVeiculo,Unidade_Origem",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_vit_situacao",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_tipo_veiculo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_VITSITUACAO",
+							"baseParameters": {
+								"read_mode": "delta",
+								"input_path": "/camada_ouro/kcor/dbo.TAuxVitSituacoes/",
+								"input_name": "dbo_TAuxVitSituacoes",
+								"input_options": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DIM_VITSITUACAO/",
+								"output_name": "VW_KCOR_DIM_VITSITUACAO",
+								"output_options": "{}",
+								"output_keys": "CodSituacao,unidade_dw",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "KCOR/FLAT_FILE"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:30:03Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KCOR_REPORT_DIM')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ouro_report_kcor_vw_praca_grupo",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_DIM_PRACA_GRUPO",
+							"baseParameters": {
+								"read_mode_praca": "delta",
+								"input_path_praca": "/camada_ouro/tolln3/dbo.PRACA/semanal/",
+								"input_name_praca": "dbo_praca",
+								"input_options_praca": "{}",
+								"read_mode_concessao": "delta",
+								"input_path_concessao": "/camada_ouro/tolln3/dbo.CONCESSAO/semanal/",
+								"input_name_concessao": "dbo_concessao",
+								"input_options_concessao": "{}",
+								"read_mode_cobertura_praca": "delta",
+								"input_path_cobertura_praca": "/camada_ouro/kcor/dbo.AUX_Cobertura_Praca/",
+								"input_name_cobertura_praca": "dbo_AUX_Cobertura_Praca",
+								"input_options_cobertura_praca": "{}",
+								"read_mode_rodovias": "delta",
+								"input_path_rodovias": "/camada_ouro/kcor/dbo.TAuxRodovias/",
+								"input_name_rodovias": "dbo_TAuxRodovias",
+								"input_options_rodovias": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_DIM_PRACA_GRUPO/",
+								"output_name": "VW_DIM_PRACA_GRUPO",
+								"output_options": "{}",
+								"output_keys": "CD_CONCESSAO,CD_PRACA",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_dim_osa",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_praca_grupo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_DIM_OSA",
+							"baseParameters": {
+								"read_mode": "delta",
+								"input_path": "/camada_ouro/tolln3/dbo.OSA/semanal/",
+								"input_name": "dbo_osa",
+								"input_options": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_DIM_OSA/",
+								"output_name": "VW_DIM_OSA",
+								"output_options": "{}",
+								"output_keys": "ID_OSA",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_concessao_praca_th",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_dim_osa",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_DIM_CONCESSAO_PRACA_TH",
+							"baseParameters": {
+								"read_mode_praca": "delta",
+								"input_path_praca": "/camada_ouro/tolln3/dbo.PRACA/semanal/",
+								"input_name_praca": "dbo_praca",
+								"input_options_praca": "{}",
+								"read_mode_concessao": "delta",
+								"input_path_concessao": "/camada_ouro/tolln3/dbo.CONCESSAO/semanal/",
+								"input_name_concessao": "dbo_convessao",
+								"input_options_concessao": "{}",
+								"read_mode_cobertura_praca": "delta",
+								"input_path_cobertura_praca": "/camada_ouro/kcor/dbo.AUX_Cobertura_Praca/",
+								"input_name_cobertura_praca": "dbo_AUX_Cobertura_Praca",
+								"input_options_cobertura_praca": "{}",
+								"read_mode_rodovias": "delta",
+								"input_path_rodovias": "/camada_ouro/kcor/dbo.TAuxRodovias/",
+								"input_name_rodovias": "dbo_TAuxRodovias",
+								"input_options_rodovias": "{}",
+								"read_mode_trecho_homogeneo": "delta",
+								"input_path_trecho_homogeneo": "/camada_ouro/kcor/dbo.DW_TRECHO_HOMOGENEO/",
+								"input_name_trecho_homogeneo": "dbo_DW_TRECHO_HOMOGENEO",
+								"input_options_trecho_homogeneo": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_DIM_CONCESSAO_PRACA_TH/",
+								"output_name": "VW_DIM_CONCESSAO_PRACA_TH",
+								"output_options": "{}",
+								"output_keys": "CD_CONCESSAO,CD_PRACA,ID_TH_GRUPO",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_tipo_recurso",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_concessao_praca_th",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPO_RECURSO",
+							"baseParameters": {
+								"read_mode_recurso": "delta",
+								"input_path_recurso": "/camada_ouro/kcor/dbo.TauxRecursos/",
+								"input_name_recurso": "dbo_TauxRecursos",
+								"input_options_recurso": "{}",
+								"read_mode_tipo_recurso": "delta",
+								"input_path_tipo_recurso": "/camada_ouro/kcor/dbo.TAuxTiposRecursos/",
+								"input_name_tipo_recurso": "dbo_TAuxTiposRecursos",
+								"input_options_tipo_recurso": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPO_RECURSO/",
+								"output_name": "VW_KCOR_DIM_TIPO_RECURSO",
+								"output_options": "{}",
+								"output_keys": "CD_RECURSO,Unidade_Origem",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_drodovias",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_tipo_recurso",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DRODOVIAS",
+							"baseParameters": {
+								"read_mode": "delta",
+								"input_path": "/camada_ouro/kcor/dbo.TAuxRodovias/",
+								"input_name": "dbo_TAuxRodovias",
+								"input_options": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DRODOVIAS/",
+								"output_name": "VW_KCOR_DRODOVIAS",
+								"output_options": "{}",
+								"output_keys": "CD_RODOVIA,CD_CONCESSAO",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_natureza",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_drodovias",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DNATUREZA",
+							"baseParameters": {
+								"read_mode_tipo_ocorrencia": "delta",
+								"input_path_tipo_ocorrencia": "/camada_ouro/kcor/dbo.TAuxTiposOcorrencias/",
+								"input_name_tipo_ocorrencia": "dbo_TAuxTiposOcorrencias",
+								"input_optio_tipo_ocorrencia": "{}",
+								"read_mode_tipo_acidente": "delta",
+								"input_path_tipo_acidente": "/camada_ouro/kcor/dbo.TAuxTiposAcidentes/",
+								"input_name_tipo_acidente": "dbo_TAuxTiposAcidentes",
+								"input_options_tipo_acidente": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_DNATUREZA/",
+								"output_name": "VW_KCOR_DNATUREZA",
+								"output_options": "{}",
+								"output_keys": "CD_NATUREZA",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "KCOR"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KCOR_REPORT_FACT')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ouro_report_kcor_vw_ocorrencia",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_OCORRENCIAS",
+							"baseParameters": {
+								"read_mode_TabOcorrencias": "delta",
+								"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+								"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+								"input_options_TabOcorrencias": "{}",
+								"read_mode_TabVitimas": "delta",
+								"input_path_TabVitimas": "/camada_ouro/kcor/dbo.TabVitimas/",
+								"input_name_TabVitimas": "dbo_TabVitimas",
+								"input_options_TabVitimas": "{}",
+								"read_mode_TabAcidentes": "delta",
+								"input_path_TabAcidentes": "/camada_ouro/kcor/dbo.TabAcidentes/",
+								"input_name_TabAcidentes": "dbo_TabAcidentes",
+								"input_options_TabAcidentes": "{}",
+								"read_mode_TAuxTiposOcorrencias": "delta",
+								"input_path_TAuxTiposOcorrencias": "/camada_ouro/kcor/dbo.TAuxTiposOcorrencias/",
+								"input_name_TAuxTiposOcorrencias": "dbo_TAuxTiposOcorrencias",
+								"input_options_TAuxTiposOcorrencias": "{}",
+								"read_mode_TAuxOrigemChamado": "delta",
+								"input_path_TAuxOrigemChamado": "/camada_ouro/kcor/dbo.TAuxOrigemChamado/",
+								"input_name_TAuxOrigemChamado": "dbo_TAuxOrigemChamado",
+								"input_options_TAuxOrigemChamado": "{}",
+								"read_mode_DW_TRECHO_HOMOGENEO": "delta",
+								"input_path_DW_TRECHO_HOMOGENEO": "/camada_ouro/kcor/dbo.DW_TRECHO_HOMOGENEO/",
+								"input_name_DW_TRECHO_HOMOGENEO": "dbo_DW_TRECHO_HOMOGENEO",
+								"input_options_DW_TRECHO_HOMOGENEO": "{}",
+								"read_mode_TAuxSentidos": "delta",
+								"input_path_TAuxSentidos": "/camada_ouro/kcor/dbo.TAuxSentidos/",
+								"input_name_TAuxSentidos": "dbo_TAuxSentidos",
+								"input_options_TAuxSentidos": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_OCORRENCIAS/",
+								"output_name": "VW_KCOR_OCORRENCIAS",
+								"output_options": "{}",
+								"output_keys": "CD_RECURSO,Unidade_Origem",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_vitimas",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_ocorrencia",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_FVITIMAS",
+							"baseParameters": {
+								"read_mode_TabOcorrencias": "delta",
+								"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+								"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+								"input_options_TabOcorrencias": "{}",
+								"read_mode_TabVeiculosEnvolvidos": "delta",
+								"input_path_TabVeiculosEnvolvidos": "/camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+								"input_name_TabVeiculosEnvolvidos": "dbo_TabVeiculosEnvolvidos",
+								"input_options_TabVeiculosEnvolvidos": "{}",
+								"read_mode_TAuxTiposVeiculos": "delta",
+								"input_path_TAuxTiposVeiculos": "/camada_ouro/kcor/dbo.TAuxTiposVeiculos/",
+								"input_name_TAuxTiposVeiculos": "dbo_TAuxTiposVeiculos",
+								"input_options_TAuxTiposVeiculos": "{}",
+								"read_mode_TabVitimas": "delta",
+								"input_path_TabVitimas": "/camada_ouro/kcor/dbo.TabVitimas/",
+								"input_name_TabVitimas": "dbo_TabVitimas",
+								"input_options_TabVitimas": "{}",
+								"read_mode_TAuxVitPosicoes": "delta",
+								"input_path_TAuxVitPosicoes": "/camada_ouro/kcor/dbo.TAuxVitPosicoes/",
+								"input_name_TAuxVitPosicoes": "dbo_TAuxVitPosicoes",
+								"input_options_TAuxVitPosicoes": "{}",
+								"read_mode_TAuxVitSituacoes": "delta",
+								"input_path_TAuxVitSituacoes": "/camada_ouro/kcor/dbo.TAuxVitSituacoes/",
+								"input_name_TAuxVitSituacoes": "dbo_TAuxVitSituacoes",
+								"input_options_TAuxVitSituacoes": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_FVITIMAS/",
+								"output_name": "VW_KCOR_FVITIMAS",
+								"output_options": "{}",
+								"output_keys": "CD_RODOVIA,CD_CONCESSAO",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_veiculos",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_vitimas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_FVEICULOS",
+							"baseParameters": {
+								"read_mode_TabOcorrencias": "delta",
+								"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+								"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+								"input_options_TabOcorrencias": "{}",
+								"read_mode_TabVeiculosEnvolvidos": "delta",
+								"input_path_TabVeiculosEnvolvidos": "/camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+								"input_name_TabVeiculosEnvolvidos": "dbo_TabVeiculosEnvolvidos",
+								"input_options_TabVeiculosEnvolvidos": "{}",
+								"read_mode_TAuxTiposVeiculos": "delta",
+								"input_path_TAuxTiposVeiculos": "/camada_ouro/kcor/dbo.TAuxTiposVeiculos/",
+								"input_name_TAuxTiposVeiculos": "dbo_TAuxTiposVeiculos",
+								"input_options_TAuxTiposVeiculos": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_FVEICULOS/",
+								"output_name": "VW_KCOR_FVEICULOS",
+								"output_options": "{}",
+								"output_keys": "CD_NATUREZA",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_recursos_ocorrencia",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_veiculos",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_FRECURSOS_OCORRENCIA",
+							"baseParameters": {
+								"read_mode_TabOcorrencias": "delta",
+								"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+								"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+								"input_options_TabOcorrencias": "{}",
+								"read_mode_TabRecursosAcionados": "delta",
+								"input_path_TabRecursosAcionados": "/camada_ouro/kcor/dbo.TabRecursosAcionados/",
+								"input_name_TabRecursosAcionados": "dbo_TabRecursosAcionados",
+								"input_options_TabRecursosAcionados": "{}",
+								"read_mode_TAuxTiposAtendimentos": "delta",
+								"input_path_TAuxTiposAtendimentos": "/camada_ouro/kcor/dbo.TAuxTiposAtendimentos/",
+								"input_name_TAuxTiposAtendimentos": "dbo_TAuxTiposAtendimentos",
+								"input_options_TAuxTiposAtendimentos": "{}",
+								"read_mode_TabVeiculosEnvolvidos": "delta",
+								"input_path_TabVeiculosEnvolvidos": "/camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+								"input_name_TabVeiculosEnvolvidos": "dbo_TabVeiculosEnvolvidos",
+								"input_options_TabVeiculosEnvolvidos": "{}",
+								"read_mode_TAuxTiposRecursos": "delta",
+								"input_path_TAuxTiposRecursos": "/camada_ouro/kcor/dbo.TAuxTiposRecursos/",
+								"input_name_TAuxTiposRecursos": "dbo_TAuxTiposRecursos",
+								"input_options_TAuxTiposRecursos": "{}",
+								"read_mode_TauxRecursos": "delta",
+								"input_path_TauxRecursos": "/camada_ouro/kcor/dbo.TauxRecursos/",
+								"input_name_TauxRecursos": "dbo_TauxRecursos",
+								"input_options_TauxRecursos": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_FRECURSOS_OCORRENCIA/",
+								"output_name": "VW_KCOR_FRECURSOS_OCORRENCIA",
+								"output_options": "{}",
+								"output_keys": "CD_NATUREZA",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "KCOR"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:53Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KCOR_REPORT_FT')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ouro_report_kcor_vw_ocorrencia",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_OCORRENCIAS",
+							"baseParameters": {
+								"read_mode_TabOcorrencias": "delta",
+								"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+								"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+								"input_options_TabOcorrencias": "{}",
+								"read_mode_TabVitimas": "delta",
+								"input_path_TabVitimas": "/camada_ouro/kcor/dbo.TabVitimas/",
+								"input_name_TabVitimas": "dbo_TabVitimas",
+								"input_options_TabVitimas": "{}",
+								"read_mode_TabAcidentes": "delta",
+								"input_path_TabAcidentes": "/camada_ouro/kcor/dbo.TabAcidentes/",
+								"input_name_TabAcidentes": "dbo_TabAcidentes",
+								"input_options_TabAcidentes": "{}",
+								"read_mode_TAuxTiposOcorrencias": "delta",
+								"input_path_TAuxTiposOcorrencias": "/camada_ouro/kcor/dbo.TAuxTiposOcorrencias/",
+								"input_name_TAuxTiposOcorrencias": "dbo_TAuxTiposOcorrencias",
+								"input_options_TAuxTiposOcorrencias": "{}",
+								"read_mode_TAuxOrigemChamado": "delta",
+								"input_path_TAuxOrigemChamado": "/camada_ouro/kcor/dbo.TAuxOrigemChamado/",
+								"input_name_TAuxOrigemChamado": "dbo_TAuxOrigemChamado",
+								"input_options_TAuxOrigemChamado": "{}",
+								"read_mode_DW_TRECHO_HOMOGENEO": "delta",
+								"input_path_DW_TRECHO_HOMOGENEO": "/camada_ouro/kcor/dbo.DW_TRECHO_HOMOGENEO/",
+								"input_name_DW_TRECHO_HOMOGENEO": "dbo_DW_TRECHO_HOMOGENEO",
+								"input_options_DW_TRECHO_HOMOGENEO": "{}",
+								"read_mode_TAuxSentidos": "delta",
+								"input_path_TAuxSentidos": "/camada_ouro/kcor/dbo.TAuxSentidos/",
+								"input_name_TAuxSentidos": "dbo_TAuxSentidos",
+								"input_options_TAuxSentidos": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_OCORRENCIAS/",
+								"output_name": "VW_KCOR_OCORRENCIAS",
+								"output_options": "{}",
+								"output_keys": "CD_RECURSO,Unidade_Origem",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_vitimas",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_ocorrencia",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_FVITIMAS",
+							"baseParameters": {
+								"read_mode_TabOcorrencias": "delta",
+								"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+								"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+								"input_options_TabOcorrencias": "{}",
+								"read_mode_TabVeiculosEnvolvidos": "delta",
+								"input_path_TabVeiculosEnvolvidos": "/camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+								"input_name_TabVeiculosEnvolvidos": "dbo_TabVeiculosEnvolvidos",
+								"input_options_TabVeiculosEnvolvidos": "{}",
+								"read_mode_TAuxTiposVeiculos": "delta",
+								"input_path_TAuxTiposVeiculos": "/camada_ouro/kcor/dbo.TAuxTiposVeiculos/",
+								"input_name_TAuxTiposVeiculos": "dbo_TAuxTiposVeiculos",
+								"input_options_TAuxTiposVeiculos": "{}",
+								"read_mode_TabVitimas": "delta",
+								"input_path_TabVitimas": "/camada_ouro/kcor/dbo.TabVitimas/",
+								"input_name_TabVitimas": "dbo_TabVitimas",
+								"input_options_TabVitimas": "{}",
+								"read_mode_TAuxVitPosicoes": "delta",
+								"input_path_TAuxVitPosicoes": "/camada_ouro/kcor/dbo.TAuxVitPosicoes/",
+								"input_name_TAuxVitPosicoes": "dbo_TAuxVitPosicoes",
+								"input_options_TAuxVitPosicoes": "{}",
+								"read_mode_TAuxVitSituacoes": "delta",
+								"input_path_TAuxVitSituacoes": "/camada_ouro/kcor/dbo.TAuxVitSituacoes/",
+								"input_name_TAuxVitSituacoes": "dbo_TAuxVitSituacoes",
+								"input_options_TAuxVitSituacoes": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_FVITIMAS/",
+								"output_name": "VW_KCOR_FVITIMAS",
+								"output_options": "{}",
+								"output_keys": "CD_RODOVIA,CD_CONCESSAO",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_veiculos",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_vitimas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_FVEICULOS",
+							"baseParameters": {
+								"read_mode_TabOcorrencias": "delta",
+								"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+								"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+								"input_options_TabOcorrencias": "{}",
+								"read_mode_TabVeiculosEnvolvidos": "delta",
+								"input_path_TabVeiculosEnvolvidos": "/camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+								"input_name_TabVeiculosEnvolvidos": "dbo_TabVeiculosEnvolvidos",
+								"input_options_TabVeiculosEnvolvidos": "{}",
+								"read_mode_TAuxTiposVeiculos": "delta",
+								"input_path_TAuxTiposVeiculos": "/camada_ouro/kcor/dbo.TAuxTiposVeiculos/",
+								"input_name_TAuxTiposVeiculos": "dbo_TAuxTiposVeiculos",
+								"input_options_TAuxTiposVeiculos": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_FVEICULOS/",
+								"output_name": "VW_KCOR_FVEICULOS",
+								"output_options": "{}",
+								"output_keys": "CD_NATUREZA",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_kcor_vw_recursos_ocorrencia",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_kcor_vw_veiculos",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/KCOR/VW_KCOR_FRECURSOS_OCORRENCIA",
+							"baseParameters": {
+								"read_mode_TabOcorrencias": "delta",
+								"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+								"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+								"input_options_TabOcorrencias": "{}",
+								"read_mode_TabRecursosAcionados": "delta",
+								"input_path_TabRecursosAcionados": "/camada_ouro/kcor/dbo.TabRecursosAcionados/",
+								"input_name_TabRecursosAcionados": "dbo_TabRecursosAcionados",
+								"input_options_TabRecursosAcionados": "{}",
+								"read_mode_TAuxTiposAtendimentos": "delta",
+								"input_path_TAuxTiposAtendimentos": "/camada_ouro/kcor/dbo.TAuxTiposAtendimentos/",
+								"input_name_TAuxTiposAtendimentos": "dbo_TAuxTiposAtendimentos",
+								"input_options_TAuxTiposAtendimentos": "{}",
+								"read_mode_TabVeiculosEnvolvidos": "delta",
+								"input_path_TabVeiculosEnvolvidos": "/camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+								"input_name_TabVeiculosEnvolvidos": "dbo_TabVeiculosEnvolvidos",
+								"input_options_TabVeiculosEnvolvidos": "{}",
+								"read_mode_TAuxTiposRecursos": "delta",
+								"input_path_TAuxTiposRecursos": "/camada_ouro/kcor/dbo.TAuxTiposRecursos/",
+								"input_name_TAuxTiposRecursos": "dbo_TAuxTiposRecursos",
+								"input_options_TAuxTiposRecursos": "{}",
+								"read_mode_TauxRecursos": "delta",
+								"input_path_TauxRecursos": "/camada_ouro/kcor/dbo.TauxRecursos/",
+								"input_name_TauxRecursos": "dbo_TauxRecursos",
+								"input_options_TauxRecursos": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/kcor/VW_KCOR_FRECURSOS_OCORRENCIA/",
+								"output_name": "VW_KCOR_FRECURSOS_OCORRENCIA",
+								"output_options": "{}",
+								"output_keys": "CD_NATUREZA",
+								"catalog": "hive_metastore",
+								"schema": "kcor"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "KCOR"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:30:04Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TOLLPACKBI_REPORT_ETL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ouro_report_toll_dim_classificacao_desconto",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_DIM_CLASSIFICACAO_DESCONTO",
+							"baseParameters": {
+								"read_mode_classificacao_desconto": "delta",
+								"input_path_classificacao_desconto": "/camada_ouro/tollpackbi/dbo.DIM_CLASSIFICAO_DESCONTO/semanal/",
+								"input_name_classificacao_desconto": "dbo_dim_classificao_desconto",
+								"input_options_classificacao_desconto": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/tollpackbi/VW_TOLL_DIM_CLASSIFICACAO_DESCONTO/",
+								"output_name": "VW_TOLL_DIM_CLASSIFICACAO_DESCONTO",
+								"output_options": "{}",
+								"output_keys": "CD_CLASSIFICACAO_DESCONTO",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_toll_dim_operador",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_toll_dim_classificacao_desconto",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_DIM_OPERADOR",
+							"baseParameters": {
+								"read_mode_operador": "delta",
+								"input_path_operador": "/camada_ouro/tollpackbi/dbo.DIM_OPERADOR/semanal/",
+								"input_name_operador": "dbo_dim_operador",
+								"input_options_operador": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/tollpackbi/VW_TOLL_DIM_OPERADOR/",
+								"output_name": "VW_TOLL_DIM_OPERADOR",
+								"output_options": "{}",
+								"output_keys": "CD_OPERADOR_SISTEMA",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_toll_dim_pista_praca_unidade",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_toll_dim_operador",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_DIM_PISTA_PRACA_UNIDADE",
+							"baseParameters": {
+								"read_mode_praca": "delta",
+								"input_path_praca": "/camada_ouro/tollpackbi/dbo.DIM_PRACA/semanal/",
+								"input_name_praca": "dbo_dim_praca",
+								"input_options_praca": "{}",
+								"read_mode_pista": "delta",
+								"input_path_pista": "/camada_ouro/tollpackbi/dbo.DIM_PISTA/semanal/",
+								"input_name_pista": "dbo_dim_pista",
+								"input_options_pista": "{}",
+								"read_mode_concessao": "delta",
+								"input_path_concessao": "/camada_ouro/tollpackbi/dbo.DIM_CONCESSAO/semanal/",
+								"input_name_concessao": "dbo_dim_concessao",
+								"input_options_concessao": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/tollpackbi/VW_TOLL_DIM_OPERADOR/",
+								"output_name": "VW_TOLL_DIM_PISTA_PRACA_UNIDADE",
+								"output_options": "{}",
+								"output_keys": "CD_PISTA",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_toll_dim_tipo_pagamento",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_toll_dim_pista_praca_unidade",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_DIM_TIPO_PAGAMENTO",
+							"baseParameters": {
+								"read_mode_tipo_pagamento": "delta",
+								"input_path_tipo_pagamento": "/camada_ouro/tollpackbi/dbo.DIM_TIPO_PAGTO/semanal/",
+								"input_name_tipo_pagamento": "dbo_dim_tipo_pagto",
+								"input_options_tipo_pagamento": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/tollpackbi/VW_TOLL_DIM_TIPO_PAGAMENTO/",
+								"output_name": "VW_TOLL_DIM_TIPO_PAGAMENTO",
+								"output_options": "{}",
+								"output_keys": "CD_TPO_PGTO",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_toll_extrato_trafego",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_toll_dim_tipo_pagamento",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_EXTRATO_TRAFEGO",
+							"baseParameters": {
+								"read_mode_sentido": "delta",
+								"input_path_sentido": "/camada_ouro/tollpackbi/dbo.DIM_SENTIDO/semanal/",
+								"input_name_sentido": "dbo_dim_sentido",
+								"input_options_sentido": "{}",
+								"read_mode_categoria": "delta",
+								"input_path_categoria": "/camada_ouro/tollpackbi/dbo.DIM_CATEGORIA/semanal/",
+								"input_name_categoria": "dbo_dim_categoria",
+								"input_options_categoria": "{}",
+								"read_mode_fact_extrato_trafego": "delta",
+								"input_path_fact_extrato_trafego": "camada_ouro/tollpackbi/dbo.FACT_EXTRATO_TRAFEGO/incremental/",
+								"input_name_fact_extrato_trafego": "dbo_fact_extrato_trafego",
+								"input_options_fact_extrato_trafego": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/tollpackbi/VW_TOLL_EXTRATO_TRAFEGO/",
+								"output_name": "VW_TOLL_EXTRATO_TRAFEGO",
+								"output_options": "{}",
+								"output_keys": "DATA,CD_PRACA,CD_CONCESSAO",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_toll_trafego_nsr_et",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_tollpackbi_extrato_trafego_consolidado",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLLPACKBI_EXTRATO_TRAFEGO_CONSOLIDADO",
+							"baseParameters": {
+								"read_mode_praca": "delta",
+								"input_path_praca": "/camada_ouro/tollpackbi/dbo.DIM_PRACA/semanal/",
+								"input_name_praca": "dbo_dim_praca",
+								"input_options_praca": "{}",
+								"read_mode_pista": "delta",
+								"input_path_pista": "/camada_ouro/tollpackbi/dbo.DIM_PISTA/semanal/",
+								"input_name_pista": "dbo_dim_pista",
+								"input_options_pista": "{}",
+								"read_mode_categoria": "delta",
+								"input_path_categoria": "/camada_ouro/tollpackbi/dbo.DIM_CATEGORIA/semanal/",
+								"input_name_categoria": "dbo_dim_categoria",
+								"input_options_categoria": "{}",
+								"read_mode_tipo_pagamento": "delta",
+								"input_path_tipo_pagamento": "/camada_ouro/tollpackbi/dbo.DIM_TIPO_PAGTO/semanal/",
+								"input_name_tipo_pagamento": "dbo_dim_tipo_pagto",
+								"input_options_tipo_pagamento": "{}",
+								"read_mode_fact_extrato_trafego": "delta",
+								"input_path_fact_extrato_trafego": "camada_ouro/tollpackbi/dbo.FACT_EXTRATO_TRAFEGO/incremental/",
+								"input_name_fact_extrato_trafego": "dbo_fact_extrato_trafego",
+								"input_options_fact_extrato_trafego": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/tollpackbi/VW_TOLLPACKBI_EXTRATO_TRAFEGO_CONSOLIDADO/",
+								"output_name": "VW_TOLLPACKBI_EXTRATO_TRAFEGO_CONSOLIDADO",
+								"output_options": "{}",
+								"output_keys": "DATA_SAIDA,CD_CONCESSAO,PRACA,CD_PISTA,TIPO_PISTA,id_osa,id_operador,TIPO_PAGTO,TIPO_VALIDACAO",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ouro_report_tollpackbi_extrato_trafego_consolidado",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "ouro_report_toll_extrato_trafego",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TRAFEGO_NSR_ET",
+							"baseParameters": {
+								"read_mode_praca": "delta",
+								"input_path_praca": "/camada_ouro/tollpackbi/dbo.DIM_PRACA/semanal/",
+								"input_name_praca": "dbo_dim_praca",
+								"input_options_praca": "{}",
+								"read_mode_pista": "delta",
+								"input_path_pista": "/camada_ouro/tollpackbi/dbo.DIM_PISTA/semanal/",
+								"input_name_pista": "dbo_dim_pista",
+								"input_options_pista": "{}",
+								"read_mode_concessao": "delta",
+								"input_path_concessao": "/camada_ouro/tollpackbi/dbo.DIM_CONCESSAO/semanal/",
+								"input_name_concessao": "dbo_dim_concessao",
+								"input_options_concessao": "{}",
+								"read_mode_categoria": "delta",
+								"input_path_categoria": "/camada_ouro/tollpackbi/dbo.DIM_CATEGORIA/semanal/",
+								"input_name_categoria": "dbo_dim_categoria",
+								"input_options_categoria": "{}",
+								"read_mode_tipo_pagamento": "delta",
+								"input_path_tipo_pagamento": "/camada_ouro/tollpackbi/dbo.DIM_TIPO_PAGTO/semanal/",
+								"input_name_tipo_pagamento": "dbo_dim_tipo_pagto",
+								"input_options_tipo_pagamento": "{}",
+								"read_mode_dim_classificao_desconto": "delta",
+								"input_path_dim_classificao_desconto": "/camada_ouro/tollpackbi/dbo.DIM_CLASSIFICAO_DESCONTO/semanal/",
+								"input_name_dim_classificao_desconto": "dbo_dim_classificao_desconto",
+								"input_options_dim_classificao_desconto": "{}",
+								"read_mode_fact_extrato_trafego": "delta",
+								"input_path_fact_extrato_trafego": "camada_ouro/tollpackbi/dbo.FACT_EXTRATO_TRAFEGO/incremental/",
+								"input_name_fact_extrato_trafego": "dbo_fact_extrato_trafego",
+								"input_options_fact_extrato_trafego": "{}",
+								"write_mode_output": "upsert",
+								"output_path": "/camada_report/tollpackbi/VW_TRAFEGO_NSR_ET/",
+								"output_name": "VW_TRAFEGO_NSR_ET",
+								"output_options": "{}",
+								"output_keys": "ID,DATA,CD_PRACA,TIPO_PISTA,TIPO_VEICULO,CD_SENTIDO,CD_CATEG,TIPO_PAGTO,CD_OSA",
+								"catalog": "hive_metastore",
+								"schema": "tollpackbi"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "TOLLPACKBI"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_ecompras_fornecedor')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_ecompras_fornecedor",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/ecompras/fornecedor/",
+								"input_name": "ecompras_fornecedor",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/ecompras/fornecedor/",
+								"output_name": "ecompras_fornecedor",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_FORNECEDOR"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/ECOMPRAS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_ecompras_vw_fornecedor')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_ecompras_vw_fornecedor",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/ecompras/vw_fornecedor/",
+								"input_name": "ecompras_vw_fornecedor",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/ecompras/vw_fornecedor/",
+								"output_name": "ecompras_vw_fornecedor",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_FORNECEDOR"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/ECOMPRAS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_area_direito')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_area_direito",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/area_direito",
+								"input_name": "juridico_area_direito",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/area_direito/",
+								"output_name": "juridico_area_direito",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_AREA_DIREITO"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_empresa')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_empresa",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/empresa",
+								"input_name": "juridico_empresa",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/empresa/",
+								"output_name": "juridico_empresa",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_EMPRESA"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_grupo_empresa')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_grupo_empresa",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/grupo_empresa",
+								"input_name": "juridico_grupo_empresa",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/grupo_empresa/",
+								"output_name": "juridico_grupo_empresa",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_GRUPO_EMPRESA"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/dbrk_eco_ls')]"
+			]
+		}
+	]
+}

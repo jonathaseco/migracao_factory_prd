@@ -1,0 +1,4980 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "ecanalyticsdfprd"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sgr_catarata')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/sgr/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().type, 'Folder'),startswith(item().name,'dbo'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_sgr",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/sgr/', variables('pasta_atual'), '/catarata/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/sgr/', variables('pasta_atual'), '/catarata/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_sgr_catarata",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"nome_pasta": {
+						"type": "String"
+					},
+					"lista_tabelas": {
+						"type": "String"
+					},
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "SGR/CATARATA"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T20:22:43Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sgr_e101')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/sgr/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().type, 'Folder'),startswith(item().name,'dbo'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_sgr",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/sgr/', variables('pasta_atual'), '/e101/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/sgr/', variables('pasta_atual'), '/e101/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_sgr_e101",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"nome_pasta": {
+						"type": "String"
+					},
+					"lista_tabelas": {
+						"type": "String"
+					},
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "SGR/E101"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T20:27:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sgr_e135')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/sgr/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().type, 'Folder'),startswith(item().name,'dbo'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_sgr",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/sgr/', variables('pasta_atual'), '/e135/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/sgr/', variables('pasta_atual'), '/e135/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_sgr_e135",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"nome_pasta": {
+						"type": "String"
+					},
+					"lista_tabelas": {
+						"type": "String"
+					},
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "SGR/E135"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T20:29:31Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sgr_ecopara')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/sgr/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().type, 'Folder'),startswith(item().name,'dbo'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_sgr",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/sgr/', variables('pasta_atual'), '/ecopara/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/sgr/', variables('pasta_atual'), '/ecopara/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_sgr_ecopara",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"nome_pasta": {
+						"type": "String"
+					},
+					"lista_tabelas": {
+						"type": "String"
+					},
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "SGR/ECOPARA"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T20:30:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sgr_ecosul')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/sgr/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().type, 'Folder'),startswith(item().name,'dbo'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_sgr",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/sgr/', variables('pasta_atual'), '/ecosul/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/sgr/', variables('pasta_atual'), '/ecosul/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_sgr_ecosul",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"nome_pasta": {
+						"type": "String"
+					},
+					"lista_tabelas": {
+						"type": "String"
+					},
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "SGR/ECOSUL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T20:32:49Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sgr_epst')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/sgr/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().type, 'Folder'),startswith(item().name,'dbo'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_sgr",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/sgr/', variables('pasta_atual'), '/epst/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/sgr/', variables('pasta_atual'), '/epst/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_sgr_epst",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"nome_pasta": {
+						"type": "String"
+					},
+					"lista_tabelas": {
+						"type": "String"
+					},
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "SGR/EPST"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T20:38:12Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sgr_evis')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/sgr/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().type, 'Folder'),startswith(item().name,'dbo'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_sgr",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/sgr/', variables('pasta_atual'), '/evis/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/sgr/', variables('pasta_atual'), '/evis/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_sgr_evis",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"nome_pasta": {
+						"type": "String"
+					},
+					"lista_tabelas": {
+						"type": "String"
+					},
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "SGR/EVIS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T20:40:33Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sgr_pont')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/sgr/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().type, 'Folder'),startswith(item().name,'dbo'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_sgr",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/sgr/', variables('pasta_atual'), '/pont/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/sgr/', variables('pasta_atual'), '/pont/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_sgr_pont",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"nome_pasta": {
+						"type": "String"
+					},
+					"lista_tabelas": {
+						"type": "String"
+					},
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "SGR/PONT"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-17T20:43:10Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_tolln3_diario')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento diário de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/tolln3/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(and(equals(item().type, 'Folder'),startswith(item().name,'dbo')),\n     equals(item().name, 'dbo.PAGAMENTO'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_tolln3",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/tolln3/', variables('pasta_atual'), '/diaria/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/tolln3/', variables('pasta_atual'), '/diaria/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_tolln3",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					},
+					"nome_tabela": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "TOLLN3/DIARIA"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-06T16:47:46Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_tolln3_mensal')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento mensal de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/tolln3/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas e tabelas mensais",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(and(equals(item().type, 'Folder'),startswith(item().name,'dbo')),\n     equals(item().name, 'dbo.TRANSITO_FECHAMENTO'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_tolln3",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/tolln3/', variables('pasta_atual'), '/mensal/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/tolln3/', variables('pasta_atual'), '/mensal/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_tolln3",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					},
+					"nome_tabela": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "TOLLN3/MENSAL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-05T14:38:51Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_tolln3_semanal')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento semanal de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/tolln3/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas e tabelas mensais",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(and(equals(item().type, 'Folder'),startswith(item().name,'dbo')),\n     not(or(equals(item().name, 'dbo.PAGAMENTO'),\n            equals(item().name, 'dbo.TRANSITO_FECHAMENTO'))))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_tolln3",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/tolln3/', variables('pasta_atual'), '/semanal/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/tolln3/', variables('pasta_atual'), '/semanal/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_tolln3",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					},
+					"nome_tabela": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "TOLLN3/SEMANAL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-05T17:18:03Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_tollpackbi_diario')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento diário de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/tollpackbi/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(and(equals(item().type, 'Folder'),startswith(item().name,'dbo')),\n     equals(item().name, 'dbo.FACT_EXTRATO_OPERACIONAL'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_tollpackbi",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/tollpackbi/', variables('pasta_atual'), '/diaria/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/tollpackbi/', variables('pasta_atual'), '/diaria/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_tollpackbi",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					},
+					"nome_tabela": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "TOLLPACKBI/DIARIA"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-06T19:31:12Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_tollpackbi_incr')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento incremental de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/tollpackbi/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas e tabelas",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(and(equals(item().type, 'Folder'),startswith(item().name,'dbo')),\n     equals(item().name, 'dbo.FACT_EXTRATO_TRAFEGO'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_tollpackbi",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/tollpackbi/', variables('pasta_atual'), '/incremental/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/tollpackbi/', variables('pasta_atual'), '/incremental/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_tollpackbi",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					},
+					"nome_tabela": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "TOLLPACKBI/INCREMENTAL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-09T16:56:20Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_tollpackbi_semanal')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento semanal de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/tollpackbi/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas e tabelas mensais",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(and(equals(item().type, 'Folder'),startswith(item().name,'dbo')),\n     not(or(equals(item().name, 'dbo.FACT_EXTRATO_OPERACIONAL'),\n            equals(item().name, 'dbo.FACT_EXTRATO_TRAFEGO'))))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_tollpackbi",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/tollpackbi/', variables('pasta_atual'), '/semanal/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/tollpackbi/', variables('pasta_atual'), '/semanal/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_tollpackbi",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					},
+					"nome_tabela": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "TOLLPACKBI/SEMANAL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-09T16:44:26Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_tollpackbi_tudo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline para processamento semanal de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+				"activities": [
+					{
+						"name": "ListarPastas",
+						"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "camada_bronze/tollpackbi/",
+										"type": "Expression"
+									},
+									"arquivo": "*.*"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "ParquetReadSettings"
+							}
+						}
+					},
+					{
+						"name": "FiltrarPastas",
+						"description": "Filtra apenas os itens que são pastas e tabelas mensais",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "ListarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ListarPastas').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(and(equals(item().type, 'Folder'),startswith(item().name,'dbo')),\n     equals(item().name, 'dbo.DIM_OPERADOR'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "IterarPastas",
+						"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FiltrarPastas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FiltrarPastas').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "SetarNomePasta",
+									"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "pasta_atual",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "bronze_prata_tollpackbi",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "SetaChave",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.0:30:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+										"baseParameters": {
+											"input_path": {
+												"value": "@concat('camada_bronze/tollpackbi/', variables('pasta_atual'), '/tudo/')",
+												"type": "Expression"
+											},
+											"input_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"input_format": "parquet",
+											"input_options": "{}",
+											"read_mode": "delta",
+											"output_path": {
+												"value": "@concat('camada_prata/tollpackbi/', variables('pasta_atual'), '/tudo/')",
+												"type": "Expression"
+											},
+											"output_name": {
+												"value": "@variables('pasta_atual')",
+												"type": "Expression"
+											},
+											"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+											"output_keys": {
+												"value": "@variables('chave')",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "dbrk_eco_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "LerArquivoParametroDia",
+									"description": "Verifica os parâmetros de ingestão da carga da tabela",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "SetarNomePasta",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"dataset": {
+											"referenceName": "planilha_tollpackbi",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "VerificarTabelaCargaParcialDia",
+									"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "LerArquivoParametroDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('LerArquivoParametroDia').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().tabela, variables('pasta_atual'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetaChave",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "VerificarTabelaCargaParcialDia",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "chave",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"pasta_atual": {
+						"type": "String"
+					},
+					"nome_arquivo": {
+						"type": "String"
+					},
+					"chave": {
+						"type": "String"
+					},
+					"nome_tabela": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "TOLLPACKBI/TUDO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-09T17:05:27Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_area_direito')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoAreaDireitoFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "AREA_DIREITO"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/area_direito",
+												"arquivo": {
+													"value": "@concat('juridico_area_direito__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoAreaDireitoIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.AREA_DIREITO\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "AREA_DIREITO"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/area_direito",
+												"arquivo": {
+													"value": "@concat('juridico_area_direito__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_empresa')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoEmpresaFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "EMPRESA"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/empresa",
+												"arquivo": {
+													"value": "@concat('juridico_empresa__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoEmpresaIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.EMPRESA\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "EMPRESA"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/empresa",
+												"arquivo": {
+													"value": "@concat('juridico_empresa__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_grupo_empresa')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoGrupoEmpresaFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "GRUPO_EMPRESA"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/grupo_empresa",
+												"arquivo": {
+													"value": "@concat('juridico_grupo_empresa__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoGrupoEmpresaIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.GRUPO_EMPRESA\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "GRUPO_EMPRESA"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/grupo_empresa",
+												"arquivo": {
+													"value": "@concat('juridico_grupo_empresa__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_origem_causa')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoOrigemCausaFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "ORIGEM_CAUSA"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/origem_causa",
+												"arquivo": {
+													"value": "@concat('juridico_origem_causa__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoOrigemCausaIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.ORIGEM_CAUSA\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "ORIGEM_CAUSA"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/origem_causa",
+												"arquivo": {
+													"value": "@concat('juridico_origem_causa__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ingest_juridico_parte_contraria')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IfConditionIncremental",
+						"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "CopyDataFromJuridicoParteContrariaFull",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "PARTE_CONTRARIA"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/parte_contraria",
+												"arquivo": {
+													"value": "@concat('juridico_parte_contraria__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "CopyDataFromJuridicoParteContrariaIncremental",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "SELECT *\nFROM JURIDICO.dbo.PARTE_CONTRARIA\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerJuridico",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "PARTE_CONTRARIA"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dlPath",
+											"type": "DatasetReference",
+											"parameters": {
+												"caminho": "camada_bronze/juridico/parte_contraria",
+												"arquivo": {
+													"value": "@concat('juridico_parte_contraria__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tipo_carga": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "01_INGESTAO/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-29T18:05:23Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

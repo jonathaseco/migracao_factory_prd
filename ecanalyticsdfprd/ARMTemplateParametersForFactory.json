@@ -1,0 +1,132 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ecanalyticsdfprd"
+		},
+		"AzureDataLakeStorage_accountKey": {
+			"value": ""
+		},
+		"Conexao_KCOR_E050ECER_connectionString": {
+			"value": ""
+		},
+		"Conexao_KCOR_E101_connectionString": {
+			"value": ""
+		},
+		"Conexao_KCOR_E135_connectionString": {
+			"value": ""
+		},
+		"Conexao_KCOR_EARA_connectionString": {
+			"value": ""
+		},
+		"Conexao_KCOR_ENOR_connectionString": {
+			"value": ""
+		},
+		"Conexao_KCOR_EPST_connectionString": {
+			"value": ""
+		},
+		"Conexao_KCOR_ERMIN_connectionString": {
+			"value": ""
+		},
+		"Conexao_KCOR_ESUL_connectionString": {
+			"value": ""
+		},
+		"Conexao_KCOR_EVIS_connectionString": {
+			"value": ""
+		},
+		"Conexao_KCOR_PONT_connectionString": {
+			"value": ""
+		},
+		"Conexao_SGR_CATARATA_connectionString": {
+			"value": ""
+		},
+		"Conexao_SGR_E101_connectionString": {
+			"value": ""
+		},
+		"Conexao_SGR_E135_connectionString": {
+			"value": ""
+		},
+		"Conexao_SGR_ECOPARA_connectionString": {
+			"value": ""
+		},
+		"Conexao_SGR_ECOSUL_connectionString": {
+			"value": ""
+		},
+		"Conexao_SGR_EPST_connectionString": {
+			"value": ""
+		},
+		"Conexao_SGR_PONT_connectionString": {
+			"value": ""
+		},
+		"Conexao_TOLLN3_connectionString": {
+			"value": ""
+		},
+		"Conexao_TOLLPACKBI_2_connectionString": {
+			"value": ""
+		},
+		"SqlServer1_connectionString": {
+			"value": ""
+		},
+		"SqlServer_ECompras_connectionString": {
+			"value": ""
+		},
+		"dbrk_eco_ls_accessToken": {
+			"value": ""
+		},
+		"oracle_sap_ecc_ls_connectionString": {
+			"value": ""
+		},
+		"rest_hana_password": {
+			"value": ""
+		},
+		"rest_sap_pwbi_password": {
+			"value": ""
+		},
+		"rest_sap_sf_password": {
+			"value": ""
+		},
+		"sql_server_sistema_juridico_connectionString": {
+			"value": ""
+		},
+		"AzureDataLakeStorage_properties_typeProperties_url": {
+			"value": "https://ecsanalyticsdl.dfs.core.windows.net/"
+		},
+		"SharepointGrupoecorodovias_properties_typeProperties_url": {
+			"value": "https://grupoecorodovias.sharepoint.com/sites"
+		},
+		"dbrk_eco_ls_properties_typeProperties_existingClusterId": {
+			"value": "0914-142952-uki2j8p5"
+		},
+		"rest_hana_properties_typeProperties_url": {
+			"value": "https://ecorodovias-dev-s6jfmx6y.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/"
+		},
+		"rest_hana_properties_typeProperties_userName": {
+			"value": "sb-125c8253-122d-4942-9d24-cdfc83998aba!b2219|it-rt-ecorodovias-dev-s6jfmx6y!b106"
+		},
+		"rest_sap_pwbi_properties_typeProperties_url": {
+			"value": "https://ecorodovias-dev-s6jfmx6y.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/"
+		},
+		"rest_sap_pwbi_properties_typeProperties_userName": {
+			"value": "sb-125c8253-122d-4942-9d24-cdfc83998aba!b2219|it-rt-ecorodovias-dev-s6jfmx6y!b106"
+		},
+		"rest_sap_sf_properties_typeProperties_url": {
+			"value": "https://api8.successfactors.com/odata/v2/"
+		},
+		"rest_sap_sf_properties_typeProperties_userName": {
+			"value": "powerBI_integracao@ecorodoviaD"
+		},
+		"trg_ingest_prata_ecompras_properties_ingest_prata_ecompras_parameters_tipo_carga": {
+			"value": "delta"
+		},
+		"trg_ingest_prata_juridico_properties_ingest_prata_juridico_parameters_tipo_carga": {
+			"value": "delta"
+		},
+		"trg_ingest_prata_sap_ecc_properties_ingest_prata_sap_ecc_parameters_tipo_carga": {
+			"value": "delta"
+		},
+		"Runtime-sgp_properties_typeProperties_linkedInfo_resourceId": {
+			"value": "/subscriptions/b5a9d3e3-9203-4a37-b799-586a326cdbf9/resourcegroups/RG-Analytics-BD/providers/Microsoft.DataFactory/factories/ecanalyticsdfdev/integrationruntimes/Runtime-sgp"
+		}
+	}
+}

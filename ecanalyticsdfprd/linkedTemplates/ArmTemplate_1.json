@@ -1,0 +1,996 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "ecanalyticsdfprd"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_origem_causa')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_origem_causa",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/origem_causa",
+								"input_name": "juridico_origem_causa",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/origem_causa/",
+								"output_name": "juridico_origem_causa",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_ORIGEM_CAUSA"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:50Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_parte_contraria')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_parte_contraria",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/parte_contraria",
+								"input_name": "juridico_parte_contraria",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/parte_contraria/",
+								"output_name": "juridico_parte_contraria",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_PARTE_CONTRARIA"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_processo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_processo",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/processo",
+								"input_name": "juridico_processo",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/processo/",
+								"output_name": "juridico_processo",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_PROCESSO"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_processo_valores_pagamento_ass')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_processo_valores_pagamento_ass",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/processo_valores_pagamento_ass",
+								"input_name": "juridico_processo_valores_pagamento_ass",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/processo_valores_pagamento_ass/",
+								"output_name": "juridico_processo_valores_pagamento_ass",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_PROCESSO_VALORES_PAGAMENTO_ASS"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:49Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_td_processo_resultado')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_td_processo_resultado",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/td_processo_resultado",
+								"input_name": "juridico_td_processo_resultado",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/td_processo_resultado/",
+								"output_name": "juridico_td_processo_resultado",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_PROCESSO_RESULTADO"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_td_processo_status')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_td_processo_status",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/td_processo_status",
+								"input_name": "juridico_td_processo_status",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/td_processo_status/",
+								"output_name": "juridico_td_processo_status",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_PROCESSO_STATUS"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_tipo_motivo_encerramento')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_tipo_motivo_encerramento",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/tipo_motivo_encerramento",
+								"input_name": "juridico_tipo_motivo_encerramento",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/tipo_motivo_encerramento/",
+								"output_name": "juridico_tipo_motivo_encerramento",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "cd_tipo_motivo_encerramento"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_juridico_unidade')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_juridico_unidade",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/juridico/unidade",
+								"input_name": "juridico_unidade",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/juridico/unidade/",
+								"output_name": "juridico_unidade",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_UNIDADE"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/JURIDICO"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:53Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_kcor_dbo_aux_cobertura_praca')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_kcor_dbo_aux_cobertura_praca",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/kcor/dbo.aux_cobertura_praca/",
+								"input_name": "dbo.aux_cobertura_praca",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "camada_prata/kcor/dbo.aux_cobertura_praca/",
+								"output_name": "dbo.aux_cobertura_praca",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CD_PRACA"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/KCOR"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_kcor_dbo_aux_rodovia_concessao')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_kcor_dbo_aux_rodovia_concessao",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/kcor/dbo.aux_rodovia_concessao/",
+								"input_name": "dbo.aux_rodovia_concessao",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "camada_prata/kcor/dbo.aux_rodovia_concessao/",
+								"output_name": "dbo.aux_rodovia_concessao",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "CodRodovia"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/KCOR"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_kcor_dbo_dw_trecho_homogeneo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_kcor_dbo_dw_trecho_homogeneo",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "camada_bronze/kcor/dbo.dw_trecho_homogeneo/",
+								"input_name": "dbo.dw_trecho_homogeneo",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "camada_prata/kcor/dbo.dw_trecho_homogeneo/",
+								"output_name": "dbo.dw_trecho_homogeneo",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "ID_TH_GRUPO"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/KCOR"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:30:04Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sap_ecc_ekko')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_sap_ecc_ekko",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/sap_ecc/ekko/",
+								"input_name": "ekko",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/sap_ecc/ekko/",
+								"output_name": "ekko",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "LIFNR"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/SAP_ECC"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sap_sf_empcompensation')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_sap_sf_empCompensation",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/sap_sf/emp_compensation/",
+								"input_name": "emp_compensation",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/sap_sf/emp_compensation/",
+								"output_name": "emp_compensation",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "userId"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sap_sf_empemployment')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_sap_sf_empEmployment",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/sap_sf/emp_employment/",
+								"input_name": "emp_employment",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/sap_sf/emp_employment/",
+								"output_name": "emp_employment",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "userId"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:53Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sap_sf_empjob')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_sap_sf_empJob",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/sap_sf/emp_job/",
+								"input_name": "emp_job",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/sap_sf/emp_job/",
+								"output_name": "emp_job",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "userId"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:46Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sap_sf_emppaycomprecurring')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_sap_sf_empPayCompRecurring",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/sap_sf/emp_pay_comp_recurring/",
+								"input_name": "emp_pay_comp_recurring",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/sap_sf/emp_pay_comp_recurring/",
+								"output_name": "emp_pay_comp_recurring",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "userId"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sap_sf_focompany')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_sap_sf_FOCompany",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/sap_sf/fo_company/",
+								"input_name": "fo_company",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/sap_sf/fo_company/",
+								"output_name": "fo_company",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "externalCode"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sap_sf_fodepartment')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_sap_sf_FOCompany",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/sap_sf/fo_department/",
+								"input_name": "fo_department",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/sap_sf/fo_department/",
+								"output_name": "fo_department",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "externalCode"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sap_sf_fopaycomponent')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_sap_sf_FOPayComponent",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/sap_sf/fo_pay_component/",
+								"input_name": "fo_pay_component",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/sap_sf/fo_pay_component/",
+								"output_name": "fo_pay_component",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "externalCode"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_prata_sap_sf_pernationalid')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze_prata_sap_sf_perNationalId",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.0:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+							"baseParameters": {
+								"input_path": "/camada_bronze/sap_sf/per_national_id/",
+								"input_name": "per_national_id",
+								"input_format": "parquet",
+								"input_options": "{}",
+								"read_mode": "delta",
+								"output_path": "/camada_prata/sap_sf/per_national_id/",
+								"output_name": "per_national_id",
+								"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+								"output_keys": "personIdExternal"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "dbrk_eco_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "02_BRONZE_PRATA/SAP_SF"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:29:57Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

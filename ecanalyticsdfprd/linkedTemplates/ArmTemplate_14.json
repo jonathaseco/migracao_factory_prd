@@ -1,0 +1,1096 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "ecanalyticsdfprd"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_KCOR_E101')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_KCOR_E101",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_KCOR_E135')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_KCOR_E135",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_KCOR_EARA')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_KCOR_EARA",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_KCOR_ENOR')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_KCOR_ENOR",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_KCOR_EPST')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_KCOR_EPST",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_KCOR_ERMIN')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_KCOR_ERMIN",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_KCOR_ESUL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão ao banco do KCOR para Ecosul",
+				"linkedServiceName": {
+					"referenceName": "Conexao_KCOR_ESUL",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_KCOR_EVIS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_KCOR_EVIS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_KCOR_PONT')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_KCOR_PONT",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_SGR_CATARATA')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_SGR_CATARATA",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_SGR_E101')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_SGR_E101",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_SGR_E135')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão ao banco do SGR para E135",
+				"linkedServiceName": {
+					"referenceName": "Conexao_SGR_E135",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_SGR_ECOPARA')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_SGR_ECOPARA",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_SGR_ECOSUL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_SGR_ECOSUL",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_SGR_EPST')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_SGR_EPST",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_SGR_PONT')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Conexao_SGR_PONT",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_TOLLN3')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com banco de dados do TOLLN3 no servidor de réplica (03CSRV70)",
+				"linkedServiceName": {
+					"referenceName": "Conexao_TOLLN3",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_TOLLPACKBI')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conexão com banco de dados do TOLLPACKBI no servidor de réplica (replican3db.arrecada.corp)",
+				"linkedServiceName": {
+					"referenceName": "Conexao_TOLLPACKBI_2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KCOR_INCR_P1-1_E050ECER_DIN_AUX')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline que realiza a ingestão de dados on-premises de todas as tabelas do KCOR da Eco050 e EcoCerrado para camada bronze",
+				"activities": [
+					{
+						"name": "IngerirTabelaCargaCompletaIncr",
+						"description": "Realiza a ingestão da carga de dados, que pode ser completa ou seguindo o valor do campo \"condicao\" do arquivo de parâmetro.\nCaso seja necessário realizar a carga parcial da tabela, no campo \"Query\" da aba \"Source\" é realizada a substituição de $PARAMETRO$ (existente no arquivo de parâmetro \"kcor_[unidade].xlsx\") pelo valor do parâmetro 'dias_atualizacao_p11'). ",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "SetarValorCondicaoIncr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "@concat('SELECT *, getdate() AS data_ingestao FROM ', pipeline().parameters.nome_tabela, ' WHERE ', replace(variables('condicao_where'), '$PARAMETRO$', pipeline().parameters.dias_atualizacao_p11))",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "dataset_KCOR_E050ECER",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": "x",
+									"table": "x"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "@concat('camada_bronze/kcor/', pipeline().parameters.Concessao, '/', formatDateTime(utcnow(),'yyyy_MM_dd'))",
+										"type": "Expression"
+									},
+									"arquivo": {
+										"value": "@concat(pipeline().parameters.nome_tabela,'_',formatDateTime(utcnow(),'yyyyMMdd'),'.parquet')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "LerArquivoParametroIncr",
+						"description": "Lê o arquivo de parâmetro",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"dataset": {
+								"referenceName": "planilha_kcor_e050ecer",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "SetarValorCondicaoIncr",
+						"description": "Caso o nome da tabela em processamento esteja no arquivo de parâmetro, então atualiza a variável \"condicao_where\" com o valor do campo \"condicao\" do arquivo de parâmetro (condição True). Caso contrário, então \"condicao_where\" recebe valor 1 = 1 (condição False).",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "VerificarTabelaCargaParcialIncr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(activity('VerificarTabelaCargaParcialIncr').output.FilteredItemsCount,0)",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "SetaCondicaoWhere_Default_copy1",
+									"description": "Seta a variável \"condicao_where\" com o valor 1 = 1. Ou seja, será necessário realizar a carga completa ou de D-X da tabela.",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "condicao_where",
+										"value": {
+											"value": "1=1",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "SetaCondicaoWhere",
+									"description": "Seta a variável \"condicao_where\" com o valor do campo \"condicao\" do arquivo de parâmetro. Ou seja, não será necessário realizar a carga completa da tabela.",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "condicao_where",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialIncr').output.value[0].condicao",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "VerificarTabelaCargaParcialIncr",
+						"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "LerArquivoParametroIncr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('LerArquivoParametroIncr').output.value",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().tabela, pipeline().parameters.nome_tabela),equals(pipeline().parameters.cargacompleta, false))",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"cargacompleta": {
+						"type": "bool"
+					},
+					"concessao": {
+						"type": "string"
+					},
+					"dias_atualizacao_p11": {
+						"type": "string"
+					},
+					"nome_tabela": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"nome_tabela": {
+						"type": "String"
+					},
+					"aux": {
+						"type": "String"
+					},
+					"contador": {
+						"type": "String"
+					},
+					"condicao_where": {
+						"type": "String"
+					},
+					"check": {
+						"type": "Boolean"
+					}
+				},
+				"folder": {
+					"name": "KCOR/INCREMENTAL/OLD"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-19T15:30:03Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KCOR_INCR_P1-1_E101_DIN_AUX')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline que realiza a ingestão de dados on-premises de todas as tabelas do KCOR da Eco101 para camada bronze",
+				"activities": [
+					{
+						"name": "IngerirTabelaCargaCompletaIncr",
+						"description": "Realiza a ingestão da carga de dados, que pode ser completa ou seguindo o valor do campo \"condicao\" do arquivo de parâmetro.\nCaso seja necessário realizar a carga parcial da tabela, no campo \"Query\" da aba \"Source\" é realizada a substituição de $PARAMETRO$ (existente no arquivo de parâmetro \"kcor_[unidade].xlsx\") pelo valor do parâmetro 'dias_atualizacao_p11'). ",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "SetarValorCondicaoIncr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "@concat('SELECT *, getdate() AS data_ingestao FROM ', pipeline().parameters.nome_tabela, ' WHERE ', replace(variables('condicao_where'), '$PARAMETRO$', pipeline().parameters.dias_atualizacao_p11))",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "dataset_KCOR_E101",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": "x",
+									"table": "x"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "dlPath",
+								"type": "DatasetReference",
+								"parameters": {
+									"caminho": {
+										"value": "@concat('camada_bronze/kcor/', pipeline().parameters.Concessao, '/', formatDateTime(utcnow(),'yyyy_MM_dd'))",
+										"type": "Expression"
+									},
+									"arquivo": {
+										"value": "@concat(pipeline().parameters.nome_tabela,'_',formatDateTime(utcnow(),'yyyyMMdd'),'.parquet')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "LerArquivoParametroIncr",
+						"description": "Lê o arquivo de parâmetro",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"dataset": {
+								"referenceName": "planilha_kcor_e101",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "SetarValorCondicaoIncr",
+						"description": "Caso o nome da tabela em processamento esteja no arquivo de parâmetro, então atualiza a variável \"condicao_where\" com o valor do campo \"condicao\" do arquivo de parâmetro (condição True). Caso contrário, então \"condicao_where\" recebe valor 1 = 1 (condição False).",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "VerificarTabelaCargaParcialIncr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(activity('VerificarTabelaCargaParcialIncr').output.FilteredItemsCount,0)",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "SetaCondicaoWhere_Default_copy1",
+									"description": "Seta a variável \"condicao_where\" com o valor 1 = 1. Ou seja, será necessário realizar a carga completa ou de D-X da tabela.",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "condicao_where",
+										"value": {
+											"value": "1=1",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "SetaCondicaoWhere",
+									"description": "Seta a variável \"condicao_where\" com o valor do campo \"condicao\" do arquivo de parâmetro. Ou seja, não será necessário realizar a carga completa da tabela.",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "condicao_where",
+										"value": {
+											"value": "@activity('VerificarTabelaCargaParcialIncr').output.value[0].condicao",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "VerificarTabelaCargaParcialIncr",
+						"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "LerArquivoParametroIncr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('LerArquivoParametroIncr').output.value",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().tabela, pipeline().parameters.nome_tabela),equals(pipeline().parameters.cargacompleta, false))",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"cargacompleta": {
+						"type": "bool"
+					},
+					"concessao": {
+						"type": "string"
+					},
+					"dias_atualizacao_p11": {
+						"type": "string"
+					},
+					"nome_tabela": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"nome_tabela": {
+						"type": "String"
+					},
+					"aux": {
+						"type": "String"
+					},
+					"contador": {
+						"type": "String"
+					},
+					"condicao_where": {
+						"type": "String"
+					},
+					"check": {
+						"type": "Boolean"
+					}
+				},
+				"folder": {
+					"name": "KCOR/INCREMENTAL/OLD"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-16T17:19:05Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dataset_KCOR_E101')]"
+			]
+		}
+	]
+}
