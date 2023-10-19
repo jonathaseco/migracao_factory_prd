@@ -5,12 +5,8 @@
 		"annotations": [],
 		"type": "AzureBlobFS",
 		"typeProperties": {
-			"url": "https://ecsanalyticsdldev.dfs.core.windows.net/",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEE5MDU1NjYwLTUzRDYtNEZEQy1COTE1LTA5QUJDODY4Mzc2Q181ZmI2OTExMC04Yzg4LTRhNjktOWU3MS0wMDkyMGRiNjA1NGUiDQp9"
-		},
-		"connectVia": {
-			"referenceName": "integrationRuntime",
-			"type": "IntegrationRuntimeReference"
+			"url": "https://ecsanalyticsdl.dfs.core.windows.net/",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEQwMzhENjIxLTk2MjEtNEE0Mi1CN0I2LUVDQzA5OUY4Njc4OF9hNGQ2ODA1MC0wMjIwLTQxNjUtYWZmMC01YzIwYzdkYWM4MWMiDQp9"
 		}
 	}
 }

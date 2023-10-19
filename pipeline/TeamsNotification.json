@@ -88,7 +88,7 @@
 			"name": "CONTROLE"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-09-27T19:41:55Z"
+		"lastPublishTime": "2023-10-19T14:47:06Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

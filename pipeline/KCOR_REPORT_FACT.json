@@ -1,0 +1,238 @@
+{
+	"name": "KCOR_REPORT_FACT",
+	"properties": {
+		"activities": [
+			{
+				"name": "ouro_report_kcor_vw_ocorrencia",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_OCORRENCIAS",
+					"baseParameters": {
+						"read_mode_TabOcorrencias": "delta",
+						"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+						"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+						"input_options_TabOcorrencias": "{}",
+						"read_mode_TabVitimas": "delta",
+						"input_path_TabVitimas": "/camada_ouro/kcor/dbo.TabVitimas/",
+						"input_name_TabVitimas": "dbo_TabVitimas",
+						"input_options_TabVitimas": "{}",
+						"read_mode_TabAcidentes": "delta",
+						"input_path_TabAcidentes": "/camada_ouro/kcor/dbo.TabAcidentes/",
+						"input_name_TabAcidentes": "dbo_TabAcidentes",
+						"input_options_TabAcidentes": "{}",
+						"read_mode_TAuxTiposOcorrencias": "delta",
+						"input_path_TAuxTiposOcorrencias": "/camada_ouro/kcor/dbo.TAuxTiposOcorrencias/",
+						"input_name_TAuxTiposOcorrencias": "dbo_TAuxTiposOcorrencias",
+						"input_options_TAuxTiposOcorrencias": "{}",
+						"read_mode_TAuxOrigemChamado": "delta",
+						"input_path_TAuxOrigemChamado": "/camada_ouro/kcor/dbo.TAuxOrigemChamado/",
+						"input_name_TAuxOrigemChamado": "dbo_TAuxOrigemChamado",
+						"input_options_TAuxOrigemChamado": "{}",
+						"read_mode_DW_TRECHO_HOMOGENEO": "delta",
+						"input_path_DW_TRECHO_HOMOGENEO": "/camada_ouro/kcor/dbo.DW_TRECHO_HOMOGENEO/",
+						"input_name_DW_TRECHO_HOMOGENEO": "dbo_DW_TRECHO_HOMOGENEO",
+						"input_options_DW_TRECHO_HOMOGENEO": "{}",
+						"read_mode_TAuxSentidos": "delta",
+						"input_path_TAuxSentidos": "/camada_ouro/kcor/dbo.TAuxSentidos/",
+						"input_name_TAuxSentidos": "dbo_TAuxSentidos",
+						"input_options_TAuxSentidos": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_OCORRENCIAS/",
+						"output_name": "VW_KCOR_OCORRENCIAS",
+						"output_options": "{}",
+						"output_keys": "CD_RECURSO,Unidade_Origem",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_vitimas",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_ocorrencia",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_FVITIMAS",
+					"baseParameters": {
+						"read_mode_TabOcorrencias": "delta",
+						"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+						"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+						"input_options_TabOcorrencias": "{}",
+						"read_mode_TabVeiculosEnvolvidos": "delta",
+						"input_path_TabVeiculosEnvolvidos": "/camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+						"input_name_TabVeiculosEnvolvidos": "dbo_TabVeiculosEnvolvidos",
+						"input_options_TabVeiculosEnvolvidos": "{}",
+						"read_mode_TAuxTiposVeiculos": "delta",
+						"input_path_TAuxTiposVeiculos": "/camada_ouro/kcor/dbo.TAuxTiposVeiculos/",
+						"input_name_TAuxTiposVeiculos": "dbo_TAuxTiposVeiculos",
+						"input_options_TAuxTiposVeiculos": "{}",
+						"read_mode_TabVitimas": "delta",
+						"input_path_TabVitimas": "/camada_ouro/kcor/dbo.TabVitimas/",
+						"input_name_TabVitimas": "dbo_TabVitimas",
+						"input_options_TabVitimas": "{}",
+						"read_mode_TAuxVitPosicoes": "delta",
+						"input_path_TAuxVitPosicoes": "/camada_ouro/kcor/dbo.TAuxVitPosicoes/",
+						"input_name_TAuxVitPosicoes": "dbo_TAuxVitPosicoes",
+						"input_options_TAuxVitPosicoes": "{}",
+						"read_mode_TAuxVitSituacoes": "delta",
+						"input_path_TAuxVitSituacoes": "/camada_ouro/kcor/dbo.TAuxVitSituacoes/",
+						"input_name_TAuxVitSituacoes": "dbo_TAuxVitSituacoes",
+						"input_options_TAuxVitSituacoes": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_FVITIMAS/",
+						"output_name": "VW_KCOR_FVITIMAS",
+						"output_options": "{}",
+						"output_keys": "CD_RODOVIA,CD_CONCESSAO",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_veiculos",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_vitimas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_FVEICULOS",
+					"baseParameters": {
+						"read_mode_TabOcorrencias": "delta",
+						"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+						"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+						"input_options_TabOcorrencias": "{}",
+						"read_mode_TabVeiculosEnvolvidos": "delta",
+						"input_path_TabVeiculosEnvolvidos": "/camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+						"input_name_TabVeiculosEnvolvidos": "dbo_TabVeiculosEnvolvidos",
+						"input_options_TabVeiculosEnvolvidos": "{}",
+						"read_mode_TAuxTiposVeiculos": "delta",
+						"input_path_TAuxTiposVeiculos": "/camada_ouro/kcor/dbo.TAuxTiposVeiculos/",
+						"input_name_TAuxTiposVeiculos": "dbo_TAuxTiposVeiculos",
+						"input_options_TAuxTiposVeiculos": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_FVEICULOS/",
+						"output_name": "VW_KCOR_FVEICULOS",
+						"output_options": "{}",
+						"output_keys": "CD_NATUREZA",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_recursos_ocorrencia",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_veiculos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_FRECURSOS_OCORRENCIA",
+					"baseParameters": {
+						"read_mode_TabOcorrencias": "delta",
+						"input_path_TabOcorrencias": "/camada_ouro/kcor/dbo.TabOcorrencias/",
+						"input_name_TabOcorrencias": "dbo_TabOcorrencias",
+						"input_options_TabOcorrencias": "{}",
+						"read_mode_TabRecursosAcionados": "delta",
+						"input_path_TabRecursosAcionados": "/camada_ouro/kcor/dbo.TabRecursosAcionados/",
+						"input_name_TabRecursosAcionados": "dbo_TabRecursosAcionados",
+						"input_options_TabRecursosAcionados": "{}",
+						"read_mode_TAuxTiposAtendimentos": "delta",
+						"input_path_TAuxTiposAtendimentos": "/camada_ouro/kcor/dbo.TAuxTiposAtendimentos/",
+						"input_name_TAuxTiposAtendimentos": "dbo_TAuxTiposAtendimentos",
+						"input_options_TAuxTiposAtendimentos": "{}",
+						"read_mode_TabVeiculosEnvolvidos": "delta",
+						"input_path_TabVeiculosEnvolvidos": "/camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+						"input_name_TabVeiculosEnvolvidos": "dbo_TabVeiculosEnvolvidos",
+						"input_options_TabVeiculosEnvolvidos": "{}",
+						"read_mode_TAuxTiposRecursos": "delta",
+						"input_path_TAuxTiposRecursos": "/camada_ouro/kcor/dbo.TAuxTiposRecursos/",
+						"input_name_TAuxTiposRecursos": "dbo_TAuxTiposRecursos",
+						"input_options_TAuxTiposRecursos": "{}",
+						"read_mode_TauxRecursos": "delta",
+						"input_path_TauxRecursos": "/camada_ouro/kcor/dbo.TauxRecursos/",
+						"input_name_TauxRecursos": "dbo_TauxRecursos",
+						"input_options_TauxRecursos": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_FRECURSOS_OCORRENCIA/",
+						"output_name": "VW_KCOR_FRECURSOS_OCORRENCIA",
+						"output_options": "{}",
+						"output_keys": "CD_NATUREZA",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "KCOR"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-19T14:47:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

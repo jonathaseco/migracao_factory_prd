@@ -361,7 +361,7 @@
 			"name": "KCOR/INCREMENTAL/E135"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T11:54:57Z"
+		"lastPublishTime": "2023-10-19T14:47:27Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }
