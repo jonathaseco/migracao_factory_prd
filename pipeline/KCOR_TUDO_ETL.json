@@ -1,0 +1,772 @@
+{
+	"name": "KCOR_TUDO_ETL",
+	"properties": {
+		"description": "Pipeline para processamento ETL de todas as tabelas (fato e dimensão) do KCOR",
+		"activities": [
+			{
+				"name": "DistribuirPipelines",
+				"description": "Switch utilizado para direcionar qual pipeline deve ser processado conforme o valor do campo 'Origem' indicado no parâmetro inicial",
+				"type": "Switch",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@pipeline().parameters.origem",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "e050_ecer",
+							"activities": [
+								{
+									"name": "Executar_ingest_e050ecer",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_e050ecer",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_e050ecer",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_e050ecer",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_e050ecer",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_e050ecer",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_e050ecer",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_e050ecer",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "epst",
+							"activities": [
+								{
+									"name": "Executar_ingest_epst",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_epst",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_epst",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_epst",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_epst",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_epst",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_epst",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_epst",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "pont",
+							"activities": [
+								{
+									"name": "Executar_ingest_pont",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_pont",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_pont",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_pont",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_pont",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_pont",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_pont",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_pont",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "e135",
+							"activities": [
+								{
+									"name": "Executar_ingest_e135",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_e135",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_e135",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_e135",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_e135",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_e135",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_e135",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_e135",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "evis",
+							"activities": [
+								{
+									"name": "Executar_ingest_evis",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_evis",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_evis",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_evis",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_evis",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_evis",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_evis",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_evis",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "esul",
+							"activities": [
+								{
+									"name": "Executar_ingest_esul",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_esul",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_esul",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_esul",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_esul",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_esul",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_esul",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_esul",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "e101",
+							"activities": [
+								{
+									"name": "Executar_ingest_e101",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_e101",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_e101",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_e101",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_e101",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_e101",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_e101",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_e101",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "eara",
+							"activities": [
+								{
+									"name": "Executar_ingest_eara",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_eara",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_eara",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_eara",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_eara",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_eara",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_eara",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_eara",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "ermin",
+							"activities": [
+								{
+									"name": "Executar_ingest_ermin",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_ermin",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_ermin",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_ermin",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_ermin",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_ermin",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_ermin",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_ermin",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "enor",
+							"activities": [
+								{
+									"name": "Executar_ingest_enor",
+									"description": "Pipeline para execução do passo 1, carga de dados on-premise para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_kcor_tudo_enor",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_enor",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_enor",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_kcor_tudo_enor",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_enor",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_enor",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_kcor_tudo_enor",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"cargacompleta": {
+				"type": "bool",
+				"defaultValue": true
+			},
+			"origem": {
+				"type": "string"
+			},
+			"dias_atualizacao_etl": {
+				"type": "string",
+				"defaultValue": "7"
+			}
+		},
+		"folder": {
+			"name": "KCOR/TUDO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T16:38:18Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

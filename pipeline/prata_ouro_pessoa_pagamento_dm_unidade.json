@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_pessoa_pagamento_dm_unidade",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_pessoa_pagamento_dm_unidade",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/PESSOA_PAGAMENTO/DM_UNIDADE",
+					"baseParameters": {
+						"read_mode_fo_company": "delta",
+						"input_path_fo_company": "/camada_prata/sap_sf/fo_company/",
+						"input_name_fo_company": "fo_company",
+						"input_options_fo_company": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/pessoa_pagamento/dm_unidade/",
+						"output_name": "dm_unidade",
+						"output_options": "{}",
+						"output_keys": "CD_UNIDADE",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/PESSOA_PAGAMENTO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T14:39:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

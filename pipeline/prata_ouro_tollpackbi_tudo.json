@@ -1,0 +1,47 @@
+{
+	"name": "prata_ouro_tollpackbi_tudo",
+	"properties": {
+		"description": "Execução de notebooks no Databricks para processamento das tabelas da camada prata para ouro.",
+		"activities": [
+			{
+				"name": "prata_ouro_dim_operador",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLPACKBI/dbo.DIM_OPERADOR",
+					"baseParameters": {
+						"read_mode_dim_operador": "delta",
+						"input_name_dim_operador": "dbo.DIM_OPERADOR",
+						"input_path_dim_operador": "camada_prata/tollpackbi/dbo.DIM_OPERADOR/tudo/",
+						"input_options_dim_operador": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tollpackbi/dbo.DIM_OPERADOR/tudo/",
+						"output_name": "dbo_dim_operador",
+						"output_options": "{}",
+						"output_keys": " ",
+						"catalog": "hive_metastore",
+						"schema": "tollpackbi"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "TOLLPACKBI/TUDO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-10T19:20:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

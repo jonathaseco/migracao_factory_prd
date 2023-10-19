@@ -1,0 +1,47 @@
+{
+	"name": "prata_ouro_tolln3_mensal",
+	"properties": {
+		"description": "Execução de notebook no Databricks para processamento das tabelas mensais da camada prata para ouro.",
+		"activities": [
+			{
+				"name": "prata_ouro_dbo_transito_fechamento",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.TRANSITO_FECHAMENTO",
+					"baseParameters": {
+						"read_mode_transito": "delta",
+						"input_name_transito": "dbo.TRANSITO_FECHAMENTO",
+						"input_path_transito": "camada_prata/tolln3/dbo.TRANSITO_FECHAMENTO/mensal/",
+						"input_options_transito": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.TRANSITO_FECHAMENTO/mensal/",
+						"output_name": "dbo_transito_fechamento",
+						"output_options": "{}",
+						"output_keys": "ID_TRANSITO",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "TOLLN3/MENSAL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-05T16:46:43Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

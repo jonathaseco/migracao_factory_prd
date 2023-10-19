@@ -1,0 +1,54 @@
+{
+	"name": "prata_ouro_juridico_ft_fornecedor_compras",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_ft_fornecedor_compras",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/FORNECEDOR/FT_FORNECEDOR_COMPRAS",
+					"baseParameters": {
+						"read_mode_fornecedor": "delta",
+						"input_path_fornecedor": "/camada_prata/ecompras/fornecedor/",
+						"input_name_fornecedor": "ecompras_fornecedor",
+						"input_options_fornecedor": "{}",
+						"read_mode_vw_fornecedor": "delta",
+						"input_path_vw_fornecedor": "/camada_prata/ecompras/vw_fornecedor/",
+						"input_name_vw_fornecedor": "ecompras_vw_fornecedor",
+						"input_options_vw_fornecedor": "{}",
+						"read_mode_sap_ecc_ekko": "delta",
+						"input_path_sap_ecc_ekko": "/camada_prata/sap_ecc/ekko/",
+						"input_name_sap_ecc_ekko": "ekko",
+						"input_options_sap_ecc_ekko": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/fornecedor/ft_fornecedor_compras/",
+						"output_name": "ft_fornecedor_compras",
+						"output_options": "{}",
+						"output_keys": "CD_FORNECEDOR",
+						"catalog": "hive_metastore",
+						"schema": "fornecedor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/FORNECEDOR"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T22:02:57Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

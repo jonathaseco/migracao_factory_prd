@@ -1,0 +1,57 @@
+{
+	"name": "ingest_prata_sap_ecc",
+	"properties": {
+		"activities": [
+			{
+				"name": "ingest_sap_ecc_ekko",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_ecc_ekko",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "bronze_prata_sap_ecc_ekko",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_ecc_ekko",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_ecc_ekko",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"parameters": {
+			"tipo_carga": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "00_WORKFLOW/INGESTAO_PRATA"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T23:42:51Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

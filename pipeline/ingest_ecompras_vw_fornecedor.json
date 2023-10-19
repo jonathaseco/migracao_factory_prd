@@ -1,0 +1,74 @@
+{
+	"name": "ingest_ecompras_vw_fornecedor",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDataFromEcomprasVwFornecedor",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SqlServerEcompras",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "dbo",
+							"table": "VW_FORNECEDOR_PAINEL_CONTROLE_ADMIN"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "dlPath",
+						"type": "DatasetReference",
+						"parameters": {
+							"caminho": "camada_bronze/ecompras/vw_fornecedor",
+							"arquivo": {
+								"value": "@concat('ecompras_vw_fornecedor__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "01_INGESTAO/ECOMPRAS"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T21:44:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

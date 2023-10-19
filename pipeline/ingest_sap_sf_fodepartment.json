@@ -1,0 +1,305 @@
+{
+	"name": "ingest_sap_sf_fodepartment",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDataFromFODepartment",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"AbsoluteUrl": "$.d.__next"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['externalCode']"
+								},
+								"sink": {
+									"name": "externalCode"
+								}
+							},
+							{
+								"source": {
+									"path": "['startDate']"
+								},
+								"sink": {
+									"name": "startDate"
+								}
+							},
+							{
+								"source": {
+									"path": "['parent']"
+								},
+								"sink": {
+									"name": "parent"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedDateTime']"
+								},
+								"sink": {
+									"name": "lastModifiedDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_localized']"
+								},
+								"sink": {
+									"name": "name_localized"
+								}
+							},
+							{
+								"source": {
+									"path": "['endDate']"
+								},
+								"sink": {
+									"name": "endDate"
+								}
+							},
+							{
+								"source": {
+									"path": "['entityUUID']"
+								},
+								"sink": {
+									"name": "entityUUID"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdDateTime']"
+								},
+								"sink": {
+									"name": "createdDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_pt_BR']"
+								},
+								"sink": {
+									"name": "description_pt_BR"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_pt_BR']"
+								},
+								"sink": {
+									"name": "name_pt_BR"
+								}
+							},
+							{
+								"source": {
+									"path": "['costCenter']"
+								},
+								"sink": {
+									"name": "costCenter"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_defaultValue']"
+								},
+								"sink": {
+									"name": "description_defaultValue"
+								}
+							},
+							{
+								"source": {
+									"path": "['cust_Nivel']"
+								},
+								"sink": {
+									"name": "cust_Nivel",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['name']"
+								},
+								"sink": {
+									"name": "name"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_en_US']"
+								},
+								"sink": {
+									"name": "description_en_US"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_en_DEBUG']"
+								},
+								"sink": {
+									"name": "description_en_DEBUG",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['status']"
+								},
+								"sink": {
+									"name": "status"
+								}
+							},
+							{
+								"source": {
+									"path": "['description']"
+								},
+								"sink": {
+									"name": "description"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_en_DEBUG']"
+								},
+								"sink": {
+									"name": "name_en_DEBUG",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdOn']"
+								},
+								"sink": {
+									"name": "createdOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['headOfUnit']"
+								},
+								"sink": {
+									"name": "headOfUnit",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_en_US']"
+								},
+								"sink": {
+									"name": "name_en_US"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_defaultValue']"
+								},
+								"sink": {
+									"name": "name_defaultValue"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedBy']"
+								},
+								"sink": {
+									"name": "lastModifiedBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedOn']"
+								},
+								"sink": {
+									"name": "lastModifiedOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdBy']"
+								},
+								"sink": {
+									"name": "createdBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['mdfSystemRecordId']"
+								},
+								"sink": {
+									"name": "mdfSystemRecordId"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_localized']"
+								},
+								"sink": {
+									"name": "description_localized"
+								}
+							}
+						],
+						"collectionReference": "$['d']['results']",
+						"mapComplexValuesToString": false
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "RestSapSfFULL",
+						"type": "DatasetReference",
+						"parameters": {
+							"table": "FODepartment",
+							"format": "JSON"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "camada_bronze/sap_sf/fo_department/",
+							"file": {
+								"value": "@concat('fo_department__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "01_INGESTAO/SAP_SF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T16:39:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

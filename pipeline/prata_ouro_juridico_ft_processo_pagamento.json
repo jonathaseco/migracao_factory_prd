@@ -1,0 +1,50 @@
+{
+	"name": "prata_ouro_juridico_ft_processo_pagamento",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_ft_processo_pagamento",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/JURIDICO/FT_PROCESSO_PAGAMENTO",
+					"baseParameters": {
+						"read_mode_processo": "delta",
+						"input_path_processo": "/camada_prata/juridico/processo/",
+						"input_name_processo": "juridico_processo",
+						"input_options_processo": "{}",
+						"read_mode_processo_valores_pagamento_ass": "delta",
+						"input_path_processo_valores_pagamento_ass": "/camada_prata/juridico/processo_valores_pagamento_ass/",
+						"input_name_processo_valores_pagamento_ass": "juridico_processo_valores_pagamento_ass",
+						"input_options_processo_valores_pagamento_ass": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/juridico/ft_processo_pagamento/",
+						"output_name": "ft_processo_pagamento",
+						"output_options": "{}",
+						"output_keys": "CD_PROCESSO,CD_PROCESSO_VALORES_PAGAMENTO_ASS",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T20:51:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

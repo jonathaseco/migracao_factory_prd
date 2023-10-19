@@ -1,0 +1,415 @@
+{
+	"name": "ingest_prata_juridico",
+	"properties": {
+		"activities": [
+			{
+				"name": "ingest_juridico_area_direito",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_area_direito",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ingest_juridico_empresa",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_empresa",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ingest_juridico_grupo_empresa",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_grupo_empresa",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ingest_juridico_origem_causa",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_origem_causa",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ingest_juridico_parte_contraria",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_parte_contraria",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ingest_juridico_processo",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_processo",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ingest_juridico_processo_valores_pagamento_ass",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_processo_valores_pagamento_ass",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ingest_juridico_td_processo_resultado",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_td_processo_resultado",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_juridico_td_processo_status",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_td_processo_status",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ingest_juridico_tipo_motivo_encerramento",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_tipo_motivo_encerramento",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_juridico_unidade",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_juridico_unidade",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tipo_carga": {
+							"value": "@pipeline().parameters.tipo_carga",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_area_direito",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_area_direito",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_area_direito",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_empresa",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_empresa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_empresa",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_grupo_empresa",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_grupo_empresa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_grupo_empresa",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_origem_causa",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_origem_causa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_origem_causa",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_parte_contraria",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_parte_contraria",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_parte_contraria",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_processo",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_processo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_processo",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_processo_valores_pagamento_ass",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_processo_valores_pagamento_ass",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_processo_valores_pagamento_ass",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_unidade",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_unidade",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_unidade",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_td_processo_status",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_td_processo_status",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_td_processo_status",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_juridico_td_processo_resultado",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_juridico_td_processo_resultado",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_juridico_td_processo_resultado",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"parameters": {
+			"tipo_carga": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "00_WORKFLOW/INGESTAO_PRATA"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T23:42:51Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

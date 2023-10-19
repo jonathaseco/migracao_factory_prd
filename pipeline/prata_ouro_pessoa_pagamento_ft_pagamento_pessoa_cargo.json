@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_pessoa_pagamento_ft_pagamento_pessoa_cargo",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_pessoa_pagamento_ft_pagamento_pessoa_cargo",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/PESSOA_PAGAMENTO/FT_PAGAMENTO_PESSOA_CARGO",
+					"baseParameters": {
+						"read_mode_PWBI01O": "delta",
+						"input_path_PWBI01O": "/camada_prata/sap_sf/pwbi01o/",
+						"input_name_PWBI01O": "pwbi01o",
+						"input_options_PWBI01O": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/pessoa_pagamento/ft_pagamento_pessoa_cargo/",
+						"output_name": "ft_pagamento_pessoa_cargo",
+						"output_options": "{}",
+						"output_keys": "CD_PESSOA,DT_ANO_PERIODO,DT_MES_PERIODO,CD_TIPO_PAGAMENTO,VL_PAGAMENTO_REALIZADO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/PESSOA_PAGAMENTO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T14:52:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

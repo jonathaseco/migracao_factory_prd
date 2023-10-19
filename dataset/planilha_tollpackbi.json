@@ -1,0 +1,40 @@
+{
+	"name": "planilha_tollpackbi",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Planilha1",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "tollpackbi.xlsx",
+				"folderPath": "camada_bronze/tollpackbi/arquivo_parametro",
+				"fileSystem": "ecsanalyticsfs"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "tabela",
+				"type": "String"
+			},
+			{
+				"name": "campo",
+				"type": "String"
+			},
+			{
+				"name": "condicao",
+				"type": "String"
+			},
+			{
+				"name": "tipo_tabela",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

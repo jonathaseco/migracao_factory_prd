@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_juridico_dm_area_direito",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_dm_area_direito",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/JURIDICO/DM_AREA_DIREITO",
+					"baseParameters": {
+						"read_mode_area_direito": "delta",
+						"input_path_area_direito": "/camada_prata/juridico/area_direito/",
+						"input_name_area_direito": "juridico_area_direito",
+						"input_options_area_direito": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/juridico/dm_area_direito/",
+						"output_name": "dm_area_direito",
+						"output_options": "{}",
+						"output_keys": "CD_AREA_DIREITO",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T20:00:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_juridico_dm_processo_status",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_dm_processo_status",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/JURIDICO/DM_PROCESSO_STATUS",
+					"baseParameters": {
+						"read_mode_td_processo_status": "delta",
+						"input_path_td_processo_status": "/camada_prata/juridico/td_processo_status/",
+						"input_name_td_processo_status": "juridico_td_processo_status",
+						"input_options_td_processo_status": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/juridico/dm_processo_status/",
+						"output_name": "dm_processo_status",
+						"output_options": "{}",
+						"output_keys": "CD_PROCESSO_STATUS",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T20:37:03Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

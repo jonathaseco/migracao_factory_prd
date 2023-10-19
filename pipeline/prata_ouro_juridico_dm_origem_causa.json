@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_juridico_dm_origem_causa",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_dm_origem_causa",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/JURIDICO/DM_ORIGEM_CAUSA",
+					"baseParameters": {
+						"read_mode_origem_causa": "delta",
+						"input_path_origem_causa": "/camada_prata/juridico/origem_causa/",
+						"input_name_origem_causa": "juridico_origem_causa",
+						"input_options_origem_causa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/juridico/dm_origem_causa/",
+						"output_name": "dm_origem_causa",
+						"output_options": "{}",
+						"output_keys": "CD_ORIGEM_CAUSA",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T20:13:34Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

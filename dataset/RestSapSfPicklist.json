@@ -1,0 +1,28 @@
+{
+	"name": "RestSapSfPicklist",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "rest_sap_sf",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"picklist": {
+				"type": "string"
+			},
+			"format": {
+				"type": "string",
+				"defaultValue": "JSON"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@concat('Picklist?$format=JSON&$expand=picklistOptions,picklistOptions/picklistLabels&$select=picklistOptions/id,picklistOptions/externalCode,picklistOptions/picklistLabels/label&$filter=picklistId%20eq%20%27', dataset().picklist,'%27%20and%20picklistOptions/picklistLabels/locale%20eq%20%27pt_BR%27')",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

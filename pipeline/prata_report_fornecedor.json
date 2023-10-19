@@ -1,0 +1,46 @@
+{
+	"name": "prata_report_fornecedor",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_ft_fornecedor_compras",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_ft_fornecedor_compras",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ouro_report_fornecedor",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_juridico_ft_fornecedor_compras",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ouro_report_fornecedor",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "00_WORKFLOW/PRATA_REPORT"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T23:01:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

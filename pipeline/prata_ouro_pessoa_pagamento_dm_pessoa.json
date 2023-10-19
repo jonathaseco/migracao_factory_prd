@@ -1,0 +1,54 @@
+{
+	"name": "prata_ouro_pessoa_pagamento_dm_pessoa",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_pessoa_pagamento_dm_pessoa",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/PESSOA_PAGAMENTO/DM_PESSOA",
+					"baseParameters": {
+						"read_mode_per_person": "delta",
+						"input_path_per_person": "/camada_prata/sap_sf/per_person/",
+						"input_name_per_person": "per_person",
+						"input_options_per_person": "{}",
+						"read_mode_per_personal": "delta",
+						"input_path_per_personal": "/camada_prata/sap_sf/per_personal/",
+						"input_name_per_personal": "per_personal",
+						"input_options_per_personal": "{}",
+						"read_mode_state_bra": "delta",
+						"input_path_state_bra": "/camada_prata/sap_sf/pl_state_bra/",
+						"input_name_state_bra": "pl_state_bra",
+						"input_options_state_bra": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"output_name": "dm_pessoa",
+						"output_options": "{}",
+						"output_keys": "CD_PESSOA",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/PESSOA_PAGAMENTO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T13:52:59Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

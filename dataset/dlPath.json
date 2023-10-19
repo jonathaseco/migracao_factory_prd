@@ -1,0 +1,36 @@
+{
+	"name": "dlPath",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"caminho": {
+				"type": "string"
+			},
+			"arquivo": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().arquivo",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().caminho",
+					"type": "Expression"
+				},
+				"fileSystem": "ecsanalyticsfs"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

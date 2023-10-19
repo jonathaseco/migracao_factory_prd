@@ -1,0 +1,462 @@
+{
+	"name": "ouro_report_pessoa_pagamento",
+	"properties": {
+		"activities": [
+			{
+				"name": "ouro_report_tb_colaborador_categoria_funcional_idade",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_COLABORADOR_CATEGORIA_FUNCIONAL_IDADE",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_colaborador_categoria_funcional_idade/",
+						"output_name": "tb_colaborador_categoria_funcional_idade",
+						"output_options": "{}",
+						"output_keys": "CD_GENERO,FAIXA_ETARIA,CD_UNIDADE,TOTAL_PESSOAS,ANO_ANALISE,CATEGORIA_FUNCIONAL",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_colaboradores_idade_inferior_30_anos",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_colaborador_categoria_funcional_idade",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_COLABORADORES_IDADE_INFERIOR_30_ANOS",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_colaboradores_idade_inferior_30_anos/",
+						"output_name": "tb_colaboradores_idade_inferior_30_anos",
+						"output_options": "{}",
+						"output_keys": "ANO_ANALISE",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_colaborador_tipo_contrato",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_colaboradores_idade_inferior_30_anos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_COLABORADOR_TIPO_CONTRATO",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_colaborador_categoria/",
+						"output_name": "tb_colaborador_categoria",
+						"output_options": "{}",
+						"output_keys": "CD_GENERO,REGIAO_BRASIL,TOTAL_PESSOAS,ANO_ANALISE,TIPO_CONTRATO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_contratacoes_demissoes",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_colaborador_tipo_contrato",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_CONTRATACOES_DEMISSOES",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_contratacoes_demissoes/",
+						"output_name": "tb_contratacoes_demissoes",
+						"output_options": "{}",
+						"output_keys": "ANO_ANALISE,FAIXA_ETARIA,REGIAO_BRASIL,GENERO,TOTAL_PESSOAS",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_executivos_local",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_contratacoes_demissoes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_EXECUTIVOS_LOCAL",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_executivos_local/",
+						"output_name": "tb_executivos_local",
+						"output_options": "{}",
+						"output_keys": "ANO_ANALISE,FAIXA_ETARIA,GENERO,TOTAL_PESSOAS,PARAMETRO_CONTRATACAO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_licenca_maternidade_paternidade",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_executivos_local",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_LICENCA_MATERNIDADE_PATERNIDADE",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_pagamento_pessoa_cargo": "delta",
+						"input_path_pagamento_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pagamento_pessoa_cargo/",
+						"input_name_pagamento_pessoa_cargo": "ft_pagamento_pessoa_cargo",
+						"input_options_pagamento_pessoa_cargo": "{}",
+						"read_mode_tipo_afastamento": "delta",
+						"input_path_tipo_afastamento": "/camada_ouro/pessoa_pagamento/dm_tipo_afastamento/",
+						"input_name_tipo_afastamento": "dm_tipo_afastamento",
+						"input_options_tipo_afastamento": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_licenca_maternidade_paternidade/",
+						"output_name": "tb_licenca_maternidade_paternidade",
+						"output_options": "{}",
+						"output_keys": "DT_ANO_MES_PERIODO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_novas_contratacoes",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_licenca_maternidade_paternidade",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_NOVAS_CONTRATACOES",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_novas_contratacoes/",
+						"output_name": "tb_novas_contratacoes",
+						"output_options": "{}",
+						"output_keys": "ANO_ANALISE,FAIXA_ETARIA,GENERO,TOTAL_PESSOAS,PARAMETRO_CONTRATACAO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_proporcao_remuneracao_anual",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_novas_contratacoes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_PROPORCAO_REMUNERACAO_ANUAL",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_afastamento": "delta",
+						"input_path_afastamento": "/camada_ouro/pessoa_pagamento/ft_afastamento/",
+						"input_name_afastamento": "ft_afastamento",
+						"input_options_afastamento": "{}",
+						"read_mode_tipo_pagamento": "delta",
+						"input_path_tipo_pagamento": "/camada_ouro/pessoa_pagamento/dm_tipo_pagamento/",
+						"input_name_tipo_pagamento": "dm_tipo_pagamento",
+						"input_options_tipo_pagamento": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_proporcao_remuneracao_anual/",
+						"output_name": "tb_proporcao_remuneracao_anual",
+						"output_options": "{}",
+						"output_keys": "ANO_ANALISE,GENERO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_qtd_colaboradores",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_proporcao_remuneracao_anual",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_QTD_COLABORADORES",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_qtd_colaboradores/",
+						"output_name": "tb_qtd_colaboradores",
+						"output_options": "{}",
+						"output_keys": "ANO_ANALISE,TIPO_EMPREGO,ESTADO,GENERO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_saida_colaborador",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_qtd_colaboradores",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/PESSOA_PAGAMENTO/TB_SAIDA_COLABORADOR",
+					"baseParameters": {
+						"read_mode_pessoa_cargo": "delta",
+						"input_path_pessoa_cargo": "/camada_ouro/pessoa_pagamento/ft_pessoa_cargo/",
+						"input_name_pessoa_cargo": "ft_pessoa_cargo",
+						"input_options_pessoa_cargo": "{}",
+						"read_mode_dm_pessoa": "delta",
+						"input_path_dm_pessoa": "/camada_ouro/pessoa_pagamento/dm_pessoa/",
+						"input_name_dm_pessoa": "dm_pessoa",
+						"input_options_dm_pessoa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/pessoa_pagamento/tb_saida_colaborador/",
+						"output_name": "tb_saida_colaborador",
+						"output_options": "{}",
+						"output_keys": "ANO_ANALISE,FAIXA_ETARIA,GENERO,TOTAL_PESSOAS,PARAMETRO_CONTRATACAO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "04_OURO_REPORT/PESSOA_PAGAMENTO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T19:01:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

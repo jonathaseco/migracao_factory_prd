@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_kcor_dbo_aux_rodovia_concessao",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_kcor_dbo_aux_rodovia_concessao",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/KCOR/dbo.AUX_Rodovia_Concessao",
+					"baseParameters": {
+						"read_mode_aux_rodovia_concessao": "delta",
+						"input_path_aux_rodovia_concessao": "/camada_prata/kcor/dbo.aux_rodovia_concessao/",
+						"input_name_aux_rodovia_concessao": "dbo.aux_rodovia_concessao",
+						"input_options_aux_rodovia_concessao": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/kcor/dbo.AUX_Rodovia_Concessao/",
+						"output_name": "dbo_AUX_Rodovia_Concessao",
+						"output_options": "{}",
+						"output_keys": "CodRodovia",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/KCOR"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-16T14:16:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

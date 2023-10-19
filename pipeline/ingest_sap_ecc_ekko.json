@@ -1,0 +1,158 @@
+{
+	"name": "ingest_sap_ecc_ekko",
+	"properties": {
+		"activities": [
+			{
+				"name": "IfConditionIncremental",
+				"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "CopyDataFromSapEccFull",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "OracleSource",
+									"partitionOption": "None",
+									"queryTimeout": "02:00:00"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "OracleSapEcc",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema": "SAPSR3",
+										"table": "EKKO"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "dlPath",
+									"type": "DatasetReference",
+									"parameters": {
+										"caminho": "camada_bronze/sap_ecc/ekko",
+										"arquivo": {
+											"value": "@concat('ekko__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "CopyDataFromSapEccIncremental",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "OracleSource",
+									"oracleReaderQuery": "SELECT \n\t* \nFROM SAPSR3.EKKO \nWHERE AEDAT >= TO_CHAR(CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - INTERVAL '1' DAY , 'YYYYMMDD')",
+									"partitionOption": "None",
+									"queryTimeout": "02:00:00"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "OracleSapEcc",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema": "SAPSR3",
+										"table": "EKKO"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "dlPath",
+									"type": "DatasetReference",
+									"parameters": {
+										"caminho": "camada_bronze/sap_ecc/ekko",
+										"arquivo": {
+											"value": "@concat('ekko__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"tipo_carga": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "01_INGESTAO/SAP_ECC"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-09-29T20:39:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

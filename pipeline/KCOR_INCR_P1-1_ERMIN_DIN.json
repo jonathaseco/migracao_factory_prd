@@ -1,0 +1,379 @@
+{
+	"name": "KCOR_INCR_P1-1_ERMIN_DIN",
+	"properties": {
+		"description": "Pipeline que realiza a ingestão de dados on-premises de todas as tabelas do KCOR da EcoRioMinas para camada bronze",
+		"activities": [
+			{
+				"name": "ListarTabelas",
+				"description": "Lista as tabelas contidas na base de dados. Seleciona dinamicante o schema e nome das tabelas, conforme o comando SQL na aba \"Definições\"",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT TB2.NAME + '.' + TB1.NAME AS TABLE_NAME\nFROM SYS.TABLES TB1\nINNER JOIN SYS.SCHEMAS TB2\nON TB2.SCHEMA_ID = TB1.SCHEMA_ID\nWHERE TB1.NAME IN ('TabAcidentes'\n\t\t\t\t\t,'TabOcorrencias'\n\t\t\t\t\t,'TabRecursosAcionados'\n\t\t\t\t\t,'TabRecursosCoberturas'\n\t\t\t\t\t,'TabVeiculosEnvolvidos'\n\t\t\t\t\t,'TabVitimas'\n\t\t\t\t\t,'TauxRecursos'\n\t\t\t\t\t,'TabConservacao'\n)\nORDER BY TB1.NAME",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "dataset_KCOR_ERMIN",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "x",
+							"table": "x"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "SetarValorInicial",
+				"description": "Seta o valor inicial 0 (zero) da variável \"contador\", que contém o número da tabela que está sendo processada",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "SetarTabelasAux",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "contador",
+					"value": "0"
+				}
+			},
+			{
+				"name": "IterarTabelas",
+				"description": "Realiza a iteração entre as tabelas listadas no passo anterior (ListarTabelas)",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "SetarValorInicial",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ListarTabelas').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "SelecionarTabela",
+							"description": "Seleciona tabela a ser processada",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "AtualizarContador",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "nome_tabela",
+								"value": {
+									"value": "@item().TABLE_NAME",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "SetarValorAuxiliar",
+							"description": "Verifica o valor da variável \"contador\" e seta como valor da variável \"auxiliar\"",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "aux",
+								"value": {
+									"value": "@variables('contador')",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "AtualizarContador",
+							"description": "Adiciona 1 no valor da variável \"contador\" para atualizar o número da tabela que está sendo processada",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "SetarValorAuxiliar",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "contador",
+								"value": {
+									"value": "@string(add(int(variables('aux')),1))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "VerificarTabela",
+							"description": "Verifica se a tabela a ser atualizada é uma das tabelas cuja a atualização deve ser feita levando em conta a alteração de chamados anteriores",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "SelecionarTabela",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@contains(variables('tabela_aux'),variables('nome_tabela'))",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "IngerirTabelaCargaCompleta",
+										"description": "Realiza a ingestão da carga de dados, que pode ser completa ou seguindo o valor do campo \"condicao\" do arquivo de parâmetro.\nCaso seja necessário realizar a carga parcial da tabela, no campo \"Query\" da aba \"Source\" é realizada a substituição de $PARAMETRO$ (existente no arquivo de parâmetro \"kcor_[unidade].xlsx\") pelo valor do parâmetro 'dias_atualizacao_p11'). ",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "LerArquivoParametro",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "@concat('declare @Data datetime = getdate()\ndeclare @Today datetime = getdate()\n\tSET @Data = DATEADD(dd, DATEDIFF(dd, 0, getdate()), -1)\n\tSET @Today = DATEADD(dd, DATEDIFF(dd, 0, getdate()), 0)\n\tSELECT *\n\t FROM ', variables('nome_tabela'),'\n\t WHERE DataMod >= DataIns and DataMod > @Data and DataMod < @Today')",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "ParquetSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "ParquetWriteSettings"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "dataset_KCOR_ERMIN",
+												"type": "DatasetReference",
+												"parameters": {
+													"schema": "x",
+													"table": "x"
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "dlPath",
+												"type": "DatasetReference",
+												"parameters": {
+													"caminho": {
+														"value": "@concat('camada_bronze/kcor/', pipeline().parameters.Concessao, '/', formatDateTime(utcnow(),'yyyy_MM_dd'))",
+														"type": "Expression"
+													},
+													"arquivo": {
+														"value": "@concat(variables('nome_tabela'),'_',formatDateTime(utcnow(),'yyyyMMdd'),'.parquet')",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "LerArquivoParametro",
+										"description": "Lê o arquivo de parâmetro",
+										"type": "Lookup",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "ExcelSource",
+												"storeSettings": {
+													"type": "AzureBlobFSReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												}
+											},
+											"dataset": {
+												"referenceName": "planilha_kcor_ermin",
+												"type": "DatasetReference"
+											},
+											"firstRowOnly": false
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "KCOR_INCR_P1-1_ERMIN_DIN_AUX",
+										"description": "Execução de pipeline auxiliar para processar as tabelas 'TauxRecursos' e 'TabRecursosCoberturas'",
+										"type": "ExecutePipeline",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"pipeline": {
+												"referenceName": "KCOR_INCR_P1-1_ERMIN_DIN_AUX",
+												"type": "PipelineReference"
+											},
+											"waitOnCompletion": true,
+											"parameters": {
+												"cargacompleta": {
+													"value": "@pipeline().parameters.cargacompleta",
+													"type": "Expression"
+												},
+												"concessao": {
+													"value": "@pipeline().parameters.concessao",
+													"type": "Expression"
+												},
+												"dias_atualizacao_p11": {
+													"value": "@pipeline().parameters.dias_atualizacao_p11",
+													"type": "Expression"
+												},
+												"nome_tabela": {
+													"value": "@item().TABLE_NAME",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "SetarTabelasAux",
+				"description": "Set de nomes de tabelas com inserção comum",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ListarTabelas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "tabela_aux",
+					"value": [
+						"dbo.TabRecursosCoberturas",
+						"dbo.TauxRecursos",
+						"dbo.TabConservacao"
+					]
+				}
+			}
+		],
+		"parameters": {
+			"cargacompleta": {
+				"type": "bool"
+			},
+			"concessao": {
+				"type": "string"
+			},
+			"dias_atualizacao_p11": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"nome_tabela": {
+				"type": "String"
+			},
+			"aux": {
+				"type": "String"
+			},
+			"contador": {
+				"type": "String"
+			},
+			"condicao_where": {
+				"type": "String"
+			},
+			"check": {
+				"type": "Boolean"
+			},
+			"tabela_aux": {
+				"type": "Array"
+			},
+			"pasta_atual": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "KCOR/INCREMENTAL/OLD"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-16T17:19:06Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

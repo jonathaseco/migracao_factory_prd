@@ -1,0 +1,551 @@
+{
+	"name": "ingest_sap_sf_focompany",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDataFromFOCompany",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"AbsoluteUrl": "$.d.__next"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['externalCode']"
+								},
+								"sink": {
+									"name": "externalCode"
+								}
+							},
+							{
+								"source": {
+									"path": "['startDate']"
+								},
+								"sink": {
+									"name": "startDate"
+								}
+							},
+							{
+								"source": {
+									"path": "['country']"
+								},
+								"sink": {
+									"name": "country"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedDateTime']"
+								},
+								"sink": {
+									"name": "lastModifiedDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_localized']"
+								},
+								"sink": {
+									"name": "name_localized"
+								}
+							},
+							{
+								"source": {
+									"path": "['endDate']"
+								},
+								"sink": {
+									"name": "endDate"
+								}
+							},
+							{
+								"source": {
+									"path": "['cust_CNPJ']"
+								},
+								"sink": {
+									"name": "cust_CNPJ"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdDateTime']"
+								},
+								"sink": {
+									"name": "createdDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_pt_BR']"
+								},
+								"sink": {
+									"name": "description_pt_BR",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_pt_BR']"
+								},
+								"sink": {
+									"name": "name_pt_BR"
+								}
+							},
+							{
+								"source": {
+									"path": "['cust_CNAE']"
+								},
+								"sink": {
+									"name": "cust_CNAE"
+								}
+							},
+							{
+								"source": {
+									"path": "['standardHours']"
+								},
+								"sink": {
+									"name": "standardHours"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_defaultValue']"
+								},
+								"sink": {
+									"name": "description_defaultValue",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['name']"
+								},
+								"sink": {
+									"name": "name"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_en_US']"
+								},
+								"sink": {
+									"name": "description_en_US",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['entityOID']"
+								},
+								"sink": {
+									"name": "entityOID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_en_DEBUG']"
+								},
+								"sink": {
+									"name": "description_en_DEBUG",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['status']"
+								},
+								"sink": {
+									"name": "status"
+								}
+							},
+							{
+								"source": {
+									"path": "['description']"
+								},
+								"sink": {
+									"name": "description",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_en_DEBUG']"
+								},
+								"sink": {
+									"name": "name_en_DEBUG",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdOn']"
+								},
+								"sink": {
+									"name": "createdOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_en_US']"
+								},
+								"sink": {
+									"name": "name_en_US"
+								}
+							},
+							{
+								"source": {
+									"path": "['currency']"
+								},
+								"sink": {
+									"name": "currency"
+								}
+							},
+							{
+								"source": {
+									"path": "['name_defaultValue']"
+								},
+								"sink": {
+									"name": "name_defaultValue"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedBy']"
+								},
+								"sink": {
+									"name": "lastModifiedBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['defaultPayGroup']"
+								},
+								"sink": {
+									"name": "defaultPayGroup",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedOn']"
+								},
+								"sink": {
+									"name": "lastModifiedOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['cust_GrauRisco']"
+								},
+								"sink": {
+									"name": "cust_GrauRisco"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdBy']"
+								},
+								"sink": {
+									"name": "createdBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['mdfSystemRecordId']"
+								},
+								"sink": {
+									"name": "mdfSystemRecordId"
+								}
+							},
+							{
+								"source": {
+									"path": "['description_localized']"
+								},
+								"sink": {
+									"name": "description_localized",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['defaultLocation']"
+								},
+								"sink": {
+									"name": "defaultLocation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['nameTranslationTextNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['nameTranslationTextNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdByNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['createdByNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['defaultLocationNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['defaultLocationNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['localNavARG']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['localNavARG___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['currencyNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['currencyNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['toLegalEntityARG']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['toLegalEntityARG___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['descriptionTranslationTextNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['descriptionTranslationTextNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['statusNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['statusNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['descriptionTranslationNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['descriptionTranslationNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['toNameFormat']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['toNameFormat___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['localNavESP']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['localNavESP___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['localNavUSA']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['localNavUSA___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['localNavDEU']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['localNavDEU___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['localNavFRA']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['localNavFRA___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedByNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['lastModifiedByNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['toLegalEntityRUS']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['toLegalEntityRUS___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['toLegalEntityUSA']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['toLegalEntityUSA___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['toLegalEntityESP']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['toLegalEntityESP___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['toDisplayNameFormat']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['toDisplayNameFormat___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['nameTranslationNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['nameTranslationNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['localNavDEFLT']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['localNavDEFLT___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['countryNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['countryNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['defaultPayGroupNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['defaultPayGroupNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['toLegalEntityFRA']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['toLegalEntityFRA___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['countryOfRegistrationNav']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['countryOfRegistrationNav___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "['toLegalEntityDEU']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['toLegalEntityDEU___deferred_uri"
+								}
+							}
+						],
+						"collectionReference": "$['d']['results']",
+						"mapComplexValuesToString": false
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "RestSapSfFULL",
+						"type": "DatasetReference",
+						"parameters": {
+							"table": "FOCompany",
+							"format": "JSON"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "camada_bronze/sap_sf/fo_company/",
+							"file": {
+								"value": "@concat('fo_company__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "01_INGESTAO/SAP_SF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T16:39:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,16 @@
+{
+	"name": "sql_server_sistema_juridico",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=01ssrv55\\juridico;initial catalog=JURIDICO;user id=s_datafactory",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJjNGRkOWVlNy02MTUyLTQyMDgtODhmYi01ZDU1ODAzYWQ2YzciLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "Runtime-sgp",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

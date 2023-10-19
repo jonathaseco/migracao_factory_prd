@@ -1,0 +1,204 @@
+{
+	"name": "prata_report_juridico",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_dm_area_direito",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_dm_area_direito",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_juridico_dm_empresa",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_dm_empresa",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_juridico_dm_origem_causa",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_juridico_dm_empresa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_dm_origem_causa",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_juridico_dm_parte_contraria",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_juridico_dm_tipo_motivo_encerramento",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_dm_parte_contraria",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_juridico_dm_processo_resultado",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_juridico_dm_unidade",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_dm_processo_resultado",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_juridico_dm_processo_status",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_dm_processo_status",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_juridico_dm_tipo_motivo_encerramento",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_juridico_dm_processo_status",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_dm_tipo_motivo_encerramento",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_juridico_dm_unidade",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_juridico_dm_area_direito",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_dm_unidade",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_juridico_ft_processo_pagamento",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_juridico_dm_processo_resultado",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "prata_ouro_juridico_dm_grupo_empresa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "prata_ouro_juridico_dm_parte_contraria",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_ft_processo_pagamento",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_juridico_dm_grupo_empresa",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_juridico_dm_origem_causa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_juridico_dm_grupo_empresa",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "00_WORKFLOW/PRATA_REPORT"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T23:01:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

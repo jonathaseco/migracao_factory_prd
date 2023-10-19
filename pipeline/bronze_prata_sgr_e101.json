@@ -1,0 +1,271 @@
+{
+	"name": "bronze_prata_sgr_e101",
+	"properties": {
+		"description": "Pipeline para processamento de tabelas (em formato parquet) da camada bronze para camada prata (formato delta)",
+		"activities": [
+			{
+				"name": "ListarPastas",
+				"description": "Lista todas as pastas contidas na camada bronze do banco de dados a ser processado.",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "dlPath",
+						"type": "DatasetReference",
+						"parameters": {
+							"caminho": {
+								"value": "camada_bronze/sgr/",
+								"type": "Expression"
+							},
+							"arquivo": "*.*"
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "ParquetReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FiltrarPastas",
+				"description": "Filtra apenas os itens que são pastas.",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "ListarPastas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ListarPastas').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@and(equals(item().type, 'Folder'),startswith(item().name,'dbo'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "IterarPastas",
+				"description": "Realiza a iteração entre as pastas listadas no passo anterior (FiltrarPastas)",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FiltrarPastas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FiltrarPastas').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "SetarNomePasta",
+							"description": "Atribui à variável \"pasta_atual\" o nome da pasta que está sendo processada",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "pasta_atual",
+								"value": {
+									"value": "@item().name",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "bronze_prata_sgr",
+							"type": "DatabricksNotebook",
+							"dependsOn": [
+								{
+									"activity": "SetaChave",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.0:30:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+								"baseParameters": {
+									"input_path": {
+										"value": "@concat('camada_bronze/sgr/', variables('pasta_atual'), '/e101/')",
+										"type": "Expression"
+									},
+									"input_name": {
+										"value": "@variables('pasta_atual')",
+										"type": "Expression"
+									},
+									"input_format": "parquet",
+									"input_options": "{}",
+									"read_mode": "delta",
+									"output_path": {
+										"value": "@concat('camada_prata/sgr/', variables('pasta_atual'), '/e101/')",
+										"type": "Expression"
+									},
+									"output_name": {
+										"value": "@variables('pasta_atual')",
+										"type": "Expression"
+									},
+									"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+									"output_keys": {
+										"value": "@variables('chave')",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "dbrk_eco_ls",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "LerArquivoParametroDia",
+							"description": "Verifica os parâmetros de ingestão da carga da tabela",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "SetarNomePasta",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ExcelSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									}
+								},
+								"dataset": {
+									"referenceName": "planilha_sgr_e101",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "VerificarTabelaCargaParcialDia",
+							"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+							"type": "Filter",
+							"dependsOn": [
+								{
+									"activity": "LerArquivoParametroDia",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@activity('LerArquivoParametroDia').output.value",
+									"type": "Expression"
+								},
+								"condition": {
+									"value": "@equals(item().tabela, variables('pasta_atual'))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "SetaChave",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "VerificarTabelaCargaParcialDia",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "chave",
+								"value": {
+									"value": "@activity('VerificarTabelaCargaParcialDia').output.value[0].chave",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"nome_pasta": {
+				"type": "String"
+			},
+			"lista_tabelas": {
+				"type": "String"
+			},
+			"pasta_atual": {
+				"type": "String"
+			},
+			"nome_arquivo": {
+				"type": "String"
+			},
+			"chave": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "SGR/E101"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T20:27:17Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

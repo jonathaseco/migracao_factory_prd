@@ -1,0 +1,286 @@
+{
+	"name": "KCOR_FLAT_FILE_REPORT",
+	"properties": {
+		"activities": [
+			{
+				"name": "ouro_report_kcor_vw_causa_provavel",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_CAUSA_PROVAVEL",
+					"baseParameters": {
+						"read_mode": "delta",
+						"input_path": "/camada_ouro/kcor/dbo.TAuxCausasProvaveis/",
+						"input_name": "dbo_TAuxCausasProvaveis",
+						"input_options": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DIM_CAUSA_PROVAVEL/",
+						"output_name": "VW_KCOR_DIM_CAUSA_PROVAVEL",
+						"output_options": "{}",
+						"output_keys": "CD_CAUSA_PROVAVEL",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_condicao_metereologica",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_causa_provavel",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_CONDICAO_METEOROLOGICA",
+					"baseParameters": {
+						"read_mode": "delta",
+						"input_path": "/camada_ouro/kcor/dbo.TAuxCondicoesMeteorologicas/",
+						"input_name": "dbo_TAuxCondicoesMeteorologicas",
+						"input_options": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DIM_CONDICAO_METEOROLOGICA/",
+						"output_name": "VW_KCOR_DIM_CONDICAO_METEOROLOGICA",
+						"output_options": "{}",
+						"output_keys": "CD_CONDICAO_METEOROLOGICA",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_tipo_atendimento",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_condicao_metereologica",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPO_ATENDIMENTO",
+					"baseParameters": {
+						"read_mode": "delta",
+						"input_path": "/camada_ouro/kcor/dbo.TAuxTiposAtendimentos/",
+						"input_name": "dbo_TAuxTiposAtendimentos",
+						"input_options": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPO_ATENDIMENTO/",
+						"output_name": "VW_KCOR_DIM_TIPO_ATENDIMENTO",
+						"output_options": "{}",
+						"output_keys": "CD_TIPO_ATENDIMENTO,Unidade_Origem",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_tipo_acidente",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_tipo_atendimento",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPOACIDENTES",
+					"baseParameters": {
+						"read_mode": "delta",
+						"input_path": "/camada_ouro/kcor/dbo.TAuxTiposAcidentes/",
+						"input_name": "dbo_TAuxTiposAcidentes",
+						"input_options": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPOACIDENTES/",
+						"output_name": "VW_KCOR_DIM_TIPOACIDENTES",
+						"output_options": "{}",
+						"output_keys": "CodTipoAcidente,Unidade_Origem",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_tipo_ocorrencia",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_tipo_acidente",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPOOCORRENCIAS",
+					"baseParameters": {
+						"read_mode": "delta",
+						"input_path": "/camada_ouro/kcor/dbo.TAuxTiposOcorrencias/",
+						"input_name": "dbo_TAuxTiposOcorrencias",
+						"input_options": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPOOCORRENCIAS/",
+						"output_name": "VW_KCOR_DIM_TIPOOCORRENCIAS",
+						"output_options": "{}",
+						"output_keys": "TipoOcorrencia,Unidade_Origem",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_tipo_veiculo",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_tipo_ocorrencia",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPOVEICULO",
+					"baseParameters": {
+						"read_mode": "delta",
+						"input_path": "/camada_ouro/kcor/dbo.TAuxTiposVeiculos/",
+						"input_name": "dbo_TAuxTiposVeiculos",
+						"input_options": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPOVEICULO/",
+						"output_name": "VW_KCOR_DIM_TIPOVEICULO",
+						"output_options": "{}",
+						"output_keys": "CodTipoVeiculo,Unidade_Origem",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_vit_situacao",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_tipo_veiculo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_VITSITUACAO",
+					"baseParameters": {
+						"read_mode": "delta",
+						"input_path": "/camada_ouro/kcor/dbo.TAuxVitSituacoes/",
+						"input_name": "dbo_TAuxVitSituacoes",
+						"input_options": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DIM_VITSITUACAO/",
+						"output_name": "VW_KCOR_DIM_VITSITUACAO",
+						"output_options": "{}",
+						"output_keys": "CodSituacao,unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "KCOR/FLAT_FILE"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T16:24:39Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,32 @@
+{
+	"name": "dataset_TOLLN3",
+	"properties": {
+		"description": "Conexão com banco de dados do TOLLN3 no servidor de réplica (03CSRV70)",
+		"linkedServiceName": {
+			"referenceName": "Conexao_TOLLN3",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"schema": {
+				"type": "string"
+			},
+			"table": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().table",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

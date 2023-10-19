@@ -1,0 +1,161 @@
+{
+	"name": "ingest_juridico_grupo_empresa",
+	"properties": {
+		"activities": [
+			{
+				"name": "IfConditionIncremental",
+				"description": "Checa o tipo de carga a ser executada (Incremental ou Total)",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(pipeline().parameters.tipo_carga, 'incremental')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "CopyDataFromJuridicoGrupoEmpresaFull",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "SqlServerJuridico",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema": "dbo",
+										"table": "GRUPO_EMPRESA"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "dlPath",
+									"type": "DatasetReference",
+									"parameters": {
+										"caminho": "camada_bronze/juridico/grupo_empresa",
+										"arquivo": {
+											"value": "@concat('juridico_grupo_empresa__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "CopyDataFromJuridicoGrupoEmpresaIncremental",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "SELECT *\nFROM JURIDICO.dbo.GRUPO_EMPRESA\nWHERE DH_TIMESTAMP >= CONVERT(DATETIMEOFFSET, SWITCHOFFSET(CONVERT(DATETIMEOFFSET, GETUTCDATE()), '-03:00'))",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "SqlServerJuridico",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema": "dbo",
+										"table": "GRUPO_EMPRESA"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "dlPath",
+									"type": "DatasetReference",
+									"parameters": {
+										"caminho": "camada_bronze/juridico/grupo_empresa",
+										"arquivo": {
+											"value": "@concat('juridico_grupo_empresa__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"tipo_carga": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "01_INGESTAO/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-09-29T18:05:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,44 @@
+{
+	"name": "bronze_prata_sap_sf_pwbi01o",
+	"properties": {
+		"activities": [
+			{
+				"name": "bronze_prata_sap_sf_PWBI01O",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+					"baseParameters": {
+						"input_path": "/camada_bronze/sap_sf/pwbi01o/",
+						"input_name": "pwbi01o",
+						"input_format": "parquet",
+						"input_options": "{}",
+						"read_mode": "delta",
+						"output_path": "/camada_prata/sap_sf/pwbi01o/",
+						"output_name": "pwbi01o",
+						"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+						"output_keys": "matricula,periodo,rubrica"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "02_BRONZE_PRATA/SAP_SF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T20:48:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

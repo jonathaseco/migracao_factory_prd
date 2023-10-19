@@ -1,0 +1,44 @@
+{
+	"name": "bronze_prata_ecompras_vw_fornecedor",
+	"properties": {
+		"activities": [
+			{
+				"name": "bronze_prata_ecompras_vw_fornecedor",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+					"baseParameters": {
+						"input_path": "/camada_bronze/ecompras/vw_fornecedor/",
+						"input_name": "ecompras_vw_fornecedor",
+						"input_format": "parquet",
+						"input_options": "{}",
+						"read_mode": "delta",
+						"output_path": "/camada_prata/ecompras/vw_fornecedor/",
+						"output_name": "ecompras_vw_fornecedor",
+						"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+						"output_keys": "CD_FORNECEDOR"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "02_BRONZE_PRATA/ECOMPRAS"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-09-29T19:43:14Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

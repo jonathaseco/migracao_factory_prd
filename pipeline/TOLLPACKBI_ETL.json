@@ -1,0 +1,292 @@
+{
+	"name": "TOLLPACKBI_ETL",
+	"properties": {
+		"description": "Pipeline para processamento ETL do TOLLPACKBI",
+		"activities": [
+			{
+				"name": "DistribuirPipelines",
+				"description": "Switch utilizado para direcionar qual pipeline deve ser processado conforme o valor do campo 'tipocarga' indicado no parâmetro inicial.",
+				"type": "Switch",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@pipeline().parameters.tipocarga",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "diaria",
+							"activities": [
+								{
+									"name": "Executar_ingest_tollpackbi_diario",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_tollpackbi_diario",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"atualizacao": {
+												"value": "@pipeline().parameters.tipocarga",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p1": "2"
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_tollpackbi_diario",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_tollpackbi_diario",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_tollpackbi_diario",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_tollpackbi_diario",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_tollpackbi_diario",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_tollpackbi_diario",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "semanal",
+							"activities": [
+								{
+									"name": "Executar_ingest_tollpackbi_semanal",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_tollpackbi_semanal",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"atualizacao": {
+												"value": "@pipeline().parameters.tipocarga",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_tollpackbi",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_tollpackbi_semanal",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_tollpackbi_semanal",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_tollpackbi_semanal",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_tollpackbi",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_tollpackbi_semanal",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "incremental",
+							"activities": [
+								{
+									"name": "Executar_ingest_tollpackbi_incr",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_tollpackbi_incr",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"atualizacao": {
+												"value": "@pipeline().parameters.tipocarga",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p1": "60"
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_tollpackbi_incr",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_tollpackbi_incr",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_tollpackbi_incr",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_tollpackbi_incr",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_tollpackbi_incr",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_tollpackbi_incr",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "tudo",
+							"activities": [
+								{
+									"name": "Executar_ingest_tollpackbi_tudo",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_tollpackbi_tudo",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"atualizacao": {
+												"value": "@pipeline().parameters.tipocarga",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_tollpackbi_tudo",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_tollpackbi_tudo",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_tollpackbi_tudo",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_tollpackbi_tudo",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_tollpackbi_tudo",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_tollpackbi_tudo",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"tipocarga": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "TOLLPACKBI"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-10T20:38:48Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

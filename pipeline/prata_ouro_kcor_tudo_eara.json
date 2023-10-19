@@ -1,0 +1,287 @@
+{
+	"name": "prata_ouro_kcor_tudo_eara",
+	"properties": {
+		"description": "Execução de notebook no Databricks para processamento das tabelas da camada prata para ouro.",
+		"activities": [
+			{
+				"name": "prata_ouro_dbo_tabAcidentes",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/KCOR/dbo.TabAcidentes",
+					"baseParameters": {
+						"read_mode_TabAcidentes": "delta",
+						"input_name_TabAcidentes": "dbo.TabAcidentes",
+						"input_path_TabAcidentes": "camada_prata/kcor/dbo.TabAcidentes/eara/",
+						"input_options_TabAcidentes": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/kcor/dbo.TabAcidentes/",
+						"output_name": "dbo_TabAcidentes",
+						"output_options": "{}",
+						"output_keys": "NumOcorrencia,DataIns,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tabOcorrencias",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tabAcidentes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/KCOR/dbo.TabOcorrencias",
+					"baseParameters": {
+						"read_mode_TabOcorrencias": "delta",
+						"input_name_TabOcorrencias": "dbo.TabOcorrencias",
+						"input_path_TabOcorrencias": "camada_prata/kcor/dbo.TabOcorrencias/eara/",
+						"input_options_TabOcorrencias": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/kcor/dbo.TabOcorrencias/",
+						"output_name": "dbo_TabOcorrencias",
+						"output_options": "{}",
+						"output_keys": "NumOcorrencia,DataOcorrencia,HoraOcorrencia,CodOrigem,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tabRecursosAcionados",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tabOcorrencias",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/KCOR/dbo.TabRecursosAcionados",
+					"baseParameters": {
+						"read_mode_TabRecursosAcionados": "delta",
+						"input_name_TabRecursosAcionados": "dbo.TabRecursosAcionados",
+						"input_path_TabRecursosAcionados": "camada_prata/kcor/dbo.TabRecursosAcionados/eara/",
+						"input_options_TabRecursosAcionados": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/kcor/dbo.TabRecursosAcionados/",
+						"output_name": "dbo_TabRecursosAcionados",
+						"output_options": "{}",
+						"output_keys": "DataOcorrencia,NumOcorrencia,CodRecurso,HoraAcionamento,CodTipoAtend,NUMACIONAMENTO,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tabRecursosCoberturas",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tabConservacao",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/KCOR/dbo.TabRecursosCoberturas",
+					"baseParameters": {
+						"read_mode_TabRecursosCoberturas": "delta",
+						"input_name_TabRecursosCoberturas": "dbo.TabRecursosCoberturas",
+						"input_path_TabRecursosCoberturas": "camada_prata/kcor/dbo.TabRecursosCoberturas/eara/",
+						"input_options_TabRecursosCoberturas": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/kcor/dbo.TabRecursosCoberturas/",
+						"output_name": "dbo_TabRecursosCoberturas",
+						"output_options": "{}",
+						"output_keys": "CodRecurso,CodCobertura,InicioCob,FimCob,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tabVeiculosEnvolvidos",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tabRecursosAcionados",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/KCOR/dbo.TabVeiculosEnvolvidos",
+					"baseParameters": {
+						"read_mode_TabVeiculosEnvolvidos": "delta",
+						"input_name_TabVeiculosEnvolvidos": "dbo.TabVeiculosEnvolvidos",
+						"input_path_TabVeiculosEnvolvidos": "camada_prata/kcor/dbo.TabVeiculosEnvolvidos/eara/",
+						"input_options_TabVeiculosEnvolvidos": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/kcor/dbo.TabVeiculosEnvolvidos/",
+						"output_name": "dbo_TabVeiculosEnvolvidos",
+						"output_options": "{}",
+						"output_keys": "NumOcorrencia,DataOcorrencia,NumVeiculo,CodTipoVeiculo,PlacaVeiculo,DataIns,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tabVitimas",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tabVeiculosEnvolvidos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/KCOR/dbo.TabVitimas",
+					"baseParameters": {
+						"read_mode_TabVitimas": "delta",
+						"input_name_TabVitimas": "dbo.TabVitimas",
+						"input_path_TabVitimas": "camada_prata/kcor/dbo.TabVitimas/eara/",
+						"input_options_TabVitimas": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/kcor/dbo.TabVitimas/",
+						"output_name": "dbo_TabVitimas",
+						"output_options": "{}",
+						"output_keys": "NumOcorrencia,NumVeiculo,CodCondicao,NumVitima,DataIns,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tabConservacao",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tabVitimas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/KCOR/dbo.TabConservacao",
+					"baseParameters": {
+						"read_mode_TabConservacao": "delta",
+						"input_name_TabConservacao": "dbo.TabConservacao",
+						"input_path_TabConservacao": "camada_prata/kcor/dbo.TabConservacao/eara/",
+						"input_options_TabConservacao": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/kcor/dbo.TabConservacao/",
+						"output_name": "dbo_TabConservacao",
+						"output_options": "{}",
+						"output_keys": "NumSolicitacao,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "KCOR/TUDO/EARA"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-19T12:48:04Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

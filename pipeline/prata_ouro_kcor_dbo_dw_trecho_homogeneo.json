@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_kcor_dbo_dw_trecho_homogeneo",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_kcor_dbo_dw_trecho_homogeneo",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/KCOR/dbo.DW_TRECHO_HOMOGENEO",
+					"baseParameters": {
+						"read_mode_dw_trecho_homogeneo": "delta",
+						"input_path_dw_trecho_homogeneo": "/camada_prata/kcor/dbo.dw_trecho_homogeneo/",
+						"input_name_dw_trecho_homogeneo": "dbo.dw_trecho_homogeneo",
+						"input_options_dw_trecho_homogeneo": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/kcor/dbo.DW_TRECHO_HOMOGENEO/",
+						"output_name": "dbo_DW_TRECHO_HOMOGENEO",
+						"output_options": "{}",
+						"output_keys": "ID_TH_GRUPO",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/KCOR"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-16T14:16:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

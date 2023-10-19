@@ -1,0 +1,342 @@
+{
+	"name": "TOLLPACKBI_REPORT_ETL",
+	"properties": {
+		"activities": [
+			{
+				"name": "ouro_report_toll_dim_classificacao_desconto",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_DIM_CLASSIFICACAO_DESCONTO",
+					"baseParameters": {
+						"read_mode_classificacao_desconto": "delta",
+						"input_path_classificacao_desconto": "/camada_ouro/tollpackbi/dbo.DIM_CLASSIFICAO_DESCONTO/semanal/",
+						"input_name_classificacao_desconto": "dbo_dim_classificao_desconto",
+						"input_options_classificacao_desconto": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/tollpackbi/VW_TOLL_DIM_CLASSIFICACAO_DESCONTO/",
+						"output_name": "VW_TOLL_DIM_CLASSIFICACAO_DESCONTO",
+						"output_options": "{}",
+						"output_keys": "CD_CLASSIFICACAO_DESCONTO",
+						"catalog": "hive_metastore",
+						"schema": "tollpackbi"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_toll_dim_operador",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_toll_dim_classificacao_desconto",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_DIM_OPERADOR",
+					"baseParameters": {
+						"read_mode_operador": "delta",
+						"input_path_operador": "/camada_ouro/tollpackbi/dbo.DIM_OPERADOR/semanal/",
+						"input_name_operador": "dbo_dim_operador",
+						"input_options_operador": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/tollpackbi/VW_TOLL_DIM_OPERADOR/",
+						"output_name": "VW_TOLL_DIM_OPERADOR",
+						"output_options": "{}",
+						"output_keys": "CD_OPERADOR_SISTEMA",
+						"catalog": "hive_metastore",
+						"schema": "tollpackbi"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_toll_dim_pista_praca_unidade",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_toll_dim_operador",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_DIM_PISTA_PRACA_UNIDADE",
+					"baseParameters": {
+						"read_mode_praca": "delta",
+						"input_path_praca": "/camada_ouro/tollpackbi/dbo.DIM_PRACA/semanal/",
+						"input_name_praca": "dbo_dim_praca",
+						"input_options_praca": "{}",
+						"read_mode_pista": "delta",
+						"input_path_pista": "/camada_ouro/tollpackbi/dbo.DIM_PISTA/semanal/",
+						"input_name_pista": "dbo_dim_pista",
+						"input_options_pista": "{}",
+						"read_mode_concessao": "delta",
+						"input_path_concessao": "/camada_ouro/tollpackbi/dbo.DIM_CONCESSAO/semanal/",
+						"input_name_concessao": "dbo_dim_concessao",
+						"input_options_concessao": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/tollpackbi/VW_TOLL_DIM_OPERADOR/",
+						"output_name": "VW_TOLL_DIM_PISTA_PRACA_UNIDADE",
+						"output_options": "{}",
+						"output_keys": "CD_PISTA",
+						"catalog": "hive_metastore",
+						"schema": "tollpackbi"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_toll_dim_tipo_pagamento",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_toll_dim_pista_praca_unidade",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_DIM_TIPO_PAGAMENTO",
+					"baseParameters": {
+						"read_mode_tipo_pagamento": "delta",
+						"input_path_tipo_pagamento": "/camada_ouro/tollpackbi/dbo.DIM_TIPO_PAGTO/semanal/",
+						"input_name_tipo_pagamento": "dbo_dim_tipo_pagto",
+						"input_options_tipo_pagamento": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/tollpackbi/VW_TOLL_DIM_TIPO_PAGAMENTO/",
+						"output_name": "VW_TOLL_DIM_TIPO_PAGAMENTO",
+						"output_options": "{}",
+						"output_keys": "CD_TPO_PGTO",
+						"catalog": "hive_metastore",
+						"schema": "tollpackbi"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_toll_extrato_trafego",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_toll_dim_tipo_pagamento",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLL_EXTRATO_TRAFEGO",
+					"baseParameters": {
+						"read_mode_sentido": "delta",
+						"input_path_sentido": "/camada_ouro/tollpackbi/dbo.DIM_SENTIDO/semanal/",
+						"input_name_sentido": "dbo_dim_sentido",
+						"input_options_sentido": "{}",
+						"read_mode_categoria": "delta",
+						"input_path_categoria": "/camada_ouro/tollpackbi/dbo.DIM_CATEGORIA/semanal/",
+						"input_name_categoria": "dbo_dim_categoria",
+						"input_options_categoria": "{}",
+						"read_mode_fact_extrato_trafego": "delta",
+						"input_path_fact_extrato_trafego": "camada_ouro/tollpackbi/dbo.FACT_EXTRATO_TRAFEGO/incremental/",
+						"input_name_fact_extrato_trafego": "dbo_fact_extrato_trafego",
+						"input_options_fact_extrato_trafego": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/tollpackbi/VW_TOLL_EXTRATO_TRAFEGO/",
+						"output_name": "VW_TOLL_EXTRATO_TRAFEGO",
+						"output_options": "{}",
+						"output_keys": "DATA,CD_PRACA,CD_CONCESSAO",
+						"catalog": "hive_metastore",
+						"schema": "tollpackbi"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_toll_trafego_nsr_et",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tollpackbi_extrato_trafego_consolidado",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TOLLPACKBI_EXTRATO_TRAFEGO_CONSOLIDADO",
+					"baseParameters": {
+						"read_mode_praca": "delta",
+						"input_path_praca": "/camada_ouro/tollpackbi/dbo.DIM_PRACA/semanal/",
+						"input_name_praca": "dbo_dim_praca",
+						"input_options_praca": "{}",
+						"read_mode_pista": "delta",
+						"input_path_pista": "/camada_ouro/tollpackbi/dbo.DIM_PISTA/semanal/",
+						"input_name_pista": "dbo_dim_pista",
+						"input_options_pista": "{}",
+						"read_mode_categoria": "delta",
+						"input_path_categoria": "/camada_ouro/tollpackbi/dbo.DIM_CATEGORIA/semanal/",
+						"input_name_categoria": "dbo_dim_categoria",
+						"input_options_categoria": "{}",
+						"read_mode_tipo_pagamento": "delta",
+						"input_path_tipo_pagamento": "/camada_ouro/tollpackbi/dbo.DIM_TIPO_PAGTO/semanal/",
+						"input_name_tipo_pagamento": "dbo_dim_tipo_pagto",
+						"input_options_tipo_pagamento": "{}",
+						"read_mode_fact_extrato_trafego": "delta",
+						"input_path_fact_extrato_trafego": "camada_ouro/tollpackbi/dbo.FACT_EXTRATO_TRAFEGO/incremental/",
+						"input_name_fact_extrato_trafego": "dbo_fact_extrato_trafego",
+						"input_options_fact_extrato_trafego": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/tollpackbi/VW_TOLLPACKBI_EXTRATO_TRAFEGO_CONSOLIDADO/",
+						"output_name": "VW_TOLLPACKBI_EXTRATO_TRAFEGO_CONSOLIDADO",
+						"output_options": "{}",
+						"output_keys": "DATA_SAIDA,CD_CONCESSAO,PRACA,CD_PISTA,TIPO_PISTA,id_osa,id_operador,TIPO_PAGTO,TIPO_VALIDACAO",
+						"catalog": "hive_metastore",
+						"schema": "tollpackbi"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tollpackbi_extrato_trafego_consolidado",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_toll_extrato_trafego",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/TOLLPACKBI/VW_TRAFEGO_NSR_ET",
+					"baseParameters": {
+						"read_mode_praca": "delta",
+						"input_path_praca": "/camada_ouro/tollpackbi/dbo.DIM_PRACA/semanal/",
+						"input_name_praca": "dbo_dim_praca",
+						"input_options_praca": "{}",
+						"read_mode_pista": "delta",
+						"input_path_pista": "/camada_ouro/tollpackbi/dbo.DIM_PISTA/semanal/",
+						"input_name_pista": "dbo_dim_pista",
+						"input_options_pista": "{}",
+						"read_mode_concessao": "delta",
+						"input_path_concessao": "/camada_ouro/tollpackbi/dbo.DIM_CONCESSAO/semanal/",
+						"input_name_concessao": "dbo_dim_concessao",
+						"input_options_concessao": "{}",
+						"read_mode_categoria": "delta",
+						"input_path_categoria": "/camada_ouro/tollpackbi/dbo.DIM_CATEGORIA/semanal/",
+						"input_name_categoria": "dbo_dim_categoria",
+						"input_options_categoria": "{}",
+						"read_mode_tipo_pagamento": "delta",
+						"input_path_tipo_pagamento": "/camada_ouro/tollpackbi/dbo.DIM_TIPO_PAGTO/semanal/",
+						"input_name_tipo_pagamento": "dbo_dim_tipo_pagto",
+						"input_options_tipo_pagamento": "{}",
+						"read_mode_dim_classificao_desconto": "delta",
+						"input_path_dim_classificao_desconto": "/camada_ouro/tollpackbi/dbo.DIM_CLASSIFICAO_DESCONTO/semanal/",
+						"input_name_dim_classificao_desconto": "dbo_dim_classificao_desconto",
+						"input_options_dim_classificao_desconto": "{}",
+						"read_mode_fact_extrato_trafego": "delta",
+						"input_path_fact_extrato_trafego": "camada_ouro/tollpackbi/dbo.FACT_EXTRATO_TRAFEGO/incremental/",
+						"input_name_fact_extrato_trafego": "dbo_fact_extrato_trafego",
+						"input_options_fact_extrato_trafego": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/tollpackbi/VW_TRAFEGO_NSR_ET/",
+						"output_name": "VW_TRAFEGO_NSR_ET",
+						"output_options": "{}",
+						"output_keys": "ID,DATA,CD_PRACA,TIPO_PISTA,TIPO_VEICULO,CD_SENTIDO,CD_CATEG,TIPO_PAGTO,CD_OSA",
+						"catalog": "hive_metastore",
+						"schema": "tollpackbi"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "TOLLPACKBI"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T01:24:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

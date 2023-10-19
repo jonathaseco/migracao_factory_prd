@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_juridico_dm_unidade",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_dm_unidade",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/JURIDICO/DM_UNIDADE",
+					"baseParameters": {
+						"read_mode_unidade": "delta",
+						"input_path_unidade": "/camada_prata/juridico/unidade/",
+						"input_name_unidade": "juridico_unidade",
+						"input_options_unidade": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/juridico/dm_unidade/",
+						"output_name": "dm_unidade",
+						"output_options": "{}",
+						"output_keys": "CD_UNIDADE",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T20:37:03Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

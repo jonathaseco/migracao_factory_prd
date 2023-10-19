@@ -1,0 +1,341 @@
+{
+	"name": "ingest_sap_sf_fopaycomponent",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDataFromFOPayComponent",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"AbsoluteUrl": "$.d.__next"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['externalCode']"
+								},
+								"sink": {
+									"name": "externalCode"
+								}
+							},
+							{
+								"source": {
+									"path": "['startDate']"
+								},
+								"sink": {
+									"name": "startDate"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedDateTime']"
+								},
+								"sink": {
+									"name": "lastModifiedDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['payComponentValue']"
+								},
+								"sink": {
+									"name": "payComponentValue",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['endDate']"
+								},
+								"sink": {
+									"name": "endDate"
+								}
+							},
+							{
+								"source": {
+									"path": "['isEarning']"
+								},
+								"sink": {
+									"name": "isEarning"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdDateTime']"
+								},
+								"sink": {
+									"name": "createdDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['description']"
+								},
+								"sink": {
+									"name": "description",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdOn']"
+								},
+								"sink": {
+									"name": "createdOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['basePayComponentGroup']"
+								},
+								"sink": {
+									"name": "basePayComponentGroup"
+								}
+							},
+							{
+								"source": {
+									"path": "['frequencyCode']"
+								},
+								"sink": {
+									"name": "frequencyCode"
+								}
+							},
+							{
+								"source": {
+									"path": "['number']"
+								},
+								"sink": {
+									"name": "number",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['payComponentType']"
+								},
+								"sink": {
+									"name": "payComponentType"
+								}
+							},
+							{
+								"source": {
+									"path": "['rate']"
+								},
+								"sink": {
+									"name": "rate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['maxFractionDigits']"
+								},
+								"sink": {
+									"name": "maxFractionDigits",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['currency']"
+								},
+								"sink": {
+									"name": "currency"
+								}
+							},
+							{
+								"source": {
+									"path": "['isEndDatedPayment']"
+								},
+								"sink": {
+									"name": "isEndDatedPayment"
+								}
+							},
+							{
+								"source": {
+									"path": "['objectId']"
+								},
+								"sink": {
+									"name": "objectId"
+								}
+							},
+							{
+								"source": {
+									"path": "['canOverride']"
+								},
+								"sink": {
+									"name": "canOverride"
+								}
+							},
+							{
+								"source": {
+									"path": "['displayOnSelfService']"
+								},
+								"sink": {
+									"name": "displayOnSelfService"
+								}
+							},
+							{
+								"source": {
+									"path": "['unitOfMeasure']"
+								},
+								"sink": {
+									"name": "unitOfMeasure",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['selfServiceDescription']"
+								},
+								"sink": {
+									"name": "selfServiceDescription",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['recurring']"
+								},
+								"sink": {
+									"name": "recurring"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedBy']"
+								},
+								"sink": {
+									"name": "lastModifiedBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedOn']"
+								},
+								"sink": {
+									"name": "lastModifiedOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['target']"
+								},
+								"sink": {
+									"name": "target"
+								}
+							},
+							{
+								"source": {
+									"path": "['taxTreatment']"
+								},
+								"sink": {
+									"name": "taxTreatment",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdBy']"
+								},
+								"sink": {
+									"name": "createdBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['usedForCompPlanning']"
+								},
+								"sink": {
+									"name": "usedForCompPlanning"
+								}
+							},
+							{
+								"source": {
+									"path": "['name']"
+								},
+								"sink": {
+									"name": "name"
+								}
+							},
+							{
+								"source": {
+									"path": "['internalCode']"
+								},
+								"sink": {
+									"name": "internalCode"
+								}
+							},
+							{
+								"source": {
+									"path": "['status']"
+								},
+								"sink": {
+									"name": "status"
+								}
+							}
+						],
+						"collectionReference": "$['d']['results']",
+						"mapComplexValuesToString": false
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "RestSapSfFULL",
+						"type": "DatasetReference",
+						"parameters": {
+							"table": "FOPayComponent",
+							"format": "JSON"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "camada_bronze/sap_sf/fo_pay_component/",
+							"file": {
+								"value": "@concat('fo_pay_component__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "01_INGESTAO/SAP_SF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T16:39:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

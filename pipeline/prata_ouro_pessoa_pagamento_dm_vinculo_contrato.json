@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_pessoa_pagamento_dm_vinculo_contrato",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_pessoa_pagamento_dm_vinculo_contrato",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/PESSOA_PAGAMENTO/DM_VINCULO_CONTRATO",
+					"baseParameters": {
+						"read_mode_vinculo_contrato": "delta",
+						"input_path_vinculo_contrato": "/camada_prata/sap_sf/pl_employee_class/",
+						"input_name_vinculo_contrato": "pl_employee_class",
+						"input_options_vinculo_contrato": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/pessoa_pagamento/dm_vinculo_contrato/",
+						"output_name": "dm_vinculo_contrato",
+						"output_options": "{}",
+						"output_keys": "CD_VINCULO_CONTRATO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/PESSOA_PAGAMENTO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T14:39:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

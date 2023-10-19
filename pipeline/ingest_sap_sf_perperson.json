@@ -1,0 +1,200 @@
+{
+	"name": "ingest_sap_sf_perperson",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDataFromPerPerson",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"AbsoluteUrl": "$.d.__next"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['personIdExternal']"
+								},
+								"sink": {
+									"name": "personIdExternal"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedDateTime']"
+								},
+								"sink": {
+									"name": "lastModifiedDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdDateTime']"
+								},
+								"sink": {
+									"name": "createdDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdOn']"
+								},
+								"sink": {
+									"name": "createdOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['countryOfBirth']"
+								},
+								"sink": {
+									"name": "countryOfBirth",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['placeOfBirth']"
+								},
+								"sink": {
+									"name": "placeOfBirth",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedBy']"
+								},
+								"sink": {
+									"name": "lastModifiedBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['dateOfBirth']"
+								},
+								"sink": {
+									"name": "dateOfBirth",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['perPersonUuid']"
+								},
+								"sink": {
+									"name": "perPersonUuid"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedOn']"
+								},
+								"sink": {
+									"name": "lastModifiedOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdBy']"
+								},
+								"sink": {
+									"name": "createdBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['regionOfBirth']"
+								},
+								"sink": {
+									"name": "regionOfBirth",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['personId']"
+								},
+								"sink": {
+									"name": "personId"
+								}
+							},
+							{
+								"source": {
+									"path": "['homeAddressNavDEFLT']['__deferred']['uri']"
+								},
+								"sink": {
+									"name": "d_results'][0]['homeAddressNavDEFLT___deferred_uri"
+								}
+							},
+							{
+								"source": {
+									"path": "$['d']['__next']"
+								},
+								"sink": {
+									"name": "__next"
+								}
+							}
+						],
+						"collectionReference": "$['d']['results']"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "RestSapSfFULL",
+						"type": "DatasetReference",
+						"parameters": {
+							"table": "PerPerson",
+							"format": "JSON"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "camada_bronze/sap_sf/per_person",
+							"file": {
+								"value": "@concat('per_person__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "01_INGESTAO/SAP_SF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T16:39:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

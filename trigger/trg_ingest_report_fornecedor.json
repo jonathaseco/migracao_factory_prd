@@ -1,0 +1,37 @@
+{
+	"name": "trg_ingest_report_fornecedor",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "prata_report_fornecedor",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Month",
+				"interval": 1,
+				"startTime": "2023-11-02T05:30:00Z",
+				"timeZone": "UTC",
+				"schedule": {
+					"minutes": [
+						30
+					],
+					"hours": [
+						5
+					],
+					"monthDays": [
+						1,
+						2,
+						3
+					]
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,286 @@
+{
+	"name": "AzureDataLakeStorageJson",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"path": {
+				"type": "string"
+			},
+			"file": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().file",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().path",
+					"type": "Expression"
+				},
+				"fileSystem": "ecsanalyticsfs"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"commitInfo": {
+					"type": "object",
+					"properties": {
+						"timestamp": {
+							"type": "integer"
+						},
+						"userId": {
+							"type": "string"
+						},
+						"userName": {
+							"type": "string"
+						},
+						"operation": {
+							"type": "string"
+						},
+						"operationParameters": {
+							"type": "object",
+							"properties": {
+								"mode": {
+									"type": "string"
+								},
+								"partitionBy": {
+									"type": "string"
+								},
+								"predicate": {
+									"type": "string"
+								},
+								"matchedPredicates": {
+									"type": "string"
+								},
+								"notMatchedPredicates": {
+									"type": "string"
+								},
+								"notMatchedBySourcePredicates": {
+									"type": "string"
+								}
+							}
+						},
+						"notebook": {
+							"type": "object",
+							"properties": {
+								"notebookId": {
+									"type": "string"
+								}
+							}
+						},
+						"clusterId": {
+							"type": "string"
+						},
+						"isolationLevel": {
+							"type": "string"
+						},
+						"isBlindAppend": {
+							"type": "boolean"
+						},
+						"operationMetrics": {
+							"type": "object",
+							"properties": {
+								"numFiles": {
+									"type": "string"
+								},
+								"numOutputRows": {
+									"type": "string"
+								},
+								"numOutputBytes": {
+									"type": "string"
+								},
+								"numTargetRowsCopied": {
+									"type": "string"
+								},
+								"numTargetRowsDeleted": {
+									"type": "string"
+								},
+								"numTargetFilesAdded": {
+									"type": "string"
+								},
+								"numTargetBytesAdded": {
+									"type": "string"
+								},
+								"numTargetBytesRemoved": {
+									"type": "string"
+								},
+								"numTargetDeletionVectorsAdded": {
+									"type": "string"
+								},
+								"numTargetRowsMatchedUpdated": {
+									"type": "string"
+								},
+								"executionTimeMs": {
+									"type": "string"
+								},
+								"numTargetRowsInserted": {
+									"type": "string"
+								},
+								"numTargetRowsMatchedDeleted": {
+									"type": "string"
+								},
+								"scanTimeMs": {
+									"type": "string"
+								},
+								"numTargetRowsUpdated": {
+									"type": "string"
+								},
+								"numTargetDeletionVectorsRemoved": {
+									"type": "string"
+								},
+								"numTargetRowsNotMatchedBySourceUpdated": {
+									"type": "string"
+								},
+								"numTargetChangeFilesAdded": {
+									"type": "string"
+								},
+								"numSourceRows": {
+									"type": "string"
+								},
+								"numTargetFilesRemoved": {
+									"type": "string"
+								},
+								"numTargetRowsNotMatchedBySourceDeleted": {
+									"type": "string"
+								},
+								"rewriteTimeMs": {
+									"type": "string"
+								}
+							}
+						},
+						"engineInfo": {
+							"type": "string"
+						},
+						"txnId": {
+							"type": "string"
+						},
+						"readVersion": {
+							"type": "integer"
+						},
+						"job": {
+							"type": "object",
+							"properties": {
+								"jobId": {
+									"type": "string"
+								},
+								"jobName": {
+									"type": "string"
+								},
+								"runId": {
+									"type": "string"
+								},
+								"jobOwnerId": {
+									"type": "string"
+								},
+								"triggerType": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"protocol": {
+					"type": "object",
+					"properties": {
+						"minReaderVersion": {
+							"type": "integer"
+						},
+						"minWriterVersion": {
+							"type": "integer"
+						}
+					}
+				},
+				"metaData": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "string"
+						},
+						"format": {
+							"type": "object",
+							"properties": {
+								"provider": {
+									"type": "string"
+								},
+								"options": {
+									"type": "object"
+								}
+							}
+						},
+						"schemaString": {
+							"type": "string"
+						},
+						"partitionColumns": {
+							"type": "array"
+						},
+						"configuration": {
+							"type": "object",
+							"properties": {
+								"delta.columnMapping.mode": {
+									"type": "string"
+								},
+								"delta.columnMapping.maxColumnId": {
+									"type": "string"
+								}
+							}
+						},
+						"createdTime": {
+							"type": "integer"
+						}
+					}
+				},
+				"add": {
+					"type": "object",
+					"properties": {
+						"path": {
+							"type": "string"
+						},
+						"partitionValues": {
+							"type": "object"
+						},
+						"size": {
+							"type": "integer"
+						},
+						"modificationTime": {
+							"type": "integer"
+						},
+						"dataChange": {
+							"type": "boolean"
+						},
+						"stats": {
+							"type": "string"
+						},
+						"tags": {
+							"type": "object",
+							"properties": {
+								"INSERTION_TIME": {
+									"type": "string"
+								},
+								"MIN_INSERTION_TIME": {
+									"type": "string"
+								},
+								"MAX_INSERTION_TIME": {
+									"type": "string"
+								},
+								"OPTIMIZE_TARGET_SIZE": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

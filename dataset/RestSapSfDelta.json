@@ -1,0 +1,37 @@
+{
+	"name": "RestSapSfDelta",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "rest_sap_sf",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"table": {
+				"type": "string"
+			},
+			"operator": {
+				"type": "string"
+			},
+			"date": {
+				"type": "string"
+			},
+			"filterVariable": {
+				"type": "string"
+			},
+			"format": {
+				"type": "string",
+				"defaultValue": "JSON"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@concat(dataset().table, '?$filter=', dataset().filterVariable, ' ', dataset().operator, ' ', dataset().date, '&$format=', dataset().format)",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

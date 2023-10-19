@@ -1,0 +1,183 @@
+{
+	"name": "ingest_sap_sf_pwbi01o",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDataFromPWBI01O",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"AbsoluteUrl": "$.d.__next"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['ano']"
+								},
+								"sink": {
+									"name": "ano"
+								}
+							},
+							{
+								"source": {
+									"path": "['periodo']"
+								},
+								"sink": {
+									"name": "periodo"
+								}
+							},
+							{
+								"source": {
+									"path": "['quantiidade']"
+								},
+								"sink": {
+									"name": "quantiidade"
+								}
+							},
+							{
+								"source": {
+									"path": "['descrRubrica']"
+								},
+								"sink": {
+									"name": "descrRubrica"
+								}
+							},
+							{
+								"source": {
+									"path": "['descrFolha']"
+								},
+								"sink": {
+									"name": "descrFolha"
+								}
+							},
+							{
+								"source": {
+									"path": "['contaContabil']"
+								},
+								"sink": {
+									"name": "contaContabil"
+								}
+							},
+							{
+								"source": {
+									"path": "['rubrica']"
+								},
+								"sink": {
+									"name": "rubrica"
+								}
+							},
+							{
+								"source": {
+									"path": "['indDebCred']"
+								},
+								"sink": {
+									"name": "indDebCred"
+								}
+							},
+							{
+								"source": {
+									"path": "['matricula']"
+								},
+								"sink": {
+									"name": "matricula"
+								}
+							},
+							{
+								"source": {
+									"path": "['empresa']"
+								},
+								"sink": {
+									"name": "empresa"
+								}
+							},
+							{
+								"source": {
+									"path": "['status']"
+								},
+								"sink": {
+									"name": "status"
+								}
+							},
+							{
+								"source": {
+									"path": "['codFolha']"
+								},
+								"sink": {
+									"name": "codFolha"
+								}
+							},
+							{
+								"source": {
+									"path": "['montante']"
+								},
+								"sink": {
+									"name": "montante"
+								}
+							}
+						],
+						"collectionReference": "$['employeePayments']",
+						"mapComplexValuesToString": false
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "RestSapSFPWBI",
+						"type": "DatasetReference",
+						"parameters": {
+							"pbi": "PWBI01O",
+							"date": "202309",
+							"operator": "eq",
+							"variable": "periodo"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "camada_bronze/sap_sf/pwbi01o/",
+							"file": {
+								"value": "@concat('pwbi01o__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "01_INGESTAO/SAP_SF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T16:29:29Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

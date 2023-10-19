@@ -1,0 +1,16 @@
+{
+	"name": "SqlServer1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=192.168.20.98;initial catalog=e_compras;user id=s_datafactory",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI5MzU2ZTlkZi01OTE4LTQ3ZTMtOWUyMi0xZjA1MjcxZjMzZDEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "Runtime-sgp",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

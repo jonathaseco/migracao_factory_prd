@@ -1,0 +1,112 @@
+{
+	"name": "bronze_ouro_flat_flat_file_kcor",
+	"properties": {
+		"activities": [
+			{
+				"name": "bronze_prata_kcor_dbo_aux_cobertura_praca",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_kcor_dbo_aux_cobertura_praca",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_kcor_dbo_aux_rodovia_concessao",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_kcor_dbo_aux_rodovia_concessao",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_kcor_dbo_dw_trecho_homogeneo",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_kcor_dbo_dw_trecho_homogeneo",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_kcor_dbo_aux_cobertura_praca",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "bronze_prata_kcor_dbo_aux_cobertura_praca",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_kcor_dbo_aux_cobertura_praca",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_kcor_dbo_aux_rodovia_concessao",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "bronze_prata_kcor_dbo_aux_rodovia_concessao",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_kcor_dbo_aux_rodovia_concessao",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "prata_ouro_kcor_dbo_dw_trecho_homogeneo",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "bronze_prata_kcor_dbo_dw_trecho_homogeneo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "prata_ouro_kcor_dbo_dw_trecho_homogeneo",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "00_WORKFLOW/FLAT_FILE"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-16T14:23:53Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

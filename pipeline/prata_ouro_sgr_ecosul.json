@@ -1,0 +1,887 @@
+{
+	"name": "prata_ouro_sgr_ecosul",
+	"properties": {
+		"description": "Execução de notebook no Databricks para processamento das tabelas da camada prata para ouro.",
+		"activities": [
+			{
+				"name": "prata_ouro_dbo_ativid",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.ATIVID",
+					"baseParameters": {
+						"read_mode_ativid": "delta",
+						"input_name_ativid": "dbo.ATIVID",
+						"input_path_ativid": "camada_prata/sgr/dbo.ATIVID/ecosul/",
+						"input_options_ativid": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.ATIVID/",
+						"output_name": "dbo_ativid",
+						"output_options": "{}",
+						"output_keys": "AtvCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_causas",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_ativid",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.CAUSAS",
+					"baseParameters": {
+						"read_mode_causas": "delta",
+						"input_name_causas": "dbo.CAUSAS",
+						"input_path_causas": "camada_prata/sgr/dbo.CAUSAS/ecosul/",
+						"input_options_causas": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.CAUSAS/",
+						"output_name": "dbo_causas",
+						"output_options": "{}",
+						"output_keys": "CauCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_conmet",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_causas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.CONMET",
+					"baseParameters": {
+						"read_mode_conmet": "delta",
+						"input_name_conmet": "dbo.CONMET",
+						"input_path_conmet": "camada_prata/sgr/dbo.CONMET/ecosul/",
+						"input_options_conmet": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.CONMET/",
+						"output_name": "dbo_conmet",
+						"output_options": "{}",
+						"output_keys": "CmtCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_ctrvia",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_conmet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.CTRVIA",
+					"baseParameters": {
+						"read_mode_ctrvia": "delta",
+						"input_name_ctrvia": "dbo.CTRVIA",
+						"input_path_ctrvia": "camada_prata/sgr/dbo.CTRVIA/ecosul/",
+						"input_options_ctrvia": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.CTRVIA/",
+						"output_name": "dbo_ctrvia",
+						"output_options": "{}",
+						"output_keys": "CtrDatInic,CtrSequenc,CtrHorInic,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_funcio",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_ctrvia",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.FUNCIO",
+					"baseParameters": {
+						"read_mode_funcio": "delta",
+						"input_name_funcio": "dbo.FUNCIO",
+						"input_path_funcio": "camada_prata/sgr/dbo.FUNCIO/ecosul/",
+						"input_options_funcio": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.FUNCIO/",
+						"output_name": "dbo_funcio",
+						"output_options": "{}",
+						"output_keys": "FunCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_gravid",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_funcio",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.GRAVID",
+					"baseParameters": {
+						"read_mode_gravid": "delta",
+						"input_name_gravid": "dbo.GRAVID",
+						"input_path_gravid": "camada_prata/sgr/dbo.GRAVID/ecosul/",
+						"input_options_gravid": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.GRAVID/",
+						"output_name": "dbo_gravid",
+						"output_options": "{}",
+						"output_keys": "GraCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_grunat",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_gravid",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.GRUNAT",
+					"baseParameters": {
+						"read_mode_grunat": "delta",
+						"input_name_grunat": "dbo.GRUNAT",
+						"input_path_grunat": "camada_prata/sgr/dbo.GRUNAT/ecosul/",
+						"input_options_grunat": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.GRUNAT/",
+						"output_name": "dbo_grunat",
+						"output_options": "{}",
+						"output_keys": "GrnCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_modvei",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_grunat",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.MODVEI",
+					"baseParameters": {
+						"read_mode_modvei": "delta",
+						"input_name_modvei": "dbo.MODVEI",
+						"input_path_modvei": "camada_prata/sgr/dbo.MODVEI/ecosul/",
+						"input_options_modvei": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.MODVEI/",
+						"output_name": "dbo_modvei",
+						"output_options": "{}",
+						"output_keys": "ModCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_nature",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_modvei",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.NATURE",
+					"baseParameters": {
+						"read_mode_nature": "delta",
+						"input_name_nature": "dbo.NATURE",
+						"input_path_nature": "camada_prata/sgr/dbo.NATURE/ecosul/",
+						"input_options_nature": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.NATURE/",
+						"output_name": "dbo_nature",
+						"output_options": "{}",
+						"output_keys": "NatCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_ocorre",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_nature",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.OCORRE",
+					"baseParameters": {
+						"read_mode_ocorre": "delta",
+						"input_name_ocorre": "dbo.OCORRE",
+						"input_path_ocorre": "camada_prata/sgr/dbo.OCORRE/ecosul/",
+						"input_options_ocorre": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.OCORRE/",
+						"output_name": "dbo_ocorre",
+						"output_options": "{}",
+						"output_keys": "OcoCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_ocovei",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_ocorre",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.OCOVEI",
+					"baseParameters": {
+						"read_mode_ocovei": "delta",
+						"input_name_ocovei": "dbo.OCOVEI",
+						"input_path_ocovei": "camada_prata/sgr/dbo.OCOVEI/ecosul/",
+						"input_options_ocovei": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.OCOVEI/",
+						"output_name": "dbo_ocovei",
+						"output_options": "{}",
+						"output_keys": "OcoCodigo,VeiPlaca,ModCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_ocovia",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_ocovei",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.OCOVIA",
+					"baseParameters": {
+						"read_mode_ocovia": "delta",
+						"input_name_ocovia": "dbo.OCOVIA",
+						"input_path_ocovia": "camada_prata/sgr/dbo.OCOVIA/ecosul/",
+						"input_options_ocovia": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.OCOVIA/",
+						"output_name": "dbo_ocovia",
+						"output_options": "{}",
+						"output_keys": "OcoCodigo,VtoSequenc,ViaCodigo,VtoDatAcio,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_ocovit",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_ocovia",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.OCOVIT",
+					"baseParameters": {
+						"read_mode_ocovit": "delta",
+						"input_name_ocovit": "dbo.OCOVIT",
+						"input_path_ocovit": "camada_prata/sgr/dbo.OCOVIT/ecosul/",
+						"input_options_ocovit": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.OCOVIT/",
+						"output_name": "dbo_ocovit",
+						"output_options": "{}",
+						"output_keys": "OcoCodigo,VitSequenc,VitNome,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_origem",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_ocovit",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.ORIGEM",
+					"baseParameters": {
+						"read_mode_origem": "delta",
+						"input_name_origem": "dbo.ORIGEM",
+						"input_path_origem": "camada_prata/sgr/dbo.ORIGEM/ecosul/",
+						"input_options_origem": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.ORIGEM/",
+						"output_name": "dbo_origem",
+						"output_options": "{}",
+						"output_keys": "OriCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_sentid",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_origem",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.SENTID",
+					"baseParameters": {
+						"read_mode_sentid": "delta",
+						"input_name_sentid": "dbo.SENTID",
+						"input_path_sentid": "camada_prata/sgr/dbo.SENTID/ecosul/",
+						"input_options_sentid": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.SENTID/",
+						"output_name": "dbo_sentid",
+						"output_options": "{}",
+						"output_keys": "SenCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tipate",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_sentid",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.TIPATE",
+					"baseParameters": {
+						"read_mode_tipate": "delta",
+						"input_name_tipate": "dbo.TIPATE",
+						"input_path_tipate": "camada_prata/sgr/dbo.TIPATE/ecosul/",
+						"input_options_tipate": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.TIPATE/",
+						"output_name": "dbo_tipate",
+						"output_options": "{}",
+						"output_keys": "TpaCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tipvei",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tipate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.TIPVEI",
+					"baseParameters": {
+						"read_mode_tipvei": "delta",
+						"input_name_tipvei": "dbo.TIPVEI",
+						"input_path_tipvei": "camada_prata/sgr/dbo.TIPVEI/ecosul/",
+						"input_options_tipvei": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.TIPVEI/",
+						"output_name": "dbo_tipvei",
+						"output_options": "{}",
+						"output_keys": "TipVeiCod,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tipvia",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tipvei",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.TIPVIA",
+					"baseParameters": {
+						"read_mode_tipvia": "delta",
+						"input_name_tipvia": "dbo.TIPVIA",
+						"input_path_tipvia": "camada_prata/sgr/dbo.TIPVIA/ecosul/",
+						"input_options_tipvia": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.TIPVIA/",
+						"output_name": "dbo_tipvia",
+						"output_options": "{}",
+						"output_keys": "TviCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_tipvit",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tipvia",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.TIPVIT",
+					"baseParameters": {
+						"read_mode_tipvit": "delta",
+						"input_name_tipvit": "dbo.TIPVIT",
+						"input_path_tipvit": "camada_prata/sgr/dbo.TIPVIT/ecosul/",
+						"input_options_tipvit": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.TIPVIT/",
+						"output_name": "dbo_tipvit",
+						"output_options": "{}",
+						"output_keys": "TpvCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_veivia",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_tipvit",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.VEIVIA",
+					"baseParameters": {
+						"read_mode_veivia": "delta",
+						"input_name_veivia": "dbo.VEIVIA",
+						"input_path_veivia": "camada_prata/sgr/dbo.VEIVIA/ecosul/",
+						"input_options_veivia": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.VEIVIA/",
+						"output_name": "dbo_veivia",
+						"output_options": "{}",
+						"output_keys": "OcoCodigo,VtoSequenc,VeiPlaca,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_viatur",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_veivia",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.VIATUR",
+					"baseParameters": {
+						"read_mode_viatur": "delta",
+						"input_name_viatur": "dbo.VIATUR",
+						"input_path_viatur": "camada_prata/sgr/dbo.VIATUR/ecosul/",
+						"input_options_viatur": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.VIATUR/",
+						"output_name": "dbo_viatur",
+						"output_options": "{}",
+						"output_keys": "ViaCodigo,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_vitamb",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_viatur",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/SGR/dbo.VITAMB",
+					"baseParameters": {
+						"read_mode_vitamb": "delta",
+						"input_name_vitamb": "dbo.VITAMB",
+						"input_path_vitamb": "camada_prata/sgr/dbo.VITAMB/ecosul/",
+						"input_options_vitamb": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/sgr/dbo.VITAMB/",
+						"output_name": "dbo_vitamb",
+						"output_options": "{}",
+						"output_keys": "OcoCodigo,VtoSequenc,OcoVitima,Unidade_dw",
+						"catalog": "hive_metastore",
+						"schema": "sgr"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "SGR/ECOSUL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-19T01:57:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

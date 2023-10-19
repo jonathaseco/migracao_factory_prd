@@ -1,0 +1,279 @@
+{
+	"name": "ingest_sap_sf_empworkpermit",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDataFromEmpWorkPermit",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"AbsoluteUrl": "$.d.__next"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['country']"
+								},
+								"sink": {
+									"name": "country"
+								}
+							},
+							{
+								"source": {
+									"path": "['documentType']"
+								},
+								"sink": {
+									"name": "documentType"
+								}
+							},
+							{
+								"source": {
+									"path": "['documentNumber']"
+								},
+								"sink": {
+									"name": "documentNumber"
+								}
+							},
+							{
+								"source": {
+									"path": "['issueDate']"
+								},
+								"sink": {
+									"name": "issueDate"
+								}
+							},
+							{
+								"source": {
+									"path": "['userId']"
+								},
+								"sink": {
+									"name": "userId"
+								}
+							},
+							{
+								"source": {
+									"path": "['attachmentFileName']"
+								},
+								"sink": {
+									"name": "attachmentFileName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedDateTime']"
+								},
+								"sink": {
+									"name": "lastModifiedDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['notes']"
+								},
+								"sink": {
+									"name": "notes",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedBy']"
+								},
+								"sink": {
+									"name": "lastModifiedBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['attachmentStatus']"
+								},
+								"sink": {
+									"name": "attachmentStatus",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdDateTime']"
+								},
+								"sink": {
+									"name": "createdDateTime"
+								}
+							},
+							{
+								"source": {
+									"path": "['attachmentFileSize']"
+								},
+								"sink": {
+									"name": "attachmentFileSize",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdOn']"
+								},
+								"sink": {
+									"name": "createdOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedOn']"
+								},
+								"sink": {
+									"name": "lastModifiedOn"
+								}
+							},
+							{
+								"source": {
+									"path": "['issuingAuthority']"
+								},
+								"sink": {
+									"name": "issuingAuthority",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['attachment']"
+								},
+								"sink": {
+									"name": "attachment",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString1']"
+								},
+								"sink": {
+									"name": "customString1",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['attachmentFileType']"
+								},
+								"sink": {
+									"name": "attachmentFileType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdBy']"
+								},
+								"sink": {
+									"name": "createdBy"
+								}
+							},
+							{
+								"source": {
+									"path": "['attachmentMimeType']"
+								},
+								"sink": {
+									"name": "attachmentMimeType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['attachmentId']"
+								},
+								"sink": {
+									"name": "attachmentId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['issuePlace']"
+								},
+								"sink": {
+									"name": "issuePlace"
+								}
+							},
+							{
+								"source": {
+									"path": "['expirationDate']"
+								},
+								"sink": {
+									"name": "expirationDate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['d']['__next']"
+								},
+								"sink": {
+									"name": "__next"
+								}
+							}
+						],
+						"collectionReference": "$['d']['results']"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "RestSapSfFULL",
+						"type": "DatasetReference",
+						"parameters": {
+							"table": "EmpWorkPermit",
+							"format": "JSON"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "camada_bronze/sap_sf/emp_work_permit/",
+							"file": {
+								"value": "@concat('emp_work_permit__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "01_INGESTAO/SAP_SF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T16:39:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

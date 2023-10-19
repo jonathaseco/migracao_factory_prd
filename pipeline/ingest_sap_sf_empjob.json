@@ -1,0 +1,1304 @@
+{
+	"name": "ingest_sap_sf_empjob",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDataFromEmpJob",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"AbsoluteUrl": "$.d.__next"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['seqNumber']"
+								},
+								"sink": {
+									"name": "seqNumber"
+								}
+							},
+							{
+								"source": {
+									"path": "['userId']"
+								},
+								"sink": {
+									"name": "userId"
+								}
+							},
+							{
+								"source": {
+									"path": "['startDate']"
+								},
+								"sink": {
+									"name": "startDate"
+								}
+							},
+							{
+								"source": {
+									"path": "['fgtsOptant']"
+								},
+								"sink": {
+									"name": "fgtsOptant"
+								}
+							},
+							{
+								"source": {
+									"path": "['commitmentIndicator']"
+								},
+								"sink": {
+									"name": "commitmentIndicator",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['effectiveLatestChange']"
+								},
+								"sink": {
+									"name": "effectiveLatestChange",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdDateTime']"
+								},
+								"sink": {
+									"name": "createdDateTime",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['validFrom']"
+								},
+								"sink": {
+									"name": "validFrom",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['fgtsDate']"
+								},
+								"sink": {
+									"name": "fgtsDate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['probationaryPeriodMeasure']"
+								},
+								"sink": {
+									"name": "probationaryPeriodMeasure",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['occupationCri']"
+								},
+								"sink": {
+									"name": "occupationCri",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['fromCurrency']"
+								},
+								"sink": {
+									"name": "fromCurrency",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['eeo5JobCategory']"
+								},
+								"sink": {
+									"name": "eeo5JobCategory",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['costCenter']"
+								},
+								"sink": {
+									"name": "costCenter",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['sickPaySupplementMeasure']"
+								},
+								"sink": {
+									"name": "sickPaySupplementMeasure",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['calcMethodIndicator']"
+								},
+								"sink": {
+									"name": "calcMethodIndicator",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['exclExecutiveSector']"
+								},
+								"sink": {
+									"name": "exclExecutiveSector",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['isFulltimeEmployee']"
+								},
+								"sink": {
+									"name": "isFulltimeEmployee",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['emplStatus']"
+								},
+								"sink": {
+									"name": "emplStatus",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['countryOfCompany']"
+								},
+								"sink": {
+									"name": "countryOfCompany",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['eeo6JobCategory']"
+								},
+								"sink": {
+									"name": "eeo6JobCategory",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['municipalInseeCode']"
+								},
+								"sink": {
+									"name": "municipalInseeCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['localJobTitle']"
+								},
+								"sink": {
+									"name": "localJobTitle",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['dismissalsNoticePeriodForEmployer']"
+								},
+								"sink": {
+									"name": "dismissalsNoticePeriodForEmployer",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['entryIntoGroup']"
+								},
+								"sink": {
+									"name": "entryIntoGroup",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['payGrade']"
+								},
+								"sink": {
+									"name": "payGrade",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['travelDistance']"
+								},
+								"sink": {
+									"name": "travelDistance",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['timeRecordingVariant']"
+								},
+								"sink": {
+									"name": "timeRecordingVariant",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['calculationBase']"
+								},
+								"sink": {
+									"name": "calculationBase",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString18']"
+								},
+								"sink": {
+									"name": "customString18",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['assedicCertObjectNum']"
+								},
+								"sink": {
+									"name": "assedicCertObjectNum",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['degreeOfProductivity']"
+								},
+								"sink": {
+									"name": "degreeOfProductivity",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['assessmentStatus']"
+								},
+								"sink": {
+									"name": "assessmentStatus",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['managerId']"
+								},
+								"sink": {
+									"name": "managerId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['spclRuleNonManualWorker']"
+								},
+								"sink": {
+									"name": "spclRuleNonManualWorker",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['wtdHoursLimit']"
+								},
+								"sink": {
+									"name": "wtdHoursLimit",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedOn']"
+								},
+								"sink": {
+									"name": "lastModifiedOn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['mandatoryInternship']"
+								},
+								"sink": {
+									"name": "mandatoryInternship",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedDateTime']"
+								},
+								"sink": {
+									"name": "lastModifiedDateTime",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['harmfulAgentExposure']"
+								},
+								"sink": {
+									"name": "harmfulAgentExposure",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['sickPaySupplement']"
+								},
+								"sink": {
+									"name": "sickPaySupplement",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['integrationAgent']"
+								},
+								"sink": {
+									"name": "integrationAgent",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['exchangeRate']"
+								},
+								"sink": {
+									"name": "exchangeRate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['workPermitExpiry']"
+								},
+								"sink": {
+									"name": "workPermitExpiry",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['initialEntryDate']"
+								},
+								"sink": {
+									"name": "initialEntryDate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['currentWageLevel']"
+								},
+								"sink": {
+									"name": "currentWageLevel",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['holidayCalendarCode']"
+								},
+								"sink": {
+									"name": "holidayCalendarCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['contractNumber']"
+								},
+								"sink": {
+									"name": "contractNumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['jobGroup']"
+								},
+								"sink": {
+									"name": "jobGroup",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['eventReason']"
+								},
+								"sink": {
+									"name": "eventReason",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['isCompetitionClauseActive']"
+								},
+								"sink": {
+									"name": "isCompetitionClauseActive",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['noticePeriod']"
+								},
+								"sink": {
+									"name": "noticePeriod",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['continuedSicknessPayMeasure']"
+								},
+								"sink": {
+									"name": "continuedSicknessPayMeasure",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['toCurrency']"
+								},
+								"sink": {
+									"name": "toCurrency",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['newCalcAvgPpu']"
+								},
+								"sink": {
+									"name": "newCalcAvgPpu",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['regularTemp']"
+								},
+								"sink": {
+									"name": "regularTemp",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['workLocation']"
+								},
+								"sink": {
+									"name": "workLocation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['contractReferenceForAed']"
+								},
+								"sink": {
+									"name": "contractReferenceForAed",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['isSideLineJobAllowed']"
+								},
+								"sink": {
+									"name": "isSideLineJobAllowed",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['company']"
+								},
+								"sink": {
+									"name": "company",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['retired']"
+								},
+								"sink": {
+									"name": "retired",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['eeo1JobCategory']"
+								},
+								"sink": {
+									"name": "eeo1JobCategory",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['periodIndicator']"
+								},
+								"sink": {
+									"name": "periodIndicator",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['employeeClass']"
+								},
+								"sink": {
+									"name": "employeeClass",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['hireDate']"
+								},
+								"sink": {
+									"name": "hireDate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['contractEndDate']"
+								},
+								"sink": {
+									"name": "contractEndDate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['pensionProtection']"
+								},
+								"sink": {
+									"name": "pensionProtection",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['employeeWorkgroupMembership']"
+								},
+								"sink": {
+									"name": "employeeWorkgroupMembership",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['sickPaySupplementPeriod']"
+								},
+								"sink": {
+									"name": "sickPaySupplementPeriod",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdBy']"
+								},
+								"sink": {
+									"name": "createdBy",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['transportationSubsidy']"
+								},
+								"sink": {
+									"name": "transportationSubsidy",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['contractId']"
+								},
+								"sink": {
+									"name": "contractId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['location']"
+								},
+								"sink": {
+									"name": "location",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['occupationalLevels']"
+								},
+								"sink": {
+									"name": "occupationalLevels",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['workscheduleCode']"
+								},
+								"sink": {
+									"name": "workscheduleCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['endDate']"
+								},
+								"sink": {
+									"name": "endDate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['contractType']"
+								},
+								"sink": {
+									"name": "contractType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['jobCode']"
+								},
+								"sink": {
+									"name": "jobCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['payScaleLevel']"
+								},
+								"sink": {
+									"name": "payScaleLevel",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['timeTypeProfileCode']"
+								},
+								"sink": {
+									"name": "timeTypeProfileCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['eeoClass']"
+								},
+								"sink": {
+									"name": "eeoClass",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['newCalcAvgDnp']"
+								},
+								"sink": {
+									"name": "newCalcAvgDnp",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['hazard']"
+								},
+								"sink": {
+									"name": "hazard",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['continuedSicknessPayPeriod']"
+								},
+								"sink": {
+									"name": "continuedSicknessPayPeriod",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['flsaStatus']"
+								},
+								"sink": {
+									"name": "flsaStatus",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['occupationalLevelKen']"
+								},
+								"sink": {
+									"name": "occupationalLevelKen",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['educationalEntity']"
+								},
+								"sink": {
+									"name": "educationalEntity",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['corporation']"
+								},
+								"sink": {
+									"name": "corporation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['residentVote']"
+								},
+								"sink": {
+									"name": "residentVote",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['laborProtection']"
+								},
+								"sink": {
+									"name": "laborProtection",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ineligibleStatutoryMinWage']"
+								},
+								"sink": {
+									"name": "ineligibleStatutoryMinWage",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['guaranteedPayment']"
+								},
+								"sink": {
+									"name": "guaranteedPayment",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['occupationGtm']"
+								},
+								"sink": {
+									"name": "occupationGtm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['occupationPer']"
+								},
+								"sink": {
+									"name": "occupationPer",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['payScaleType']"
+								},
+								"sink": {
+									"name": "payScaleType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['createdOn']"
+								},
+								"sink": {
+									"name": "createdOn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['creditForPreviousService']"
+								},
+								"sink": {
+									"name": "creditForPreviousService",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['healthRisk']"
+								},
+								"sink": {
+									"name": "healthRisk",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['fte']"
+								},
+								"sink": {
+									"name": "fte",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['event']"
+								},
+								"sink": {
+									"name": "event",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['teachersPension']"
+								},
+								"sink": {
+									"name": "teachersPension",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['workerCategory']"
+								},
+								"sink": {
+									"name": "workerCategory",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['contractDate']"
+								},
+								"sink": {
+									"name": "contractDate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['jobTitle']"
+								},
+								"sink": {
+									"name": "jobTitle",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['probationaryPeriod']"
+								},
+								"sink": {
+									"name": "probationaryPeriod",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['electoralCollegeForWorksCouncil']"
+								},
+								"sink": {
+									"name": "electoralCollegeForWorksCouncil",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['codeOfJobForEldp']"
+								},
+								"sink": {
+									"name": "codeOfJobForEldp",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['familyRelationshipWithEmployer']"
+								},
+								"sink": {
+									"name": "familyRelationshipWithEmployer",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['internshipLevel']"
+								},
+								"sink": {
+									"name": "internshipLevel",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['empRelationship']"
+								},
+								"sink": {
+									"name": "empRelationship",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['standardHours']"
+								},
+								"sink": {
+									"name": "standardHours",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['electoralCollegeForWorkersRepresentatives']"
+								},
+								"sink": {
+									"name": "electoralCollegeForWorkersRepresentatives",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['eeo4JobCategory']"
+								},
+								"sink": {
+									"name": "eeo4JobCategory",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['internshipSchool']"
+								},
+								"sink": {
+									"name": "internshipSchool",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['assedicCertInitialStateNum']"
+								},
+								"sink": {
+									"name": "assedicCertInitialStateNum",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['includedChallengedPersonQuota']"
+								},
+								"sink": {
+									"name": "includedChallengedPersonQuota",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['fgtsPercent']"
+								},
+								"sink": {
+									"name": "fgtsPercent",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['position']"
+								},
+								"sink": {
+									"name": "position",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['payScaleArea']"
+								},
+								"sink": {
+									"name": "payScaleArea",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['probationPeriodEndDate']"
+								},
+								"sink": {
+									"name": "probationPeriodEndDate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['workingDaysPerWeek']"
+								},
+								"sink": {
+									"name": "workingDaysPerWeek",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['department']"
+								},
+								"sink": {
+									"name": "department",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['workingTimeDirective']"
+								},
+								"sink": {
+									"name": "workingTimeDirective",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['employmentType']"
+								},
+								"sink": {
+									"name": "employmentType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['lastModifiedBy']"
+								},
+								"sink": {
+									"name": "lastModifiedBy",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString5']"
+								},
+								"sink": {
+									"name": "customString5",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString4']"
+								},
+								"sink": {
+									"name": "customString4",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString3']"
+								},
+								"sink": {
+									"name": "customString3",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString2']"
+								},
+								"sink": {
+									"name": "customString2",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString9']"
+								},
+								"sink": {
+									"name": "customString9",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['tupeOrgNumber']"
+								},
+								"sink": {
+									"name": "tupeOrgNumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString8']"
+								},
+								"sink": {
+									"name": "customString8",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString7']"
+								},
+								"sink": {
+									"name": "customString7",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['customString6']"
+								},
+								"sink": {
+									"name": "customString6",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['payScaleGroup']"
+								},
+								"sink": {
+									"name": "payScaleGroup",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['paymentInLieuOfNotice']"
+								},
+								"sink": {
+									"name": "paymentInLieuOfNotice",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['d']['__next']"
+								},
+								"sink": {
+									"name": "__next"
+								}
+							}
+						],
+						"collectionReference": "$['d']['results']"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "RestSapSfFULL",
+						"type": "DatasetReference",
+						"parameters": {
+							"table": "EmpJob",
+							"format": "JSON"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "camada_bronze/sap_sf/emp_job",
+							"file": {
+								"value": "@concat('emp_job__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))\n\n",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "01_INGESTAO/SAP_SF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-17T16:39:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

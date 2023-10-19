@@ -1,0 +1,182 @@
+{
+	"name": "ouro_report_juridico",
+	"properties": {
+		"activities": [
+			{
+				"name": "ouro_report_tb_acoes_legais_antitruste_monopolio",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/JURIDICO/TB_ACOES_LEGAIS_ANTITRUSTE_MONOPOLIO",
+					"baseParameters": {
+						"read_mode_processo_pagamento": "delta",
+						"input_path_processo_pagamento": "/camada_ouro/juridico/ft_processo_pagamento/",
+						"input_name_processo_pagamento": "ft_processo_pagamento",
+						"input_options_processo_pagamento": "{}",
+						"read_mode_unidade": "delta",
+						"input_path_unidade": "/camada_ouro/juridico/dm_unidade/",
+						"input_name_unidade": "dm_unidade",
+						"input_options_unidade": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/juridico/tb_acoes_legais_antitruste_monopolio/",
+						"output_name": "tb_acoes_legais_antitruste_monopolio",
+						"output_options": "{}",
+						"output_keys": "DT_ANO_MES_ENCERRAMENTO",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_juridico_tb_conformidade_leis_regulamentos",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_tb_acoes_legais_antitruste_monopolio",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/JURIDICO/TB_CONFORMIDADE_LEIS_REGULAMENTOS",
+					"baseParameters": {
+						"read_mode_processo_pagamento": "delta",
+						"input_path_processo_pagamento": "/camada_ouro/juridico/ft_processo_pagamento/",
+						"input_name_processo_pagamento": "ft_processo_pagamento",
+						"input_options_processo_pagamento": "{}",
+						"read_mode_unidade": "delta",
+						"input_path_unidade": "/camada_ouro/juridico/dm_unidade/",
+						"input_name_unidade": "dm_unidade",
+						"input_options_unidade": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/juridico/tb_conformidade_leis_regulamentos/",
+						"output_name": "tb_conformidade_leis_regulamentos",
+						"output_options": "{}",
+						"output_keys": "DT_ANO_MES_ENCERRAMENTO,DS_UNIDADE",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_juridico_tb_multas_sancoes_ambientais",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_juridico_tb_conformidade_leis_regulamentos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/JURIDICO/TB_MULTAS_SANCOES_AMBIENTAIS",
+					"baseParameters": {
+						"read_mode_processo_pagamento": "delta",
+						"input_path_processo_pagamento": "/camada_ouro/juridico/ft_processo_pagamento/",
+						"input_name_processo_pagamento": "ft_processo_pagamento",
+						"input_options_processo_pagamento": "{}",
+						"read_mode_unidade": "delta",
+						"input_path_unidade": "/camada_ouro/juridico/dm_unidade/",
+						"input_name_unidade": "dm_unidade",
+						"input_options_unidade": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/juridico/tb_multas_sancoes_ambientais/",
+						"output_name": "tb_multas_sancoes_ambientais",
+						"output_options": "{}",
+						"output_keys": "DT_ANO_MES_ENCERRAMENTO,DS_UNIDADE",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_tb_nao_conformidade_leis_regulamentos",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_juridico_tb_multas_sancoes_ambientais",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/JURIDICO/TB_NAO_CONFORMIDADE_LEIS_REGULAMENTO",
+					"baseParameters": {
+						"read_mode_processo_pagamento": "delta",
+						"input_path_processo_pagamento": "/camada_ouro/juridico/ft_processo_pagamento/",
+						"input_name_processo_pagamento": "ft_processo_pagamento",
+						"input_options_processo_pagamento": "{}",
+						"read_mode_unidade": "delta",
+						"input_path_unidade": "/camada_ouro/juridico/dm_unidade/",
+						"input_name_unidade": "dm_unidade",
+						"input_options_unidade": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/juridico/tb_nao_conformidade_leis_regulamentos/",
+						"output_name": "tb_nao_conformidade_leis_regulamentos",
+						"output_options": "{}",
+						"output_keys": "DT_ANO_MES_ENCERRAMENTO,DS_UNIDADE",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "04_OURO_REPORT/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T22:45:33Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

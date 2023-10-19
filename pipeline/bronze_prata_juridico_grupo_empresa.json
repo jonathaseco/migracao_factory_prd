@@ -1,0 +1,44 @@
+{
+	"name": "bronze_prata_juridico_grupo_empresa",
+	"properties": {
+		"activities": [
+			{
+				"name": "bronze_prata_juridico_grupo_empresa",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+					"baseParameters": {
+						"input_path": "camada_bronze/juridico/grupo_empresa",
+						"input_name": "juridico_grupo_empresa",
+						"input_format": "parquet",
+						"input_options": "{}",
+						"read_mode": "delta",
+						"output_path": "/camada_prata/juridico/grupo_empresa/",
+						"output_name": "juridico_grupo_empresa",
+						"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+						"output_keys": "CD_GRUPO_EMPRESA"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "02_BRONZE_PRATA/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-09-29T18:05:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

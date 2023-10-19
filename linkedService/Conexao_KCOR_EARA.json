@@ -1,0 +1,17 @@
+{
+	"name": "Conexao_KCOR_EARA",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Conexão com base KCOR da Ecovias do Araguaia",
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=10.223.4.41;initial catalog=KCOR;user id=s_analytics",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJiNjQ0MTBjMi05YjY0LTQ0N2UtOGIxZC1hNzhlNWNjODNiYzYiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "Runtime-sgp",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

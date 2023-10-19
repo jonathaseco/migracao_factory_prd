@@ -1,0 +1,607 @@
+{
+	"name": "ingest_prata_pessoa_pagamento",
+	"properties": {
+		"activities": [
+			{
+				"name": "ingest_sap_sf_empcompensation",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_empcompensation",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_empcompensation",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_empcompensation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_empcompensation",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_empemployment",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_empemployment",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_empemployment",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_empemployment",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_empemployment",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_empjob",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_empjob",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_empjob",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_empjob",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_empjob",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_emppaycomprecurring",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_emppaycomprecurring",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_emppaycomprecurring",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_emppaycomprecurring",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_emppaycomprecurring",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_empworkpermit",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_empworkpermit",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "broze_prata_sap_sf_empworkpermit",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_empworkpermit",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "broze_prata_sap_sf_empworkpermit",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_focompany",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_focompany",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_focompany",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_focompany",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_focompany",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_fodepartment",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_fodepartment",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_fodepartment",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_fodepartment",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_fodepartment",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_fopaycomponent",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_fopaycomponent",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_fopaycomponent",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_fopaycomponent",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_fopaycomponent",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_pernationalid",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_pernationalid",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_pernationalid",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_pernationalid",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_pernationalid",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_perperson",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_perperson",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_perperson",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_perperson",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_perperson",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_perpersonal",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_perpersonal",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_perpersonal",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_perpersonal",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_perpersonal",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_picklist_contract_type",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_picklist_contract_type",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_pl_contract_type",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_picklist_contract_type",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_pl_contract_type",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_picklist_employee_class",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_picklist_employee_class",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_pl_employee_class",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_picklist_employee_class",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_pl_employee_class",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_picklist_employment_relationship",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_picklist_employment_relationship",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_pl_employment_relationship",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_picklist_employment_relationship",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_pl_employment_relationship",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_picklist_employment_type",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_picklist_employment_type",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_pl_employment_type",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_picklist_employment_type",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_pl_employment_type",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_picklist_state_bra",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_picklist_state_bra",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_pl_state_bra",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_picklist_state_bra",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_pl_state_bra",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_pwbi01o",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_pwbi01o",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_pwbi01o",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_pwbi01o",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_pwbi01o",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ingest_sap_sf_pwbi04",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ingest_sap_sf_pwbi04",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bronze_prata_sap_sf_pwbi04",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ingest_sap_sf_pwbi04",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_prata_sap_sf_pwbi04",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "00_WORKFLOW/INGESTAO_PRATA"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T21:38:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

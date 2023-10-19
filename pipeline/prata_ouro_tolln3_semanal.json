@@ -1,0 +1,567 @@
+{
+	"name": "prata_ouro_tolln3_semanal",
+	"properties": {
+		"description": "Execução de notebook no Databricks para processamento das tabelas semanais da camada prata para ouro.",
+		"activities": [
+			{
+				"name": "prata_ouro_dbo_isento",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.ISENTO",
+					"baseParameters": {
+						"read_mode_isento": "delta",
+						"input_name_isento": "dbo.ISENTO",
+						"input_path_isento": "camada_prata/tolln3/dbo.ISENTO/semanal/",
+						"input_options_isento": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.ISENTO/semanal/",
+						"output_name": "dbo_isento",
+						"output_options": "{}",
+						"output_keys": "CD_ISENTO",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_isento_praca",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_isento",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.ISENTO_PRACA",
+					"baseParameters": {
+						"read_mode_isento_praca": "delta",
+						"input_name_isento_praca": "dbo.ISENTO_PRACA",
+						"input_path_isento_praca": "camada_prata/tolln3/dbo.ISENTO_PRACA/semanal/",
+						"input_options_isento_praca": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.ISENTO_PRACA/semanal/",
+						"output_name": "dbo_isento_praca",
+						"output_options": "{}",
+						"output_keys": "CD_ISENTO_PRACA",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_motivo_passagem",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_isento_praca",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.MOTIVO_PASSAGEM_GRATUITA",
+					"baseParameters": {
+						"read_mode_motivo_passagem_gratuita": "delta",
+						"input_name_motivo_passagem_gratuita": "dbo.MOTIVO_PASSAGEM_GRATUITA",
+						"input_path_motivo_passagem_gratuita": "camada_prata/tolln3/dbo.MOTIVO_PASSAGEM_GRATUITA/semanal/",
+						"input_options_motivo_passagem_gratuita": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.MOTIVO_PASSAGEM_GRATUITA/semanal/",
+						"output_name": "dbo_motivo_passagem_gratuita",
+						"output_options": "{}",
+						"output_keys": "CD_MOTIVO_PASSAGEM_GRATUITA",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_categoria",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_motivo_passagem",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.CATEGORIA",
+					"baseParameters": {
+						"read_mode_categoria": "delta",
+						"input_name_categoria": "dbo.CATEGORIA",
+						"input_path_categoria": "camada_prata/tolln3/dbo.CATEGORIA/semanal/",
+						"input_options_categoria": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.CATEGORIA/semanal/",
+						"output_name": "dbo_categoria",
+						"output_options": "{}",
+						"output_keys": "CD_CATEG",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_concessao",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_categoria",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.CONCESSAO",
+					"baseParameters": {
+						"read_mode_concessao": "delta",
+						"input_name_concessao": "dbo.CONCESSAO",
+						"input_path_concessao": "camada_prata/tolln3/dbo.CONCESSAO/semanal/",
+						"input_options_concessao": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.CONCESSAO/semanal/",
+						"output_name": "dbo_concessao",
+						"output_options": "{}",
+						"output_keys": "CD_CONCESSAO",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_cp_subtpo_pgto",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_concessao",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.CP_SUBTPO_PGTO",
+					"baseParameters": {
+						"read_mode_cp_subtipo_pgto": "delta",
+						"input_name_cp_subtipo_pgto": "dbo.CP_SUBTPO_PGTO",
+						"input_path_cp_subtipo_pgto": "camada_prata/tolln3/dbo.CP_SUBTPO_PGTO/semanal/",
+						"input_options_cp_subtipo_pgto": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.CP_SUBTPO_PGTO/semanal/",
+						"output_name": "dbo_cp_subtipo_pgto",
+						"output_options": "{}",
+						"output_keys": "CD_SUBTPO_PGTO",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_cp_tipo_pista",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_cp_subtpo_pgto",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.CP_TIPO_PISTA",
+					"baseParameters": {
+						"read_mode_cp_tipo_pista": "delta",
+						"input_name_cp_tipo_pista": "dbo.CP_TIPO_PISTA",
+						"input_path_cp_tipo_pista": "camada_prata/tolln3/dbo.CP_TIPO_PISTA/semanal/",
+						"input_options_cp_tipo_pista": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.CP_TIPO_PISTA/semanal/",
+						"output_name": "dbo_cp_tipo_pista",
+						"output_options": "{}",
+						"output_keys": "CD_TPO_PISTA",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_cp_tpo_pgto",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_cp_tipo_pista",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.CP_TPO_PGTO",
+					"baseParameters": {
+						"read_mode_cp_tpo_pgto": "delta",
+						"input_name_cp_tpo_pgto": "dbo.CP_TPO_PGTO",
+						"input_path_cp_tpo_pgto": "camada_prata/tolln3/dbo.CP_TPO_PGTO/semanal/",
+						"input_options_cp_tpo_pgto": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.CP_TPO_PGTO/semanal/",
+						"output_name": "dbo_cp_tpo_pgto",
+						"output_options": "{}",
+						"output_keys": "CD_TPO_PGTO",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_dim_tipo_pagto",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_cp_tpo_pgto",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.DIM_TIPO_PAGTO",
+					"baseParameters": {
+						"read_mode_dim_tipo_pagto": "delta",
+						"input_name_dim_tipo_pagto": "dbo.DIM_TIPO_PAGTO",
+						"input_path_dim_tipo_pagto": "camada_prata/tolln3/dbo.DIM_TIPO_PAGTO/semanal/",
+						"input_options_dim_tipo_pagto": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.DIM_TIPO_PAGTO/semanal/",
+						"output_name": "dbo_dim_tipo_pagto",
+						"output_options": "{}",
+						"output_keys": "CD_TPO_PGTO",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_osa",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_dim_tipo_pagto",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.OSA",
+					"baseParameters": {
+						"read_mode_osa": "delta",
+						"input_name_osa": "dbo.OSA",
+						"input_path_osa": "camada_prata/tolln3/dbo.OSA/semanal/",
+						"input_options_osa": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.OSA/semanal/",
+						"output_name": "dbo_osa",
+						"output_options": "{}",
+						"output_keys": "ID_OSA",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_osa_codigo",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_osa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.OSA_CODIGO",
+					"baseParameters": {
+						"read_mode_osa_codigo": "delta",
+						"input_name_osa_codigo": "dbo.OSA_CODIGO",
+						"input_path_osa_codigo": "camada_prata/tolln3/dbo.OSA_CODIGO/semanal/",
+						"input_options_osa_codigo": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.OSA_CODIGO/semanal/",
+						"output_name": "dbo_osa_codigo",
+						"output_options": "{}",
+						"output_keys": "CD_CODIGO",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_pista",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_osa_codigo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.PISTA",
+					"baseParameters": {
+						"read_mode_pista": "delta",
+						"input_name_pista": "dbo.PISTA",
+						"input_path_pista": "camada_prata/tolln3/dbo.PISTA/semanal/",
+						"input_options_pista": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.PISTA/semanal/",
+						"output_name": "dbo_pista",
+						"output_options": "{}",
+						"output_keys": "CD_PISTA",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_praca",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_pista",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.PRACA",
+					"baseParameters": {
+						"read_mode_praca": "delta",
+						"input_name_praca": "dbo.PRACA",
+						"input_path_praca": "camada_prata/tolln3/dbo.PRACA/semanal/",
+						"input_options_praca": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.PRACA/semanal/",
+						"output_name": "dbo_praca",
+						"output_options": "{}",
+						"output_keys": "CD_PRACA",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "prata_ouro_dbo_cp_classificao_desconto",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "prata_ouro_dbo_praca",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.CP_CLASSIFICAO_DESCONTO",
+					"baseParameters": {
+						"read_mode_cp_classificao_desconto": "delta",
+						"input_name_cp_classificao_desconto": "dbo.CP_CLASSIFICAO_DESCONTO",
+						"input_path_cp_classificao_desconto": "camada_prata/tolln3/dbo.CP_CLASSIFICAO_DESCONTO/semanal/",
+						"input_options_cp_classificao_desconto": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.CP_CLASSIFICAO_DESCONTO/semanal/",
+						"output_name": "dbo_cp_classificao_desconto",
+						"output_options": "{}",
+						"output_keys": "CD_CLASSIFICACAO_DESCONTO",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "TOLLN3/SEMANAL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-06T15:19:49Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

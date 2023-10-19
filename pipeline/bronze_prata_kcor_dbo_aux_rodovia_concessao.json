@@ -1,0 +1,44 @@
+{
+	"name": "bronze_prata_kcor_dbo_aux_rodovia_concessao",
+	"properties": {
+		"activities": [
+			{
+				"name": "bronze_prata_kcor_dbo_aux_rodovia_concessao",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/02-PRATA/templates/template_bronze_prata",
+					"baseParameters": {
+						"input_path": "camada_bronze/kcor/dbo.aux_rodovia_concessao/",
+						"input_name": "dbo.aux_rodovia_concessao",
+						"input_format": "parquet",
+						"input_options": "{}",
+						"read_mode": "delta",
+						"output_path": "camada_prata/kcor/dbo.aux_rodovia_concessao/",
+						"output_name": "dbo.aux_rodovia_concessao",
+						"output_options": "{\"delta.columnMapping.mode\": \"name\"}",
+						"output_keys": "CodRodovia"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "02_BRONZE_PRATA/KCOR"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-16T14:40:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

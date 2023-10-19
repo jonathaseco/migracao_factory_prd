@@ -1,0 +1,382 @@
+{
+	"name": "ingest_kcor_trans_evis",
+	"properties": {
+		"description": "Pipeline que realiza a ingestão de dados on-premises de todas as tabelas do KCOR da Ecovias para camada bronze",
+		"activities": [
+			{
+				"name": "ListarTabelas",
+				"description": "Lista as tabelas contidas na base de dados. Seleciona dinamicante o schema e nome das tabelas, conforme o comando SQL na aba \"Definições\"",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT TB2.NAME + '.' + TB1.NAME AS TABLE_NAME\nFROM SYS.TABLES TB1\nINNER JOIN SYS.SCHEMAS TB2\nON TB2.SCHEMA_ID = TB1.SCHEMA_ID\nWHERE TB1.NAME IN (\t'TabAcidentesAb'\n\t\t\t\t\t,'TabOcorrenciasAb'\n\t\t\t\t\t,'TabRecursosAcionadosAb'\n\t\t\t\t\t,'TabRecursosCoberturasAb'\n\t\t\t\t\t,'TabVeiculosEnvolvidosAb'\n\t\t\t\t\t,'TabVitimasAb'\n\t\t\t\t\t,'TabConservacaoAB'\n)\nORDER BY TB1.NAME",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "dataset_KCOR_EVIS",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "x",
+							"table": "x"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "SetarValorInicial",
+				"description": "Seta o valor inicial 0 (zero) da variável \"contador\", que contém o número da tabela que está sendo processada",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ListarTabelas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "contador",
+					"value": "0"
+				}
+			},
+			{
+				"name": "IterarTabelas",
+				"description": "Realiza a iteração entre as tabelas listadas no passo anterior (ListarTabelas)",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "SetarValorInicial",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ListarTabelas').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "SelecionarTabela",
+							"description": "Seleciona tabela a ser processada",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "AtualizarContador",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "nome_tabela",
+								"value": {
+									"value": "@item().TABLE_NAME",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "SetarValorAuxiliar",
+							"description": "Verifica o valor da variável \"contador\" e seta como valor da variável \"auxiliar\"",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "aux",
+								"value": {
+									"value": "@variables('contador')",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "AtualizarContador",
+							"description": "Adiciona 1 no valor da variável \"contador\" para atualizar o número da tabela que está sendo processada",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "SetarValorAuxiliar",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "contador",
+								"value": {
+									"value": "@string(add(int(variables('aux')),1))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "IngerirTabelaCargaCompleta",
+							"description": "Realiza a ingestão da carga de dados, que pode ser completa ou seguindo o valor do campo \"condicao\" do arquivo de parâmetro.\nCaso seja necessário realizar a carga parcial da tabela, no campo \"Query\" da aba \"Source\" é realizada a substituição de $PARAMETRO$ (existente no arquivo de parâmetro \"kcor_[unidade].xlsx\") pelo valor do parâmetro 'dias_atualizacao_p11'). ",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "SetarValorCondicao",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "@concat('SELECT *, getdate() AS data_ingestao FROM ', variables('nome_tabela'), ' WHERE ', replace(variables('condicao_where'), '$PARAMETRO$', pipeline().parameters.dias_atualizacao_p11))",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "dataset_KCOR_EVIS",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema": "x",
+										"table": "x"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "dlPath",
+									"type": "DatasetReference",
+									"parameters": {
+										"caminho": {
+											"value": "@concat('camada_bronze/kcor_trans/',variables('nome_tabela') , '/' ,  pipeline().parameters.concessao, '/')",
+											"type": "Expression"
+										},
+										"arquivo": {
+											"value": "@concat(variables('nome_tabela'),'_',formatDateTime(utcNow(),'yyyyMMddHHmmss'),'.parquet')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "LerArquivoParametro",
+							"description": "Lê o arquivo de parâmetro",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "SelecionarTabela",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ExcelSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									}
+								},
+								"dataset": {
+									"referenceName": "planilha_kcor_evis",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "SetarValorCondicao",
+							"description": "Caso o nome da tabela em processamento esteja no arquivo de parâmetro, então atualiza a variável \"condicao_where\" com o valor do campo \"condicao\" do arquivo de parâmetro (condição True). Caso contrário, então \"condicao_where\" recebe valor 1 = 1 (condição False).",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "VerificarTabelaCargaParcial",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(activity('VerificarTabelaCargaParcial').output.FilteredItemsCount,0)",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "SetaCondicaoWhere_Default",
+										"description": "Seta a variável \"condicao_where\" com o valor 1 = 1. Ou seja, será necessário realizar a carga completa ou de D-X da tabela.",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "condicao_where",
+											"value": {
+												"value": "1=1",
+												"type": "Expression"
+											}
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "SetaCondicaoWhere",
+										"description": "Seta a variável \"condicao_where\" com o valor do campo \"condicao\" do arquivo de parâmetro. Ou seja, não será necessário realizar a carga completa da tabela.",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "condicao_where",
+											"value": {
+												"value": "@activity('VerificarTabelaCargaParcial').output.value[0].condicao",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "VerificarTabelaCargaParcial",
+							"description": "Esse passo verifica se será necessário fazer a carga parcial da tabela em processamento. \nVerifica se o nome da tabela atual está no arquivo de parâmetro e se o valor do campo 'cargacompleta' é igual a false.\nCaso positivo (entra na condição True do passo SetarValorCondicao), então deve-se realizar uma carga parcial da tabela seguindo o campo \"condicao\" do arquivo de parâmetros.\nCaso negativo (entra na condição False do passo SetarValorCondicao), então não deverá ser realizado a carga parcial da tabela (posteriormente no passo RealizarIngestao será verificado se a carga será completa ou D-X da tabela).\n\nobs: há três formatos de ingestão de dados: carga total, carga parcial, carga D-X\n-carga completa: todos os registros da tabela serão ingeridos no data lake\n-carga parcial: apenas alguns registros da tabela serão ingeridos no data lake. As condições para a ingestão dos dados estão no campo \"condicao\" do arquivo de parâmetro da base de dados. De forma geral, serão ingeridos dados dos últimos X anos (a depender da base de dados).\n-carga D-X: devem ser ingeridos no data lake apenas os registros dos últimos X dias, ou seja, é a ingestão de dados incrementais.",
+							"type": "Filter",
+							"dependsOn": [
+								{
+									"activity": "LerArquivoParametro",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@activity('LerArquivoParametro').output.value",
+									"type": "Expression"
+								},
+								"condition": {
+									"value": "@and(equals(item().tabela, variables('nome_tabela')),equals(pipeline().parameters.cargacompleta, false))",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"cargacompleta": {
+				"type": "bool"
+			},
+			"concessao": {
+				"type": "string"
+			},
+			"dias_atualizacao_p11": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"nome_tabela": {
+				"type": "String"
+			},
+			"aux": {
+				"type": "String"
+			},
+			"contador": {
+				"type": "String"
+			},
+			"condicao_where": {
+				"type": "String"
+			},
+			"check": {
+				"type": "Boolean"
+			}
+		},
+		"folder": {
+			"name": "KCOR/TRANSACIONAL/EVIS"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-16T13:17:18Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,17 @@
+{
+	"name": "Conexao_SGR_CATARATA",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Conexão com fonte de dados SGR Catarata",
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=10.250.0.26;initial catalog=SGR;user id=s_analytics",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIxOGEwNzYzMi02OTg2LTQ0MjMtOTQzOC0wOThjMzM5NWVjOTQiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "Runtime-sgp",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

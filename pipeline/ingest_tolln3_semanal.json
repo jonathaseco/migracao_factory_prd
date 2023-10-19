@@ -1,0 +1,289 @@
+{
+	"name": "ingest_tolln3_semanal",
+	"properties": {
+		"description": "Pipeline que realiza a ingestão semanal de dados on-premises de tabelas do TOLL N3 (03CSRV70) para camada bronze.",
+		"activities": [
+			{
+				"name": "ListarTabelas",
+				"description": "Lista as tabelas contidas na base de dados. Seleciona dinamicante o schema e nome das tabelas, conforme o comando SQL na aba \"Definições\"",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "SetarValorInicial",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT TB2.NAME + '.' + TB1.NAME AS TABLE_NAME\nFROM SYS.TABLES TB1\nINNER JOIN SYS.SCHEMAS TB2\nON TB2.SCHEMA_ID = TB1.SCHEMA_ID\nWHERE TB1.NAME IN ('ISENTO'\n                , 'ISENTO_PRACA'\n                , 'MOTIVO_PASSAGEM_GRATUITA'\n                , 'CATEGORIA'\n                , 'CONCESSAO'\n                , 'CP_SUBTPO_PGTO'\n                , 'CP_TIPO_PISTA'\n                , 'CP_TPO_PGTO'\n                , 'DIM_TIPO_PAGTO'\n                , 'OSA'\n                , 'OSA_CODIGO'\n                , 'PRACA'\n                , 'PISTA'\n                , 'CP_CLASSIFICAO_DESCONTO'\n)\nORDER BY TB1.NAME",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "dataset_TOLLN3",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "x",
+							"table": "x"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "SetarValorInicial",
+				"description": "Seta o valor inicial 0 (zero) da variável \"contador\", que contém o número da tabela que está sendo processada",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "contador",
+					"value": "0"
+				}
+			},
+			{
+				"name": "IterarTabelas",
+				"description": "Realiza a iteração entre as tabelas listadas no passo anterior (ListarTabelas)",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ListarTabelas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ListarTabelas').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "SetarValorAuxiliar",
+							"description": "Verifica o valor da variável \"contador\" e seta como valor da variável \"auxiliar\"",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "LerArquivoParametro",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "aux",
+								"value": {
+									"value": "@variables('contador')",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "AtualizarContador",
+							"description": "Adiciona 1 no valor da variável \"contador\" para atualizar o número da tabela que está sendo processada",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "SetarValorAuxiliar",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "contador",
+								"value": {
+									"value": "@string(add(int(variables('aux')),1))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "IngerirTabelaCargaSemanal",
+							"description": "Realiza a ingestão da carga de dado.",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "AtualizarContador",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "@concat('SELECT *, getdate() AS data_ingestao FROM ', variables('nome_tabela'))",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "dataset_TOLLN3",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema": "X",
+										"table": "X"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "dlPath",
+									"type": "DatasetReference",
+									"parameters": {
+										"caminho": {
+											"value": "@concat('camada_bronze/tolln3/',variables('nome_tabela') , '/' ,  pipeline().parameters.atualizacao, '/')",
+											"type": "Expression"
+										},
+										"arquivo": {
+											"value": "@concat(variables('nome_tabela'),'_',formatDateTime(utcNow(),'yyyyMMddHHmmss'),'.parquet')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "LerArquivoParametro",
+							"description": "Verifica os parâmetros de ingestão da carga da tabela",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "SelecionarTabela",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ExcelSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									}
+								},
+								"dataset": {
+									"referenceName": "planilha_tolln3",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "SelecionarTabela",
+							"description": "Seleciona tabela a ser processada",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "nome_tabela",
+								"value": {
+									"value": "@item().TABLE_NAME",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"atualizacao": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"nome_tabela": {
+				"type": "String"
+			},
+			"aux": {
+				"type": "String"
+			},
+			"contador": {
+				"type": "String"
+			},
+			"condicao_where": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "TOLLN3/SEMANAL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-05T17:09:39Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

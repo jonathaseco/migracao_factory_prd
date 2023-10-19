@@ -1,0 +1,47 @@
+{
+	"name": "prata_ouro_tollpackbi_diario",
+	"properties": {
+		"description": "Execução de notebooks no Databricks para processamento das tabelas diárias da camada prata para ouro.",
+		"activities": [
+			{
+				"name": "prata_ouro_fact_extrato_operacional",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLPACKBI/dbo.FACT_EXTRATO_OPERACIONAL",
+					"baseParameters": {
+						"read_mode_fact_extrato_operacional": "delta",
+						"input_name_fact_extrato_operacional": "dbo.FACT_EXTRATO_OPERACIONAL",
+						"input_path_fact_extrato_operacional": "camada_prata/tollpackbi/dbo.FACT_EXTRATO_OPERACIONAL/diaria/",
+						"input_options_fact_extrato_operacional": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tollpackbi/dbo.FACT_EXTRATO_OPERACIONAL/diaria/",
+						"output_name": "dbo_fact_extrato_operacional",
+						"output_options": "{}",
+						"output_keys": " ",
+						"catalog": "hive_metastore",
+						"schema": "tollpackbi"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "TOLLPACKBI/DIARIA"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-10T18:21:14Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

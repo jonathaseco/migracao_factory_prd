@@ -1,0 +1,237 @@
+{
+	"name": "TOLLN3_ETL",
+	"properties": {
+		"description": "Pipeline para processamento ETL do TOLL N3",
+		"activities": [
+			{
+				"name": "DistribuirPipelines",
+				"description": "Switch utilizado para direcionar qual pipeline deve ser processado conforme o valor do campo 'tipocarga' indicado no parâmetro inicial.\\nCaso 'tipocarga' = 'semanal' então realiza a ingestão de tabelas semanais;\\nCaso 'tipocarga' = 'diario' então realiza a ingestão de tabelas diárias;\\nCaso 'tipocarga' = 'historico' então realiza a ingestão de tabelas históricas e precisa verificar o campo 'ano' para verificar qual o ano dos dados a serem ingeridos.\\nCaso contrário não realiza processamento.",
+				"type": "Switch",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@pipeline().parameters.tipocarga",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "diaria",
+							"activities": [
+								{
+									"name": "Executar_bronze_prata_tolln3_diario",
+									"description": "Executa o processamento da camada bronze para prata",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_tolln3_diario",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_tolln3_diario",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_ingest_tolln3_diario",
+									"description": "Executa a ingestão para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_tolln3_diario",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"atualizacao": {
+												"value": "@pipeline().parameters.tipocarga",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p1": "2"
+										}
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_tolln3_diario",
+									"description": "Executa o processamento da camada prata para a ouro",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_tolln3_diario",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_tolln3_diario",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "semanal",
+							"activities": [
+								{
+									"name": "Executar_ingest_tolln3_semanal",
+									"description": "Executa a ingestão para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_tolln3_semanal",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"atualizacao": {
+												"value": "@pipeline().parameters.tipocarga",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_tolln3_semanal",
+									"description": "Executa o processamento da camada bronze para prata",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_tolln3_semanal",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_tolln3_semanal",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_tolln3_semanal",
+									"description": "Executa o processamento da camada prata para a ouro",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_tolln3_semanal",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_tolln3_semanal",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "mensal",
+							"activities": [
+								{
+									"name": "Executar_ingest_tolln3_mensal",
+									"description": "Executa a ingestão para camada bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_tolln3_mensal",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"atualizacao": {
+												"value": "@pipeline().parameters.tipocarga",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p1": "30"
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_tolln3_mensal",
+									"description": "Executa o processamento da camada bronze para prata",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_tolln3_mensal",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_tolln3_mensal",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_tolln3_mensal",
+									"description": "Executa o processamento da camada prata para a ouro",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_tolln3_mensal",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_tolln3_mensal",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"tipocarga": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "TOLLN3"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-09T15:13:13Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

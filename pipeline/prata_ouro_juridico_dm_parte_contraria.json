@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_juridico_dm_parte_contraria",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_dm_parte_contraria",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/JURIDICO/DM_PARTE_CONTRARIA",
+					"baseParameters": {
+						"read_mode_parte_contraria": "delta",
+						"input_path_parte_contraria": "/camada_prata/juridico/parte_contraria/",
+						"input_name_parte_contraria": "juridico_parte_contraria",
+						"input_options_parte_contraria": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/juridico/dm_parte_contraria/",
+						"output_name": "dm_parte_contraria",
+						"output_options": "{}",
+						"output_keys": "CD_PARTE_CONTRARIA",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T20:13:34Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

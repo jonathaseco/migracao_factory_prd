@@ -1,0 +1,86 @@
+{
+	"name": "ouro_report_fornecedor",
+	"properties": {
+		"activities": [
+			{
+				"name": "ouro_report_fornecedor_tb_fornecedor_selecao_ambiental",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/FORNECEDOR/TB_FORNECEDOR_SELECAO_AMBIENTAL",
+					"baseParameters": {
+						"read_mode_fornecedor_compras": "delta",
+						"input_path_fornecedor_compras": "/camada_ouro/fornecedor/ft_fornecedor_compras/",
+						"input_name_fornecedor_compras": "ft_fornecedor_compras",
+						"input_options_fornecedor_compras": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/fornecedor/tb_fornecedor_selecao_ambiental/",
+						"output_name": "tb_fornecedor_selecao_ambiental",
+						"output_options": "{}",
+						"output_keys": "DT_ANO_MES_CRIACAO",
+						"catalog": "hive_metastore",
+						"schema": "fornecedor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_fornecedor_tb_fornecedor_selecao_social",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_fornecedor_tb_fornecedor_selecao_ambiental",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/FORNECEDOR/TB_FORNECEDOR_SELECAO_SOCIAL",
+					"baseParameters": {
+						"read_mode_fornecedor_compras": "delta",
+						"input_path_fornecedor_compras": "/camada_ouro/fornecedor/ft_fornecedor_compras/",
+						"input_name_fornecedor_compras": "ft_fornecedor_compras",
+						"input_options_fornecedor_compras": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/fornecedor/tb_fornecedor_selecao_social/",
+						"output_name": "tb_fornecedor_selecao_social",
+						"output_options": "{}",
+						"output_keys": "DT_ANO_MES_CRIACAO",
+						"catalog": "hive_metastore",
+						"schema": "fornecedor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "04_OURO_REPORT/FORNECEDOR"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T22:45:33Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,74 @@
+{
+	"name": "ingest_juridico_td_processo_resultado",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDataFromJuridicoTdProcessoResultadoFull",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SqlServerJuridico",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "dbo",
+							"table": "TD_PROCESSO_RESULTADO"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "dlPath",
+						"type": "DatasetReference",
+						"parameters": {
+							"caminho": "camada_bronze/juridico/td_processo_resultado",
+							"arquivo": {
+								"value": "@concat('juridico_td_processo_resultado__', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "01_INGESTAO/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-09-29T18:05:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

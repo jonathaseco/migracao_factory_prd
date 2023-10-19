@@ -1,0 +1,27 @@
+{
+	"name": "trg_ingest_prata_juridico",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "ingest_prata_juridico",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"tipo_carga": "delta"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 24,
+				"startTime": "2023-10-05T03:00:00Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"name": "Conexao_SGR_PONT",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Conexão com base SGR da Ecoponte",
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=10.217.4.23;initial catalog=SGR;user id=S_ANALYTICS",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJiYzJlYTE1YS0wOTMxLTQzMDAtOGUwOC00Y2ZhNTg4NzdjYzQiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "Runtime-sgp",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

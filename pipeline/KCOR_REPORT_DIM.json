@@ -1,0 +1,282 @@
+{
+	"name": "KCOR_REPORT_DIM",
+	"properties": {
+		"activities": [
+			{
+				"name": "ouro_report_kcor_vw_praca_grupo",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_DIM_PRACA_GRUPO",
+					"baseParameters": {
+						"read_mode_praca": "delta",
+						"input_path_praca": "/camada_ouro/tolln3/dbo.PRACA/semanal/",
+						"input_name_praca": "dbo_praca",
+						"input_options_praca": "{}",
+						"read_mode_concessao": "delta",
+						"input_path_concessao": "/camada_ouro/tolln3/dbo.CONCESSAO/semanal/",
+						"input_name_concessao": "dbo_concessao",
+						"input_options_concessao": "{}",
+						"read_mode_cobertura_praca": "delta",
+						"input_path_cobertura_praca": "/camada_ouro/kcor/dbo.AUX_Cobertura_Praca/",
+						"input_name_cobertura_praca": "dbo_AUX_Cobertura_Praca",
+						"input_options_cobertura_praca": "{}",
+						"read_mode_rodovias": "delta",
+						"input_path_rodovias": "/camada_ouro/kcor/dbo.TAuxRodovias/",
+						"input_name_rodovias": "dbo_TAuxRodovias",
+						"input_options_rodovias": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_DIM_PRACA_GRUPO/",
+						"output_name": "VW_DIM_PRACA_GRUPO",
+						"output_options": "{}",
+						"output_keys": "CD_CONCESSAO,CD_PRACA",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_dim_osa",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_praca_grupo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_DIM_OSA",
+					"baseParameters": {
+						"read_mode": "delta",
+						"input_path": "/camada_ouro/tolln3/dbo.OSA/semanal/",
+						"input_name": "dbo_osa",
+						"input_options": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_DIM_OSA/",
+						"output_name": "VW_DIM_OSA",
+						"output_options": "{}",
+						"output_keys": "ID_OSA",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_concessao_praca_th",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_dim_osa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_DIM_CONCESSAO_PRACA_TH",
+					"baseParameters": {
+						"read_mode_praca": "delta",
+						"input_path_praca": "/camada_ouro/tolln3/dbo.PRACA/semanal/",
+						"input_name_praca": "dbo_praca",
+						"input_options_praca": "{}",
+						"read_mode_concessao": "delta",
+						"input_path_concessao": "/camada_ouro/tolln3/dbo.CONCESSAO/semanal/",
+						"input_name_concessao": "dbo_convessao",
+						"input_options_concessao": "{}",
+						"read_mode_cobertura_praca": "delta",
+						"input_path_cobertura_praca": "/camada_ouro/kcor/dbo.AUX_Cobertura_Praca/",
+						"input_name_cobertura_praca": "dbo_AUX_Cobertura_Praca",
+						"input_options_cobertura_praca": "{}",
+						"read_mode_rodovias": "delta",
+						"input_path_rodovias": "/camada_ouro/kcor/dbo.TAuxRodovias/",
+						"input_name_rodovias": "dbo_TAuxRodovias",
+						"input_options_rodovias": "{}",
+						"read_mode_trecho_homogeneo": "delta",
+						"input_path_trecho_homogeneo": "/camada_ouro/kcor/dbo.DW_TRECHO_HOMOGENEO/",
+						"input_name_trecho_homogeneo": "dbo_DW_TRECHO_HOMOGENEO",
+						"input_options_trecho_homogeneo": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_DIM_CONCESSAO_PRACA_TH/",
+						"output_name": "VW_DIM_CONCESSAO_PRACA_TH",
+						"output_options": "{}",
+						"output_keys": "CD_CONCESSAO,CD_PRACA,ID_TH_GRUPO",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_tipo_recurso",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_concessao_praca_th",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DIM_TIPO_RECURSO",
+					"baseParameters": {
+						"read_mode_recurso": "delta",
+						"input_path_recurso": "/camada_ouro/kcor/dbo.TauxRecursos/",
+						"input_name_recurso": "dbo_TauxRecursos",
+						"input_options_recurso": "{}",
+						"read_mode_tipo_recurso": "delta",
+						"input_path_tipo_recurso": "/camada_ouro/kcor/dbo.TAuxTiposRecursos/",
+						"input_name_tipo_recurso": "dbo_TAuxTiposRecursos",
+						"input_options_tipo_recurso": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DIM_TIPO_RECURSO/",
+						"output_name": "VW_KCOR_DIM_TIPO_RECURSO",
+						"output_options": "{}",
+						"output_keys": "CD_RECURSO,Unidade_Origem",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_drodovias",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_tipo_recurso",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DRODOVIAS",
+					"baseParameters": {
+						"read_mode": "delta",
+						"input_path": "/camada_ouro/kcor/dbo.TAuxRodovias/",
+						"input_name": "dbo_TAuxRodovias",
+						"input_options": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DRODOVIAS/",
+						"output_name": "VW_KCOR_DRODOVIAS",
+						"output_options": "{}",
+						"output_keys": "CD_RODOVIA,CD_CONCESSAO",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ouro_report_kcor_vw_natureza",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ouro_report_kcor_vw_drodovias",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/04-REPORT/KCOR/VW_KCOR_DNATUREZA",
+					"baseParameters": {
+						"read_mode_tipo_ocorrencia": "delta",
+						"input_path_tipo_ocorrencia": "/camada_ouro/kcor/dbo.TAuxTiposOcorrencias/",
+						"input_name_tipo_ocorrencia": "dbo_TAuxTiposOcorrencias",
+						"input_optio_tipo_ocorrencia": "{}",
+						"read_mode_tipo_acidente": "delta",
+						"input_path_tipo_acidente": "/camada_ouro/kcor/dbo.TAuxTiposAcidentes/",
+						"input_name_tipo_acidente": "dbo_TAuxTiposAcidentes",
+						"input_options_tipo_acidente": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_report/kcor/VW_KCOR_DNATUREZA/",
+						"output_name": "VW_KCOR_DNATUREZA",
+						"output_options": "{}",
+						"output_keys": "CD_NATUREZA",
+						"catalog": "hive_metastore",
+						"schema": "kcor"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "KCOR"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T15:55:13Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_pessoa_pagamento_dm_relacao_trabalho",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_pessoa_pagamento_dm_relacao_trabalho",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/PESSOA_PAGAMENTO/DM_RELACAO_TRABALHO",
+					"baseParameters": {
+						"read_mode_relacao_trabalho": "delta",
+						"input_path_relacao_trabalho": "/camada_prata/sap_sf/pl_employment_relationship/",
+						"input_name_relacao_trabalho": "pl_employment_relationship",
+						"input_options_relacao_trabalho": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/pessoa_pagamento/dm_relacao_trabalho/",
+						"output_name": "dm_relacao_trabalho",
+						"output_options": "{}",
+						"output_keys": "CD_RELACAo_TRABALHO",
+						"catalog": "hive_metastore",
+						"schema": "pessoa_pagamento"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/PESSOA_PAGAMENTO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T13:52:59Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

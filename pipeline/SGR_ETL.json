@@ -1,0 +1,617 @@
+{
+	"name": "SGR_ETL",
+	"properties": {
+		"description": "Pipeline para processamento ETL do SGR",
+		"activities": [
+			{
+				"name": "DistribuirPipelines",
+				"description": "Switch utilizado para direcionar qual pipeline deve ser processado conforme o valor do campo 'Origem' indicado no parâmetro inicial",
+				"type": "Switch",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@pipeline().parameters.origem",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "catarata",
+							"activities": [
+								{
+									"name": "Executar_ingest_sgr_catarata",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_sgr_catarata",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_sgr_catarata",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_sgr_catarata",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_sgr_catarata",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_sgr_catarata",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_sgr_catarata",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_sgr_catarata",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "e101",
+							"activities": [
+								{
+									"name": "Executar_ingest_sgr_e101",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_sgr_e101",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_sgr_e101",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_sgr_e101",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_sgr_e101",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_sgr_e101",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_sgr_e101",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_sgr_e101",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "e135",
+							"activities": [
+								{
+									"name": "Executar_ingest_sgr_e135",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_sgr_e135",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_sgr_e135",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_sgr_e135",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_sgr_e135",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_sgr_e135",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_sgr_e135",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_sgr_e135",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "ecopara",
+							"activities": [
+								{
+									"name": "Executar_ingest_sgr_ecopara",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_sgr_ecopara",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_sgr_ecopara",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_sgr_ecopara",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_sgr_ecopara",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_sgr_ecopara",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_sgr_ecopara",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_sgr_ecopara",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "ecosul",
+							"activities": [
+								{
+									"name": "Executar_ingest_sgr_ecosul",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_sgr_ecosul",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_sgr_ecosul",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_sgr_ecosul",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_sgr_ecosul",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_sgr_ecosul",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_sgr_ecosul",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_sgr_ecosul",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "epst",
+							"activities": [
+								{
+									"name": "Executar_ingest_sgr_epst",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_sgr_epst",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_sgr_epst",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_sgr_epst",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_sgr_epst",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_sgr_epst",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_sgr_epst",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_sgr_epst",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "evis",
+							"activities": [
+								{
+									"name": "Executar_ingest_sgr_evis",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_sgr_evis",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_sgr_evis",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_sgr_evis",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_sgr_evis",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_sgr_evis",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_sgr_evis",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_sgr_evis",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						},
+						{
+							"value": "pont",
+							"activities": [
+								{
+									"name": "Executar_ingest_sgr_pont",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ingest_sgr_pont",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"cargacompleta": {
+												"value": "@pipeline().parameters.cargacompleta",
+												"type": "Expression"
+											},
+											"concessao": {
+												"value": "@pipeline().parameters.origem",
+												"type": "Expression"
+											},
+											"dias_atualizacao_p11": {
+												"value": "@pipeline().parameters.dias_atualizacao_etl",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Executar_bronze_prata_sgr_pont",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_ingest_sgr_pont",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "bronze_prata_sgr_pont",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								},
+								{
+									"name": "Executar_prata_ouro_sgr_pont",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Executar_bronze_prata_sgr_pont",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "prata_ouro_sgr_pont",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"cargacompleta": {
+				"type": "bool",
+				"defaultValue": true
+			},
+			"origem": {
+				"type": "string"
+			},
+			"dias_atualizacao_etl": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "SGR"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-18T19:58:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

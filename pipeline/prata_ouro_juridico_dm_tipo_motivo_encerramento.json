@@ -1,0 +1,46 @@
+{
+	"name": "prata_ouro_juridico_dm_tipo_motivo_encerramento",
+	"properties": {
+		"activities": [
+			{
+				"name": "prata_ouro_juridico_dm_tipo_motivo_encerramento",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.0:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/JURIDICO/DM_TIPO_MOTIVO_ENCERRAMENTO",
+					"baseParameters": {
+						"read_mode_tipo_motivo_encerramento": "delta",
+						"input_path_tipo_motivo_encerramento": "/camada_prata/juridico/tipo_motivo_encerramento/",
+						"input_name_tipo_motivo_encerramento": "juridico_tipo_motivo_encerramento",
+						"input_options_tipo_motivo_encerramento": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "/camada_ouro/juridico/dm_tipo_motivo_encerramento/",
+						"output_name": "dm_tipo_motivo_encerramento",
+						"output_options": "{}",
+						"output_keys": "CD_TIPO_MOTIVO_ENCERRAMENTO",
+						"catalog": "hive_metastore",
+						"schema": "juridico"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "03_PRATA_OURO/JURIDICO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T20:37:03Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,17 @@
+{
+	"name": "Conexao_SGR_ECOSUL",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Conexão com base SGR da Ecosul",
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=192.168.0.10;initial catalog=SGRCCO;user id=S_ANALYTICS",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIxMmNkNjFjYS1jY2MzLTRiNjUtOGU0My1hZDUzNThhODhiYzciLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "Runtime-sgp",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

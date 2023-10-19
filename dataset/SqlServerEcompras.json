@@ -1,0 +1,553 @@
+{
+	"name": "SqlServerEcompras",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer_ECompras",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"schema": {
+				"type": "string"
+			},
+			"table": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "CD_FORNECEDOR",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_FAMILIA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_FAMILIA_SECUNDARIA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_NATUREZA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CPF_CNPJ",
+				"type": "varchar"
+			},
+			{
+				"name": "CD_TIPO_CATEGORIA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_CATEGORIA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_CATEGORIA_SECUNDARIA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_SUBCATEGORIA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "RAZAO_SOCIAL",
+				"type": "varchar"
+			},
+			{
+				"name": "NOME",
+				"type": "varchar"
+			},
+			{
+				"name": "INSCRICAO_ESTADUAL",
+				"type": "varchar"
+			},
+			{
+				"name": "INSCRICAO_MUNICIPAL",
+				"type": "varchar"
+			},
+			{
+				"name": "CNAE",
+				"type": "varchar"
+			},
+			{
+				"name": "RG",
+				"type": "varchar"
+			},
+			{
+				"name": "CD_REGIAO_ATUACAO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "TELEFONE",
+				"type": "varchar"
+			},
+			{
+				"name": "RAMAL",
+				"type": "varchar"
+			},
+			{
+				"name": "EMAIL",
+				"type": "varchar"
+			},
+			{
+				"name": "ENDERECO_WEB",
+				"type": "varchar"
+			},
+			{
+				"name": "CEP",
+				"type": "varchar"
+			},
+			{
+				"name": "ENDERECO",
+				"type": "varchar"
+			},
+			{
+				"name": "NUMERO",
+				"type": "varchar"
+			},
+			{
+				"name": "COMPLEMENTO",
+				"type": "varchar"
+			},
+			{
+				"name": "BAIRRO",
+				"type": "varchar"
+			},
+			{
+				"name": "UF",
+				"type": "varchar"
+			},
+			{
+				"name": "CIDADE",
+				"type": "varchar"
+			},
+			{
+				"name": "CD_OPCAO_TRIBUTARIA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_OPCAO_FISCAL",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_MODELO_DOCUMENTO_FISCAL",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "BL_MULTINACIONAL",
+				"type": "bit"
+			},
+			{
+				"name": "QTD_COLABORADORES",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "QTD_TERCEIROS",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_BANCO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "AGENCIA",
+				"type": "varchar"
+			},
+			{
+				"name": "CONTA_CORRENTE",
+				"type": "varchar"
+			},
+			{
+				"name": "BL_CADASTRO_LIBERADO",
+				"type": "bit"
+			},
+			{
+				"name": "BL_MATRIZ",
+				"type": "bit"
+			},
+			{
+				"name": "OBSERVACAO",
+				"type": "varchar"
+			},
+			{
+				"name": "BL_COMBATE_CORRUPCAO",
+				"type": "bit"
+			},
+			{
+				"name": "BL_RECOMENDACAO",
+				"type": "bit"
+			},
+			{
+				"name": "NOME_MEMBRO_RECOMENDACAO",
+				"type": "varchar"
+			},
+			{
+				"name": "CARGO_RECOMENDACAO",
+				"type": "varchar"
+			},
+			{
+				"name": "CD_UNIDADE_RECOMENDACAO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_STATUS_HOMOLOGACAO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_STATUS_INTEGRACAO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "NUMERO_HOMOLOGACAO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DH_PRIMEIRA_HOMOLOGACAO",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DH_HOMOLOGACAO",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DH_VALIDADE_HOMOLOGACAO",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CD_USUARIO_CADASTRO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_USUARIO_APROVADOR",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DH_VALIDADE_BLOQUEIO",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CD_STATUS",
+				"type": "bit"
+			},
+			{
+				"name": "DH_TIMESTAMP",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DH_ATUALIZACAO",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CODIGO_SAP",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ALTERACAO_LIBERADA",
+				"type": "bit"
+			},
+			{
+				"name": "URL_RELATORIO_HOMOLOGACAO",
+				"type": "varchar"
+			},
+			{
+				"name": "BL_TERMO_ACEITO",
+				"type": "bit"
+			},
+			{
+				"name": "ETAPA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "BL_ETAPAS_CONCLUIDAS",
+				"type": "bit"
+			},
+			{
+				"name": "BL_PARTE_RELACIONADA",
+				"type": "bit"
+			},
+			{
+				"name": "BL_BLOQUEIO",
+				"type": "bit"
+			},
+			{
+				"name": "BL_CADASTRO_EXPRESSO",
+				"type": "bit"
+			},
+			{
+				"name": "JUSTIFICATIVA_CADASTRO_EXPRESSO",
+				"type": "varchar"
+			},
+			{
+				"name": "BL_CADASTRO_EXPRESSO_LIBERADO",
+				"type": "bit"
+			},
+			{
+				"name": "CD_GERENTE_RESPONSAVEL",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "BL_INTERNACIONAL_TRATADO",
+				"type": "bit"
+			},
+			{
+				"name": "DH_LIBERACAO_CADASTRO",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DIG_AGENCIA",
+				"type": "varchar"
+			},
+			{
+				"name": "DIG_CONTA_CORRENTE",
+				"type": "varchar"
+			},
+			{
+				"name": "PESO_CORE_BUSINESS",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 2
+			},
+			{
+				"name": "BL_CONFIRMACAO_DADOS",
+				"type": "bit"
+			},
+			{
+				"name": "IMPORT_DOCUMENTO_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PIS",
+				"type": "varchar"
+			},
+			{
+				"name": "DH_NASCIMENTO",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "SEXO",
+				"type": "char"
+			},
+			{
+				"name": "CD_TIPO_AUTONOMO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CODIGO_CBO",
+				"type": "char"
+			},
+			{
+				"name": "DH_REHOMOLOGACAO",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "BL_CADASTRO_SIMPLIFICADO",
+				"type": "bit"
+			},
+			{
+				"name": "BL_CADASTRO_EXCECAO",
+				"type": "bit"
+			},
+			{
+				"name": "URL_OUTROS_DOCUMENTOS_EXPRESSO",
+				"type": "varchar"
+			},
+			{
+				"name": "UNIDADES_CADASTRO_EXPRESSO",
+				"type": "varchar"
+			},
+			{
+				"name": "CD_TIPO_CADASTRO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "BL_NOTIFICACAO_REHOMOLOGACAO",
+				"type": "bit"
+			},
+			{
+				"name": "CD_TIPO_BLOQUEIO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "URL_DADOS_BANCARIOS_EXPRESSO",
+				"type": "varchar"
+			},
+			{
+				"name": "URL_DOCUMENTO_APROVACAO_EXPRESSO",
+				"type": "varchar"
+			},
+			{
+				"name": "CAMINHO_DADOS_BANCARIOS_EXPRESSO",
+				"type": "varchar"
+			},
+			{
+				"name": "CAMINHO_DOCUMENTO_APROVACAO_EXPRESSO",
+				"type": "varchar"
+			},
+			{
+				"name": "CAMINHO_OUTROS_DOCUMENTOS_EXPRESSO",
+				"type": "varchar"
+			},
+			{
+				"name": "CD_USUARIO_LIBERACAO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DH_CADASTRO_EXPRESSO_LIBERADO",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CD_PAIS",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CODIGO_POSTAL",
+				"type": "varchar"
+			},
+			{
+				"name": "BL_INTEGRACAO_SAP_BLOQ",
+				"type": "bit"
+			},
+			{
+				"name": "BL_BLOQUEIO_INTEGRACAO",
+				"type": "bit"
+			},
+			{
+				"name": "BL_DESBLOQUEIO_INTEGRACAO",
+				"type": "bit"
+			},
+			{
+				"name": "DH_VIGENCIA_DIRETORIA",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DH_VIGENCIA_COMITE",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "BL_PAGAMENTO_CARTAO_CORPORATIVO",
+				"type": "bit"
+			},
+			{
+				"name": "CD_SUBTIPO_BLOQUEIO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "BL_LINK_HOMOLOGACAO_ATIVO",
+				"type": "bit"
+			},
+			{
+				"name": "BL_TREINAMENTO_CONCLUIDO",
+				"type": "bit"
+			},
+			{
+				"name": "BL_CONFIRMACAO_TREINAMENTO_VIA_CARGA",
+				"type": "bit"
+			},
+			{
+				"name": "URL_CONSULTA_ESOCIAL",
+				"type": "varchar"
+			},
+			{
+				"name": "CAMINHO_CONSULTA_ESOCIAL",
+				"type": "varchar"
+			},
+			{
+				"name": "BL_CODIGO_CONDUTA_TERCEIROS",
+				"type": "bit"
+			},
+			{
+				"name": "EMAILSECUNDARIO",
+				"type": "varchar"
+			},
+			{
+				"name": "CD_USUARIO_ALTERACAO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CD_ORIGEM_CADASTRO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DH_VALIDADE_COMPLIANCE",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "BL_LINK_ATUALIZACAO_PRE_CADASTRO_ATIVO",
+				"type": "bit"
+			}
+		],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().table",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,47 @@
+{
+	"name": "prata_ouro_tolln3_diario",
+	"properties": {
+		"description": "Execução de notebook no Databricks para processamento das tabelas diárias da camada prata para ouro.",
+		"activities": [
+			{
+				"name": "prata_ouro_dbo_pagamento",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/03-OURO/TOLLN3/dbo.PAGAMENTO",
+					"baseParameters": {
+						"read_mode_pagamento": "delta",
+						"input_name_pagamento": "dbo.PAGAMENTO",
+						"input_path_pagamento": "camada_prata/tolln3/dbo.PAGAMENTO/diaria/",
+						"input_options_pagamento": "{}",
+						"write_mode_output": "upsert",
+						"output_path": "camada_ouro/tolln3/dbo.PAGAMENTO/diaria/",
+						"output_name": "dbo_pagamento",
+						"output_options": "{}",
+						"output_keys": "ID_PAGAMENTO",
+						"catalog": "hive_metastore",
+						"schema": "toll_n3"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "dbrk_eco_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "TOLLN3/DIARIA"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T19:37:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
