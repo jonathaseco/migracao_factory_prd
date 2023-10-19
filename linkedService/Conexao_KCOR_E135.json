@@ -2,12 +2,11 @@
 	"name": "Conexao_KCOR_E135",
 	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
-		"description": "Conexão com base KCOR da Eco135",
 		"annotations": [],
 		"type": "SqlServer",
 		"typeProperties": {
 			"connectionString": "integrated security=False;data source=10.218.4.11;initial catalog=KCOR;user id=s_analytics",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIyZWI0NzBjNi00YWU5LTRkMWYtOTgzYS05MjE5OWJiODZhZWEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI0NmFkNGYxNi01ODgyLTQzYTEtYjg3MC03MDAxMzk0MWZmNTAiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "Runtime-sgp",

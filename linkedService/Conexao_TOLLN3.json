@@ -7,7 +7,7 @@
 		"type": "SqlServer",
 		"typeProperties": {
 			"connectionString": "integrated security=False;data source=03CSRV166;initial catalog=TOLL_N3;user id=consulta",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIyODE4ZWZjOS1jZTA2LTQ4OWEtOTFjYy0yM2U4MzUzMDllMDQiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJlYTJhOWI2Zi05OGJjLTQyMjItYjI1NS1lZDNmYmMyMWMzZTEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "Runtime-sgp",

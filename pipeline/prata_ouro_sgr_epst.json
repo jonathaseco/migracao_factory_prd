@@ -881,7 +881,7 @@
 			"name": "SGR/EPST"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T15:20:35Z"
+		"lastPublishTime": "2023-10-19T15:30:03Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

@@ -276,7 +276,7 @@
 			"name": "KCOR"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T15:20:25Z"
+		"lastPublishTime": "2023-10-19T15:29:57Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

@@ -38,7 +38,7 @@
 			"name": "02_BRONZE_PRATA/SAP_SF"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-19T15:20:27Z"
+		"lastPublishTime": "2023-10-19T15:29:50Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

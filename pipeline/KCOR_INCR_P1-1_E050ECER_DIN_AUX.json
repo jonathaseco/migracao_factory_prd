@@ -228,7 +228,7 @@
 			"name": "KCOR/INCREMENTAL/OLD"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-10-16T17:19:05Z"
+		"lastPublishTime": "2023-10-19T15:30:03Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }
